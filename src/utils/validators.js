@@ -98,4 +98,102 @@ export const validateBulkOperation = (repositories, userPlan) => {
     };
   }
 
-  // Check if any operations are on organi
+  // Check if any operations are on organization repositories for free tier
+  if (!plan.orgReposAccess) {
+    const hasOrgRepos = repositories.some(repo => repo.owner.type === 'Organization');
+    if (hasOrgRepos) {
+      return {
+        isAllowed: false,
+        message: 'Your selection includes organization repositories which requires a Pro plan. Please upgrade or remove organization repositories.'
+      };
+    }
+  }
+
+  return { isAllowed: true, message: '' };
+};
+
+/**
+ * Validates a repository name format
+ * @param {string} name - Repository name to validate
+ * @returns {boolean} - Whether the name format is valid
+ */
+export const isValidRepositoryName = (name) => {
+  if (!name || typeof name !== 'string') return false;
+  // GitHub repository naming rules
+  return /^[a-zA-Z0-9_.-]+$/.test(name) && name.length <= 100;
+};
+
+/**
+ * Validates email format
+ * @param {string} email - Email to validate
+ * @returns {boolean} - Whether the email is valid
+ */
+export const isValidEmail = (email) => {
+  if (!email || typeof email !== 'string') return false;
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+};
+
+/**
+ * Validates if all required repository parameters are present for an update
+ * @param {Object} updateParams - Parameters to update
+ * @returns {Object} - { isValid: boolean, message: string }
+ */
+export const validateRepositoryUpdateParams = (updateParams) => {
+  if (!updateParams || typeof updateParams !== 'object') {
+    return {
+      isValid: false,
+      message: 'Update parameters must be an object'
+    };
+  }
+
+  // If updating name, check format
+  if (updateParams.name && !isValidRepositoryName(updateParams.name)) {
+    return {
+      isValid: false,
+      message: 'Repository name can only contain letters, numbers, hyphens, underscores, and periods'
+    };
+  }
+
+  // Visibility must be either 'public' or 'private'
+  if (
+    updateParams.private !== undefined &&
+    typeof updateParams.private !== 'boolean'
+  ) {
+    return {
+      isValid: false,
+      message: 'Visibility must be a boolean value'
+    };
+  }
+
+  return { isValid: true, message: '' };
+};
+
+/**
+ * Validates repository search query
+ * @param {string} query - Search query
+ * @returns {Object} - { isValid: boolean, message: string }
+ */
+export const validateSearchQuery = (query) => {
+  if (!query) {
+    return { isValid: true, message: '' }; // Empty query is valid
+  }
+
+  if (query.length < 3) {
+    return {
+      isValid: false,
+      message: 'Search query must be at least 3 characters'
+    };
+  }
+
+  return { isValid: true, message: '' };
+};
+
+export default {
+  isValidGitHubTokenFormat,
+  validateRepositoryOperation,
+  validateBulkOperation,
+  isValidRepositoryName,
+  isValidEmail,
+  validateRepositoryUpdateParams,
+  validateSearchQuery
+};

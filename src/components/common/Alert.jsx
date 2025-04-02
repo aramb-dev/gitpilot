@@ -25,15 +25,39 @@ const alertVariants = cva("relative w-full rounded-lg border p-4", {
   },
 });
 
+/**
+ * @typedef {'default'|'success'|'error'|'warning'|'info'} AlertVariant
+ *
+ * @typedef {Object} AlertProps
+ * @property {string} [className] - Additional class names
+ * @property {AlertVariant} [variant] - Alert style variant
+ * @property {string} [title] - Alert title
+ * @property {React.ReactNode} [children] - Alert content
+ */
+
+/**
+ * Alert component for displaying messages
+ * @param {AlertProps} props
+ * @param {React.Ref<HTMLDivElement>} ref
+ */
 const Alert = React.forwardRef(
-  ({ className, variant, title, children, ...props }, ref) => {
+  /**
+   * @param {React.HTMLAttributes<HTMLDivElement> & {
+   *   className?: string,
+   *   variant?: 'default'|'success'|'error'|'warning'|'info',
+   *   title?: string,
+   *   children?: React.ReactNode
+   * }} props
+   * @param {React.ForwardedRef<HTMLDivElement>} ref
+   */
+  ({ className, variant = "default", title, children, ...props }, ref) => {
     const IconComponent = {
       success: CheckCircle,
       error: AlertCircle,
       warning: AlertTriangle,
       info: Info,
       default: Info,
-    }[variant || "default"];
+    }[variant];
 
     return (
       <div

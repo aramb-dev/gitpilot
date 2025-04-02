@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuthStore } from '../../../store/authStore';
-import { getAuth, signInWithCustomToken } from 'firebase/auth';
-import { Spinner } from '../../common/Spinner';
-import { AlertTriangle } from 'lucide-react';
+import React, { useEffect, useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useAuthStore } from "../../../store/authStore";
+import { getAuth, signInWithCustomToken } from "firebase/auth";
+import { Spinner } from "../../common/Spinner";
+import { AlertTriangle } from "lucide-react";
+import { Alert } from "../../common/Alert";
+import { Button } from "../../common/Button";
 
 /**
  * GitHub OAuth callback handler
@@ -20,11 +22,13 @@ const AuthCallback = () => {
     const handleCallback = async () => {
       try {
         const params = new URLSearchParams(location.search);
-        const token = params.get('token');
-        const githubUsername = params.get('githubUsername');
+        const token = params.get("token");
+        const githubUsername = params.get("githubUsername");
 
         if (!token) {
-          throw new Error('Authentication failed. No token received from the server.');
+          throw new Error(
+            "Authentication failed. No token received from the server."
+          );
         }
 
         // Sign in with the custom token from Firebase Function
@@ -37,10 +41,10 @@ const AuthCallback = () => {
         }
 
         // Redirect to dashboard
-        navigate('/dashboard');
+        navigate("/dashboard");
       } catch (err) {
-        console.error('Error in auth callback:', err);
-        setError(err.message || 'Authentication failed. Please try again.');
+        console.error("Error in auth callback:", err);
+        setError(err.message || "Authentication failed. Please try again.");
         setLoading(false);
       }
     };
@@ -56,10 +60,28 @@ const AuthCallback = () => {
             <AlertTriangle className="h-12 w-12 text-red-500 mb-4" />
             <h1 className="text-xl font-bold mb-2">Authentication Error</h1>
             <p className="text-slate-600 dark:text-slate-400 mb-6">{error}</p>
-            <button
-              onClick={() => navigate('/login')}
-              className="bg-primary text-white px-4 py-2 rounded-md hover:bg-primary/90"
-            >
+            <Button onClick={() => navigate("/login")} variant="primary">
               Back to Login
-            </button>
+            </Button>
           </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center p-4">
+      <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6 max-w-md w-full">
+        <div className="flex flex-col items-center text-center">
+          <Spinner size="xl" className="text-primary mb-4" />
+          <h1 className="text-xl font-bold mb-2">Authenticating with GitHub</h1>
+          <p className="text-slate-600 dark:text-slate-400">
+            Please wait while we complete the authentication process...
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default AuthCallback;

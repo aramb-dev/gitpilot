@@ -35,14 +35,33 @@ const buttonVariants = cva(
   }
 );
 
+/**
+ * @typedef {Object} ButtonProps
+ * @property {string} [className] - Additional class names
+ * @property {'primary'|'secondary'|'outline'|'ghost'|'danger'|'link'} [variant] - Button variant
+ * @property {'default'|'sm'|'lg'|'icon'} [size] - Button size
+ * @property {'button'|'submit'|'reset'} [type] - Button type attribute
+ * @property {React.ReactNode} [children] - Button content
+ */
+
+/**
+ * Button component for GitPilot
+ * @type {React.ForwardRefExoticComponent<ButtonProps & React.ButtonHTMLAttributes<HTMLButtonElement> & React.RefAttributes<HTMLButtonElement>>}
+ */
 const Button = React.forwardRef(
-  ({ className, variant, size, type = "button", ...props }, ref) => {
+  /**
+   * @param {ButtonProps & React.ButtonHTMLAttributes<HTMLButtonElement>} props
+   * @param {React.ForwardedRef<HTMLButtonElement>} ref
+   */
+  (props, ref) => {
+    const { className, variant, size, type = "button", ...rest } = props;
+
     return (
       <button
         ref={ref}
         type={type}
         className={cn(buttonVariants({ variant, size, className }))}
-        {...props}
+        {...rest}
       />
     );
   }

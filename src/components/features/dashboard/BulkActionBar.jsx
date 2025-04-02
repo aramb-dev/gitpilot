@@ -15,6 +15,21 @@ import { Alert } from "../../common/Alert";
 import { Card } from "../../common/Card";
 import { Spinner } from "../../common/Spinner";
 
+/**
+ * @typedef {Object} BulkActionBarProps
+ * @property {number} selectedCount - Number of selected repositories
+ * @property {number} totalCount - Total number of repositories
+ * @property {boolean} isAllSelected - Whether all repositories are selected
+ * @property {boolean} isSomeSelected - Whether some repositories are selected
+ * @property {(event: React.MouseEvent<HTMLButtonElement>) => void} onSelectAll - Function to select all repositories
+ * @property {(event: React.MouseEvent<HTMLButtonElement>) => void} onClearSelection - Function to clear selection
+ * @property {Array} selectedRepositories - Array of selected repositories
+ */
+
+/**
+ * Component for handling bulk actions on repositories
+ * @param {BulkActionBarProps} props - Component props
+ */
 const BulkActionBar = ({
   selectedCount,
   totalCount,
@@ -58,7 +73,7 @@ const BulkActionBar = ({
 
   return (
     <>
-      <Card className="p-4 bg-slate-50 dark:bg-slate-800/50">
+      <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-lg border">
         <div className="flex flex-wrap items-center gap-2">
           {/* Select all checkbox */}
           <Button
@@ -127,7 +142,7 @@ const BulkActionBar = ({
             {selectedCount} of {totalCount} selected
           </div>
         </div>
-      </Card>
+      </div>
 
       {/* Make Private/Public Confirmation Modal */}
       <ConfirmationModal
@@ -159,7 +174,7 @@ const BulkActionBar = ({
           )}
           {loading && (
             <div className="flex items-center space-x-4">
-              <Spinner size="sm" />
+              <Spinner size="sm" className="text-primary" />
               <div>
                 <div className="font-medium">Processing...</div>
                 <div className="text-sm text-muted-foreground">
@@ -212,7 +227,7 @@ const BulkActionBar = ({
           </div>
           {loading && (
             <div className="flex items-center space-x-4">
-              <Spinner size="sm" />
+              <Spinner size="sm" className="text-primary" />
               <div>
                 <div className="font-medium">Deleting...</div>
                 <div className="text-sm text-muted-foreground">

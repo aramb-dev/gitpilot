@@ -9,7 +9,7 @@ import { X, CheckCircle, AlertCircle, AlertTriangle, Info } from "lucide-react";
  * Notification component for providing feedback to users
  */
 const toastVariants = cva(
-  "group pointer-events-auto relative flex w-full items-center justify-between space-x-4 overflow-hidden rounded-md border p-4 pr-8 shadow-md transition-all data-[state=open]:animate-in data-[state=closed]:animate-out data-[swipe=end]:animate-out data-[state=closed]:fade-out-80 data-[state=open]:slide-in-from-top-full data-[state=open]:sm:slide-in-from-top-full",
+  "group pointer-events-auto relative flex w-full items-center justify-between space-x-4 overflow-hidden rounded-md border p-4 pr-8 shadow-md transition-all data-[state=open]:animate-in data-[swipe=end]:animate-out data-[state=closed]:fade-out-80 data-[state=open]:slide-in-from-top-full data-[state=open]:sm:slide-in-from-top-full",
   {
     variants: {
       variant: {
@@ -29,6 +29,21 @@ const toastVariants = cva(
   }
 );
 
+/**
+ * @typedef {'default'|'success'|'error'|'warning'|'info'} ToastVariant
+ *
+ * @typedef {Object} ToastProps
+ * @property {string} title - Toast title
+ * @property {string} [description] - Toast description
+ * @property {ToastVariant} [variant] - Toast style variant
+ * @property {number} [duration] - Duration in ms before auto-close
+ * @property {Function} onClose - Close handler
+ */
+
+/**
+ * Toast notification component
+ * @param {ToastProps} props
+ */
 const Toast = ({
   title,
   description,

@@ -159,4 +159,3 @@ const StatsSummary = ({ repositories, loading, error }) => {
 };
 
 export default StatsSummary;
-s;

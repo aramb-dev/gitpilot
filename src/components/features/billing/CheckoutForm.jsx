@@ -226,4 +226,11 @@ const CheckoutForm = ({ selectedPlan, onSubmit, onCancel, loading }) => {
           disabled={loading}
           className="w-full sm:w-auto"
         >
-          Can
+          Cancel
+        </Button>
+      </CardFooter>
+    </Card>
+  );
+};
+
+export default CheckoutForm;

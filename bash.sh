@@ -1,86 +1,68 @@
 #!/bin/bash
 
-# Script to create the directory structure for the GitPilot React App
+# Create directories
+mkdir -p public
+mkdir -p src/assets/{images,fonts,icons}
+mkdir -p src/components/{common,layout}
+mkdir -p src/components/features/{dashboard,settings,auth,billing}
+mkdir -p src/hooks
+mkdir -p src/pages
+mkdir -p src/routes
+mkdir -p src/services
+mkdir -p src/store
+mkdir -p src/styles
+mkdir -p src/types
+mkdir -p src/utils
 
-# Define the root directory name
-APP_ROOT="gitpilot-app"
+# Create public files
+touch public/index.html
 
-echo "Creating directory structure for $APP_ROOT..."
+# Create page files
+touch src/pages/LandingPage.jsx
+touch src/pages/LoginPage.jsx
+touch src/pages/DashboardPage.jsx
+touch src/pages/SettingsPage.jsx
+touch src/pages/BillingPage.jsx
+touch src/pages/NotFoundPage.jsx
 
-# Create root directory
-mkdir -p "$APP_ROOT"
-cd "$APP_ROOT" || exit # Move into the app directory or exit if failed
+# Create route file
+touch src/routes/index.js
 
-# Create top-level directories and files
-mkdir -p public \
-         src/assets/images \
-         src/assets/fonts \
-         src/assets/icons \
-         src/components/common \
-         src/components/layout \
-         src/components/features/dashboard \
-         src/components/features/settings \
-         src/components/features/auth \
-         src/components/features/billing \
-         src/hooks \
-         src/pages \
-         src/routes \
-         src/services \
-         src/store \
-         src/styles \
-         src/types \
-         src/utils
+# Create service files
+touch src/services/auth.js
+touch src/services/github.js
+touch src/services/billing.js
 
-# Create specific empty files
-touch public/index.html \
-      src/App.jsx \
-      src/index.jsx \
-      src/assets/.gitkeep \
-      src/components/common/.gitkeep \
-      src/components/layout/.gitkeep \
-      src/components/features/dashboard/.gitkeep \
-      src/components/features/settings/.gitkeep \
-      src/components/features/auth/.gitkeep \
-      src/components/features/billing/.gitkeep \
-      src/hooks/.gitkeep \
-      src/pages/LandingPage.jsx \
-      src/pages/LoginPage.jsx \
-      src/pages/DashboardPage.jsx \
-      src/pages/SettingsPage.jsx \
-      src/pages/BillingPage.jsx \
-      src/pages/NotFoundPage.jsx \
-      src/routes/index.js \
-      src/services/auth.js \
-      src/services/github.js \
-      src/services/billing.js \
-      src/store/index.js \
-      src/store/authStore.js \
-      src/store/userStore.js \
-      src/store/uiStore.js \
-      src/styles/global.css \
-      src/styles/theme.js \
-      src/styles/variables.css \
-      src/types/index.ts \
-      src/utils/helpers.js \
-      src/utils/constants.js \
-      src/utils/validators.js \
-      .env \
-      .eslintrc.js \
-      .gitignore \
-      babel.config.js \
-      jsconfig.json \
-      package.json \
-      README.md
+# Create store files
+touch src/store/index.js
+touch src/store/authStore.js
+touch src/store/userStore.js
+touch src/store/uiStore.js
 
-# Add .gitkeep to empty asset/component directories to ensure they are tracked by git
-touch src/assets/images/.gitkeep \
-      src/assets/fonts/.gitkeep \
-      src/assets/icons/.gitkeep
+# Create style files
+touch src/styles/global.css
+touch src/styles/theme.js
+touch src/styles/variables.css
 
-echo "Directory structure and base files for $APP_ROOT created successfully."
-echo "Note: Some files/folders are optional based on your specific setup (e.g., src/types for TypeScript, babel.config.js, src/styles/theme.js for CSS-in-JS)."
+# Create type file
+touch src/types/index.ts
 
-# Go back to the original directory
-cd ..
+# Create utility files
+touch src/utils/helpers.js
+touch src/utils/constants.js
+touch src/utils/validators.js
 
-exit 0
+# Create root application files
+touch src/App.jsx
+touch src/index.jsx
+
+# Create root project files
+touch .env
+touch .eslintrc.js
+touch .gitignore
+touch babel.config.js
+touch jsconfig.json
+touch package.json
+touch README.md
+
+echo "GitPilot app directory structure created successfully!"

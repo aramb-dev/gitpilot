@@ -1,0 +1,28 @@
+src/assets/
+├── images/
+│   ├── logo.svg               # GitPilot main logo
+│   ├── logo-dark.svg          # Dark mode variant
+│   ├── hero-illustration.svg  # Landing page hero image
+│   ├── github-mark.svg        # GitHub logo for auth
+│   ├── empty-state.svg        # Empty state illustration
+│   └── feature-icons/         # Feature illustrations
+│       ├── bulk-visibility.svg
+│       ├── bulk-delete.svg
+│       └── organization.svg
+├── fonts/
+│   └── inter/                 # If using custom font files
+│       ├── Inter-Regular.woff2
+│       ├── Inter-Medium.woff2
+│       ├── Inter-SemiBold.woff2
+│       └── Inter-Bold.woff2
+└── icons/
+    ├── repository.svg
+    ├── organization.svg
+    ├── settings.svg
+    ├── billing.svg
+    ├── dashboard.svg
+    ├── logout.svg
+    ├── check.svg
+    ├── x.svg
+    ├── warning.svg
+    └── arrow-right.svg

@@ -21,19 +21,21 @@ export default function Home() {
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
         <div className="container mx-auto px-6 py-4 flex justify-between items-center">
-          <div className="flex items-center space-x-3">
+          <Link href="/" className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
             <Send className="w-8 h-8 text-white" />
             <span className="text-2xl font-bold text-white">GitPilot</span>
-          </div>
+          </Link>
           <nav className="hidden md:flex items-center space-x-8">
             <Link href="#features" className="text-muted-foreground hover:text-foreground transition">Features</Link>
             <Link href="#pricing" className="text-muted-foreground hover:text-foreground transition">Pricing</Link>
             <Link href="#faq" className="text-muted-foreground hover:text-foreground transition">FAQ</Link>
           </nav>
-          <Button variant="outline" className="flex items-center space-x-2 bg-muted hover:bg-muted/80 text-foreground font-semibold border-border">
-            <Github className="w-4 h-4" />
-            <span>Sign in with GitHub</span>
-          </Button>
+          <Link href="/dashboard">
+            <Button variant="outline" className="flex items-center space-x-2 bg-muted hover:bg-muted/80 text-foreground font-semibold border-border">
+              <Github className="w-4 h-4" />
+              <span>Sign in with GitHub</span>
+            </Button>
+          </Link>
         </div>
       </header>
 
@@ -50,9 +52,11 @@ export default function Home() {
                 start the automation.
               </p>
               <div className="flex justify-center items-center space-x-4">
-                <Button className="cta-button text-white font-bold py-3 px-8 rounded-lg text-lg">
-                  Get Started for Free
-                </Button>
+                <Link href="/dashboard">
+                  <Button className="cta-button text-white font-bold py-3 px-8 rounded-lg text-lg">
+                    Get Started for Free
+                  </Button>
+                </Link>
               </div>
             </div>
 
@@ -189,9 +193,11 @@ export default function Home() {
                     10 bulk jobs per month
                   </li>
                 </ul>
-                <Button className="mt-8 w-full bg-muted hover:bg-muted/80 text-foreground font-semibold">
-                  Get Started
-                </Button>
+                <Link href="/dashboard">
+                  <Button className="mt-8 w-full bg-muted hover:bg-muted/80 text-foreground font-semibold">
+                    Get Started
+                  </Button>
+                </Link>
               </div>
 
               {/* Pro Plan */}
@@ -225,9 +231,11 @@ export default function Home() {
                     Priority support
                   </li>
                 </ul>
-                <Button className="mt-8 w-full bg-[#58a6ff] hover:bg-[#58a6ff]/90 text-white font-semibold">
-                  Start Pro Trial
-                </Button>
+                <Link href="/dashboard">
+                  <Button className="mt-8 w-full bg-[#58a6ff] hover:bg-[#58a6ff]/90 text-white font-semibold">
+                    Start Pro Trial
+                  </Button>
+                </Link>
               </div>
             </div>
             <p className="text-center text-muted-foreground mt-8">
@@ -288,9 +296,11 @@ export default function Home() {
             <p className="text-lg text-muted-foreground mt-4 mb-8 max-w-2xl mx-auto">
               Get back to coding. Let GitPilot handle the administrative overhead.
             </p>
-            <Button className="cta-button text-white font-bold py-4 px-10 rounded-lg text-xl">
-              Sign Up with GitHub for Free
-            </Button>
+            <Link href="/dashboard">
+              <Button className="cta-button text-white font-bold py-4 px-10 rounded-lg text-xl">
+                Sign Up with GitHub for Free
+              </Button>
+            </Link>
           </div>
         </section>
       </main>

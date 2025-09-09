@@ -1,3 +1,5 @@
+'use client'
+
 import { useState } from 'react'
 import { RepositoryTable } from './RepositoryTable'
 import { RepositoryActions } from './RepositoryActions'

@@ -1,14 +1,39 @@
 import { Send, Settings } from "lucide-react"
 import Link from "next/link"
-import { SidebarItem, PageType } from '@/types/dashboard'
+import { usePathname } from "next/navigation"
+import { SidebarItem } from '@/types/dashboard'
 
 interface SidebarProps {
     sidebarItems: SidebarItem[]
-    activePage: PageType
-    onPageChange: (page: PageType) => void
 }
 
-export function Sidebar({ sidebarItems, activePage, onPageChange }: SidebarProps) {
+export function Sidebar({ sidebarItems }: SidebarProps) {
+    const pathname = usePathname()
+
+    // Map route paths to sidebar item IDs for active state detection
+    const getActiveId = (pathname: string): string => {
+        if (pathname.includes('/repos')) return 'repositories'
+        if (pathname.includes('/issues')) return 'issues'
+        if (pathname.includes('/prs')) return 'prs'
+        if (pathname.includes('/members')) return 'members'
+        if (pathname.includes('/settings')) return 'settings'
+        return 'repositories' // default
+    }
+
+    const activePage = getActiveId(pathname)
+
+    // Map sidebar item IDs to route paths
+    const getRouteForId = (id: string): string => {
+        switch (id) {
+            case 'repositories': return '/dashboard/repos'
+            case 'issues': return '/dashboard/issues'
+            case 'prs': return '/dashboard/prs'
+            case 'members': return '/dashboard/members'
+            case 'settings': return '/dashboard/settings'
+            default: return '/dashboard/repos'
+        }
+    }
+
     return (
         <aside className="w-64 flex-shrink-0 bg-[#161b22] border-r border-gray-800 flex flex-col">
             {/* Header */}
@@ -23,26 +48,29 @@ export function Sidebar({ sidebarItems, activePage, onPageChange }: SidebarProps
             <nav className="flex-1 p-4 space-y-2">
                 {sidebarItems.map((item) => {
                     const Icon = item.icon
+                    const isActive = activePage === item.id
+                    const href = getRouteForId(item.id)
+
                     return (
-                        <button
+                        <Link
                             key={item.id}
-                            onClick={() => onPageChange(item.id as PageType)}
-                            className={`w-full flex items-center px-6 py-3 rounded-lg transition-all duration-200 ${activePage === item.id
+                            href={href}
+                            className={`w-full flex items-center px-6 py-3 rounded-lg transition-all duration-200 ${isActive
                                 ? 'bg-[#21262d] text-[#58a6ff] font-semibold'
                                 : 'text-[#8b949e] hover:bg-[#161b22] hover:text-[#c9d1d9]'
                                 }`}
                         >
                             <Icon className="w-5 h-5 mr-3" />
                             {item.label}
-                        </button>
+                        </Link>
                     )
                 })}
             </nav>
 
             {/* Footer */}
             <div className="p-4 border-t border-gray-800">
-                <button
-                    onClick={() => onPageChange('settings')}
+                <Link
+                    href="/dashboard/settings"
                     className={`w-full flex items-center px-6 py-3 rounded-lg transition-all duration-200 ${activePage === 'settings'
                         ? 'bg-[#21262d] text-[#58a6ff] font-semibold'
                         : 'text-[#8b949e] hover:bg-[#161b22] hover:text-[#c9d1d9]'
@@ -50,7 +78,7 @@ export function Sidebar({ sidebarItems, activePage, onPageChange }: SidebarProps
                 >
                     <Settings className="w-5 h-5 mr-3" />
                     Settings
-                </button>
+                </Link>
                 <div className="flex items-center mt-4 p-2 rounded-lg">
                     <div className="w-10 h-10 rounded-full bg-[#58a6ff] flex items-center justify-center">
                         <span className="text-white font-semibold">A</span>

@@ -83,6 +83,10 @@ Managing GitHub repositories one by one can be tedious and time-consuming, espec
 - `npm run build` - Create production build
 - `npm run start` - Run production server
 - `npm run lint` - Run ESLint for code quality checks
+- `npm test` - Run tests with Vitest
+- `npm run test:coverage` - Run tests with coverage report
+
+See [TESTING.md](./TESTING.md) for comprehensive testing documentation.
 
 ## 📊 Project Structure
 

@@ -754,15 +754,75 @@ All UI components follow the shadcn/ui pattern:
 
 ## Testing Setup
 
-**Current Status**: No testing framework configured
+**Current Status**: Testing infrastructure configured (2025-11-20)
 
-### Potential Testing Recommendations
-- **Unit Testing**: Jest + React Testing Library
-- **E2E Testing**: Playwright or Cypress
-- **Type Checking**: TypeScript (already configured)
-- **Code Quality**: ESLint (already configured)
+### Testing Stack
+- **Unit Testing**: Vitest v4.0.12 (fast, modern test runner)
+- **Component Testing**: React Testing Library v16.3.0
+- **DOM Matchers**: @testing-library/jest-dom v6.9.1
+- **User Interactions**: @testing-library/user-event v14.6.1
+- **Test Environment**: jsdom v27.2.0 (browser simulation)
 
-No `.test.ts`, `.spec.ts`, or test directories currently exist. Testing infrastructure would need to be added.
+### Configuration Files
+
+#### `vitest.config.ts`
+- **Environment**: jsdom for browser-like testing
+- **Globals**: Enabled (`describe`, `it`, `expect` available globally)
+- **Setup File**: `src/test/setup.ts` (loaded before tests)
+- **Coverage Provider**: v8 (native V8 coverage)
+- **Coverage Output**: text, json, html formats
+- **Path Aliases**: `@/*` resolves to `./src/*`
+
+#### `src/test/setup.ts`
+- Extends Vitest with jest-dom matchers (`.toBeInTheDocument()`, etc.)
+- Auto cleanup after each test
+- Mocks Next.js router (`useRouter`, `usePathname`, `useSearchParams`)
+
+### Test Structure
+
+Tests are colocated with source files using `.test.ts` or `.test.tsx` extensions:
+
+```
+src/
+├── lib/
+│   ├── utils.ts
+│   └── utils.test.ts          # 6 tests - utility functions
+├── components/
+│   ├── ui/
+│   │   ├── button.tsx
+│   │   ├── button.test.tsx    # 8 tests - button variants, sizes, events
+│   │   ├── empty-state.tsx
+│   │   └── empty-state.test.tsx  # 8 tests - empty state rendering
+│   └── dashboard/
+│       ├── Pagination.tsx
+│       └── Pagination.test.tsx   # 11 tests - pagination logic
+└── test/
+    └── setup.ts               # Global test configuration
+```
+
+### Running Tests
+
+```bash
+npm test              # Run all tests
+npm run test:ui       # Run tests with interactive UI
+npm run test:coverage # Run tests with coverage report
+```
+
+### Current Test Coverage
+
+**33 tests passing** across 4 test suites:
+- ✅ `utils.test.ts` - Class name merging utility
+- ✅ `button.test.tsx` - Button variants, sizes, interactions
+- ✅ `empty-state.test.tsx` - Empty state rendering and actions
+- ✅ `Pagination.test.tsx` - Pagination logic and navigation
+
+See [TESTING.md](./TESTING.md) for comprehensive testing guide and best practices.
+
+### Future Testing Work
+- Add tests for RepositoriesPage, RepositoryTable, RepositoryRow
+- Add tests for Sidebar and Breadcrumbs components
+- Add E2E testing with Playwright
+- Achieve 70%+ test coverage
 
 ---
 
@@ -959,10 +1019,10 @@ Based on recent history, follows conventional commits:
 11. `0e19dc2` - style(css): remove universal reset from global stylesheet
 
 ### Development Milestones
-- **Recent Focus**: Performance optimizations, UX improvements, and comprehensive documentation (2025-11-20)
+- **Recent Focus**: Testing infrastructure, performance optimizations, and UX improvements (2025-11-20)
 - **Completed**:
   - Landing page, basic dashboard layout, repository table UI
-  - Comprehensive documentation (CLAUDE.md, CODE_REVIEW.md, updated README)
+  - Comprehensive documentation (CLAUDE.md, CODE_REVIEW.md, TESTING.md, updated README)
   - Error boundaries for graceful error handling
   - Confirmation dialogs for destructive actions
   - Security vulnerability fixes (zero vulnerabilities)
@@ -974,8 +1034,10 @@ Based on recent history, follows conventional commits:
   - Accessibility improvements (ARIA labels, keyboard navigation, focus indicators)
   - Performance optimizations (React.memo, useMemo, search debouncing)
   - Async operation simulation with error handling
+  - **Testing infrastructure (Vitest + React Testing Library)**
+  - **33 passing tests** across 4 test suites (utils, Button, EmptyState, Pagination)
 - **In Progress**: Authentication implementation (GitHub OAuth)
-- **Next Steps**: GitHub API integration, testing infrastructure, authentication (GitHub OAuth)
+- **Next Steps**: Expand test coverage, GitHub API integration, authentication (GitHub OAuth)
 
 ### Branch Information
 - **Current Branch**: `claude/add-claude-documentation-01YAv12QgjwLQetjgftfQvgD`

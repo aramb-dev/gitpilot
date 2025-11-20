@@ -3,6 +3,7 @@
 import { Sidebar } from '@/components/dashboard/Sidebar'
 import { Breadcrumbs } from '@/components/dashboard/Breadcrumbs'
 import { sidebarItems } from '@/data/dashboard'
+import { ErrorBoundary } from '@/components/ErrorBoundary'
 
 export default function DashboardLayout({
     children,
@@ -20,7 +21,9 @@ export default function DashboardLayout({
 
                 {/* Main content area */}
                 <main className="flex-1 overflow-y-auto p-8">
-                    {children}
+                    <ErrorBoundary>
+                        {children}
+                    </ErrorBoundary>
                 </main>
             </div>
         </div>

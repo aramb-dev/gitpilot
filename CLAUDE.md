@@ -33,12 +33,13 @@ This documentation was created with contributions from the project team to provi
 ```
 /home/user/gitpilot/
 ├── .git/                          # Git repository metadata
-├── .gitignore                     # Git ignore patterns
+├── .gitignore                     # Git ignore patterns (excludes .env*, allows .env.example)
+├── .env.example                   # Environment variables template
 ├── public/                        # Static assets (images, icons, etc.)
 ├── src/
 │   ├── app/                       # Next.js app directory (routing & pages)
 │   │   ├── dashboard/             # Dashboard routes
-│   │   │   ├── layout.tsx         # Dashboard layout wrapper (sidebar + header)
+│   │   │   ├── layout.tsx         # Dashboard layout with ErrorBoundary wrapper
 │   │   │   ├── page.tsx           # Root dashboard redirect to /repos
 │   │   │   ├── repos/
 │   │   │   │   └── page.tsx       # Repository management page
@@ -55,10 +56,12 @@ This documentation was created with contributions from the project team to provi
 │   │   └── layout.tsx             # Root layout wrapper (metadata, fonts, dark mode)
 │   │
 │   ├── components/                # Reusable React components
+│   │   ├── ErrorBoundary.tsx      # Error boundary for graceful error handling
+│   │   │
 │   │   ├── dashboard/             # Dashboard-specific components
 │   │   │   ├── Sidebar.tsx        # Navigation sidebar with active state tracking
 │   │   │   ├── Breadcrumbs.tsx    # Dynamic breadcrumb navigation
-│   │   │   ├── RepositoriesPage.tsx    # Main repositories management container
+│   │   │   ├── RepositoriesPage.tsx    # Main repositories management container (with confirmation dialogs)
 │   │   │   ├── RepositoryTable.tsx     # Table displaying repositories
 │   │   │   ├── RepositoryRow.tsx       # Single repository table row
 │   │   │   ├── RepositoryActions.tsx   # Bulk action buttons & search bar
@@ -66,6 +69,7 @@ This documentation was created with contributions from the project team to provi
 │   │   │   └── index.ts           # Barrel export file
 │   │   │
 │   │   └── ui/                    # shadcn/ui components (pre-built, styled)
+│   │       ├── alert-dialog.tsx   # Confirmation dialog component (Radix UI)
 │   │       ├── button.tsx         # Button with variants (default, outline, destructive, ghost)
 │   │       ├── input.tsx          # Text input component
 │   │       ├── checkbox.tsx       # Checkbox with Radix UI primitive
@@ -94,6 +98,7 @@ This documentation was created with contributions from the project team to provi
 ├── eslint.config.mjs              # ESLint configuration
 ├── README.md                      # Project overview and setup guide
 ├── project-plan.md                # Strategic planning document
+├── CODE_REVIEW.md                 # Comprehensive code review report
 └── CLAUDE.md                      # This file - AI assistant documentation
 ```
 
@@ -108,10 +113,11 @@ This documentation was created with contributions from the project team to provi
   - Built-in optimization and deployment
   - TypeScript-first development
 
-- **React 19.1.0**: Latest React library with:
+- **React 19.2.0** (updated 2025-11-20): Latest React library with:
   - Hooks for state management
   - Server Components support
   - New features and optimizations
+  - Bug fixes and performance improvements
 
 ### Styling & UI
 - **Tailwind CSS v4**: Utility-first CSS framework
@@ -134,9 +140,10 @@ This documentation was created with contributions from the project team to provi
   - `@radix-ui/react-dropdown-menu`: Dropdown menus
   - `@radix-ui/react-slot`: Polymorphic component composition
 
-- **Lucide React v0.542.0**: Icon library with 1000+ icons
+- **Lucide React v0.554.0** (updated 2025-11-20): Icon library with 1000+ icons
   - Used for navigation, buttons, status indicators
   - Tree-shakeable, lightweight SVG icons
+  - AlertCircle icon used in ErrorBoundary
 
 ### Utility Libraries
 - **class-variance-authority**: CSS class variance generator
@@ -600,6 +607,53 @@ All UI components follow the shadcn/ui pattern:
 - **Animations**: accordion-down, accordion-up keyframes
 - **Used in**: FAQ section on landing page
 
+#### `src/components/ui/alert-dialog.tsx` (NEW - 2025-11-20)
+- **Type**: Client component with Radix UI Dialog primitive
+- **Purpose**: Confirmation dialogs for destructive actions
+- **Parts**: AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogAction, AlertDialogCancel
+- **Features**:
+  - Modal overlay with fade-in/out animations
+  - Keyboard accessible (Escape to close)
+  - Focus trap when open
+  - Dark theme styling matching app design
+  - Action button (red destructive style)
+  - Cancel button (gray outline style)
+- **Used in**: Repository delete confirmation, archive confirmation
+- **Example Usage**:
+  ```tsx
+  <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+    <AlertDialogContent>
+      <AlertDialogHeader>
+        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+        <AlertDialogDescription>This action cannot be undone.</AlertDialogDescription>
+      </AlertDialogHeader>
+      <AlertDialogFooter>
+        <AlertDialogCancel>Cancel</AlertDialogCancel>
+        <AlertDialogAction onClick={confirmDelete}>Delete</AlertDialogAction>
+      </AlertDialogFooter>
+    </AlertDialogContent>
+  </AlertDialog>
+  ```
+
+### Error Handling Components
+
+#### `src/components/ErrorBoundary.tsx` (NEW - 2025-11-20)
+- **Type**: Class component (required for Error Boundaries)
+- **Purpose**: Gracefully catch and handle React component errors
+- **Features**:
+  - Prevents entire app crash when component errors occur
+  - User-friendly error UI with retry option
+  - Shows error details in development mode only
+  - "Try Again" button to reset error state
+  - "Go to Home" button as fallback navigation
+  - Logs errors to console (can be extended to Sentry)
+- **Implementation**:
+  - Uses `getDerivedStateFromError` to catch errors
+  - Uses `componentDidCatch` for error logging
+  - Wraps dashboard children in `src/app/dashboard/layout.tsx`
+- **Size**: 81 lines
+- **Styling**: Dark theme with AlertCircle icon, centered error message
+
 ---
 
 ## Testing Setup
@@ -640,16 +694,43 @@ According to README: **Netlify** is the primary deployment target
 - Auto-deploy from git commits
 - Serverless functions for backend (not yet configured)
 
-### Environment Variables Required
-(From README - not yet implemented in code):
-```
-REACT_APP_FIREBASE_API_KEY=...
-REACT_APP_FIREBASE_AUTH_DOMAIN=...
-REACT_APP_FIREBASE_PROJECT_ID=...
-REACT_APP_GITHUB_CLIENT_ID=...
+### Environment Variables Configuration
+
+**Status**: Template created (2025-11-20), not yet implemented in code
+
+**File**: `.env.example` provides comprehensive template for all required environment variables
+
+**Required Variables** (for production):
+```env
+# GitHub OAuth Configuration
+NEXT_PUBLIC_GITHUB_CLIENT_ID=your_github_client_id_here
+GITHUB_CLIENT_SECRET=your_github_client_secret_here
+
+# NextAuth.js Configuration
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=your_nextauth_secret_here
+
+# Database (when implemented)
+DATABASE_URL=postgresql://user:password@localhost:5432/gitpilot
+
+# Optional: Sentry Error Tracking
+NEXT_PUBLIC_SENTRY_DSN=your_sentry_dsn_here
+
+# Optional: Analytics
+NEXT_PUBLIC_GA_ID=your_google_analytics_id_here
+
+# Node Environment
+NODE_ENV=development
 ```
 
-**Note**: These are mentioned in README but not implemented yet. The app currently uses mock data.
+**Setup Instructions**:
+1. Copy `.env.example` to `.env.local`
+2. Create GitHub OAuth App at https://github.com/settings/developers
+3. Generate NextAuth secret: `openssl rand -base64 32`
+4. Fill in all required values
+5. Restart development server
+
+**Note**: `.gitignore` is configured to exclude all `.env*` files except `.env.example`
 
 ---
 
@@ -764,22 +845,29 @@ Based on recent history, follows conventional commits:
 ## Recent Development History
 
 ### Latest Commits (10 most recent)
-1. `837ab90` - feat(dashboard): implement route-based multi-page layout
-2. `cc718c9` - refactor(dashboard): extract page into a reusable layout component
-3. `1b222b8` - feat(dashboard): implement initial repository management UI
-4. `0e19dc2` - style(css): remove universal reset from global stylesheet
-5. `c648d5d` - feat(ui): initialize shadcn/ui and configure theme
-6. `794f611` - feat(landing): implement new product marketing page
-7. `f7fa44b` - chore(project): migrate project from Vite to Next.js
-8. `058e19a` - Delete .env
-9. `646acb1` - Remove .env from .gitignore and clean up environment variable section
-10. `4d9fad9` - Add .env to .gitignore and include new environment variable
+1. `3700ac1` - fix: implement critical security and UX improvements (2025-11-20)
+2. `342f82b` - docs: add comprehensive code review report (2025-11-20)
+3. `dd11e0c` - docs: add comprehensive CLAUDE.md for AI assistants (2025-11-20)
+4. `837ab90` - feat(dashboard): implement route-based multi-page layout
+5. `cc718c9` - refactor(dashboard): extract page into a reusable layout component
+6. `1b222b8` - feat(dashboard): implement initial repository management UI
+7. `0e19dc2` - style(css): remove universal reset from global stylesheet
+8. `c648d5d` - feat(ui): initialize shadcn/ui and configure theme
+9. `794f611` - feat(landing): implement new product marketing page
+10. `f7fa44b` - chore(project): migrate project from Vite to Next.js
 
 ### Development Milestones
-- **Recent Focus**: Dashboard UI implementation and Vite → Next.js migration
-- **Completed**: Landing page, basic dashboard layout, repository table UI
-- **In Progress**: Route structure and component organization
-- **Next Steps**: API integration, authentication, advanced features
+- **Recent Focus**: Critical security fixes, error handling, and confirmation dialogs (2025-11-20)
+- **Completed**:
+  - Landing page, basic dashboard layout, repository table UI
+  - Comprehensive documentation (CLAUDE.md, CODE_REVIEW.md)
+  - Error boundaries for graceful error handling
+  - Confirmation dialogs for destructive actions
+  - Security vulnerability fixes (zero vulnerabilities)
+  - Dependency updates (React 19.2.0, lucide-react 0.554.0)
+  - Environment configuration template (.env.example)
+- **In Progress**: Authentication implementation (GitHub OAuth)
+- **Next Steps**: GitHub API integration, testing infrastructure, accessibility improvements
 
 ### Branch Information
 - **Current Branch**: `claude/add-claude-documentation-01YAv12QgjwLQetjgftfQvgD`

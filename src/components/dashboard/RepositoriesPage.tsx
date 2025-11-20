@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { toast } from 'sonner'
 import { RepositoryTable } from './RepositoryTable'
 import { RepositoryActions } from './RepositoryActions'
 import { Pagination } from './Pagination'
@@ -64,8 +65,12 @@ export function RepositoriesPage({ repositories }: RepositoriesPageProps) {
     }
 
     const handleMakePrivate = () => {
+        const count = selectedRepos.length
         console.log('Making private:', selectedRepos)
         // TODO: Implement API call
+        toast.success(`${count} ${count === 1 ? 'repository' : 'repositories'} made private successfully`)
+        setSelectedRepos([])
+        setSelectAll(false)
     }
 
     const handleArchive = () => {
@@ -73,9 +78,11 @@ export function RepositoriesPage({ repositories }: RepositoriesPageProps) {
     }
 
     const confirmArchive = () => {
+        const count = selectedRepos.length
         console.log('Archiving:', selectedRepos)
         // TODO: Implement API call
         setShowArchiveDialog(false)
+        toast.success(`${count} ${count === 1 ? 'repository' : 'repositories'} archived successfully`)
         setSelectedRepos([])
         setSelectAll(false)
     }
@@ -85,9 +92,11 @@ export function RepositoriesPage({ repositories }: RepositoriesPageProps) {
     }
 
     const confirmDelete = () => {
+        const count = selectedRepos.length
         console.log('Deleting:', selectedRepos)
         // TODO: Implement API call
         setShowDeleteDialog(false)
+        toast.success(`${count} ${count === 1 ? 'repository' : 'repositories'} deleted successfully`)
         setSelectedRepos([])
         setSelectAll(false)
     }

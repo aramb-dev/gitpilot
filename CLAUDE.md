@@ -57,6 +57,7 @@ This documentation was created with contributions from the project team to provi
 │   │
 │   ├── components/                # Reusable React components
 │   │   ├── ErrorBoundary.tsx      # Error boundary for graceful error handling
+│   │   ├── Providers.tsx          # Global providers wrapper (toast notifications)
 │   │   │
 │   │   ├── dashboard/             # Dashboard-specific components
 │   │   │   ├── Sidebar.tsx        # Navigation sidebar with active state tracking
@@ -75,7 +76,9 @@ This documentation was created with contributions from the project team to provi
 │   │       ├── checkbox.tsx       # Checkbox with Radix UI primitive
 │   │       ├── badge.tsx          # Badge component for labels/tags
 │   │       ├── card.tsx           # Card container with header/footer
-│   │       └── accordion.tsx      # Accordion component (used on landing)
+│   │       ├── accordion.tsx      # Accordion component (used on landing)
+│   │       ├── loading.tsx        # Loading states: Spinner, LoadingOverlay, TableSkeleton
+│   │       └── empty-state.tsx    # Empty state component for no data
 │   │
 │   ├── types/                     # TypeScript type definitions
 │   │   └── dashboard.ts           # Dashboard types (Repository, SidebarItem, PageType)
@@ -635,6 +638,72 @@ All UI components follow the shadcn/ui pattern:
   </AlertDialog>
   ```
 
+#### `src/components/ui/loading.tsx` (NEW - 2025-11-20)
+- **Type**: Loading state components
+- **Purpose**: Show loading feedback during async operations
+- **Components**:
+  - **Spinner**: Animated loading spinner with size variants
+    - Sizes: sm (w-4 h-4), md (w-8 h-8), lg (w-12 h-12)
+    - Uses Loader2 icon from Lucide with spin animation
+    - Blue color (#58a6ff) matching app theme
+    - ARIA label "Loading" for accessibility
+  - **LoadingOverlay**: Centered loading state with message
+    - Large spinner with customizable message
+    - Padding and spacing for standalone use
+  - **TableSkeleton**: Animated skeleton for table loading
+    - Configurable row count (default: 10)
+    - Staggered animation with 50ms delay per row
+    - Gray shimmer effect matching dark theme
+- **Used in**: RepositoriesPage during bulk operations
+- **Example Usage**:
+  ```tsx
+  {isLoading ? (
+    <TableSkeleton rows={10} />
+  ) : (
+    <RepositoryTable repositories={repos} />
+  )}
+  ```
+
+#### `src/components/ui/empty-state.tsx` (NEW - 2025-11-20)
+- **Type**: Empty state component
+- **Purpose**: Show user-friendly messages when no data exists
+- **Features**:
+  - Optional icon (Lucide icon component)
+  - Title (required, bold white text)
+  - Description (optional, gray text)
+  - Optional action button with callback
+  - Centered layout with proper spacing
+  - Consistent styling with app theme
+- **Used in**: RepositoriesPage for no results or no repositories
+- **Example Usage**:
+  ```tsx
+  <EmptyState
+    icon={Search}
+    title="No repositories found"
+    description={`No repositories match "${query}"`}
+    action={{
+      label: 'Clear search',
+      onClick: () => handleSearch(''),
+    }}
+  />
+  ```
+
+### Providers & Global Components
+
+#### `src/components/Providers.tsx` (NEW - 2025-11-20)
+- **Type**: Client component wrapper
+- **Purpose**: Provide global providers (toast, etc.)
+- **Features**:
+  - Wraps children with Toaster from sonner
+  - Configures toast notifications:
+    - Position: top-right
+    - Theme: dark
+    - Rich colors enabled
+    - Close button enabled
+    - Custom dark theme styling
+  - Used in root layout to wrap entire app
+- **Styling**: Matches app dark theme (#0d1117 background, #30363d border)
+
 ### Error Handling Components
 
 #### `src/components/ErrorBoundary.tsx` (NEW - 2025-11-20)
@@ -778,12 +847,17 @@ NODE_ENV=development
    - Breadcrumb navigation
    - Page routing structure
 
-3. **Repository Management** (Partial)
+3. **Repository Management** (Enhanced)
    - Mock data of 10 repositories
    - Search functionality (case-insensitive)
    - Selection (individual + select all)
    - Pagination (10 items per page)
-   - Action buttons (UI only, no API calls yet)
+   - Confirmation dialogs for destructive actions (delete, archive)
+   - Toast notifications for action feedback
+   - Loading states with animated skeletons
+   - Empty states for no results or no data
+   - Error handling with error toasts
+   - Action buttons (simulated async operations)
 
 ### TODO/Not Implemented
 1. **Authentication**
@@ -845,29 +919,33 @@ Based on recent history, follows conventional commits:
 ## Recent Development History
 
 ### Latest Commits (10 most recent)
-1. `3700ac1` - fix: implement critical security and UX improvements (2025-11-20)
-2. `342f82b` - docs: add comprehensive code review report (2025-11-20)
-3. `dd11e0c` - docs: add comprehensive CLAUDE.md for AI assistants (2025-11-20)
-4. `837ab90` - feat(dashboard): implement route-based multi-page layout
-5. `cc718c9` - refactor(dashboard): extract page into a reusable layout component
-6. `1b222b8` - feat(dashboard): implement initial repository management UI
-7. `0e19dc2` - style(css): remove universal reset from global stylesheet
-8. `c648d5d` - feat(ui): initialize shadcn/ui and configure theme
-9. `794f611` - feat(landing): implement new product marketing page
-10. `f7fa44b` - chore(project): migrate project from Vite to Next.js
+1. `5607b2a` - feat: add loading states and empty state handling (2025-11-20)
+2. `8919ddf` - feat: add toast notification system for user feedback (2025-11-20)
+3. `840cea3` - docs: update CLAUDE.md with critical fixes and new components (2025-11-20)
+4. `3700ac1` - fix: implement critical security and UX improvements (2025-11-20)
+5. `342f82b` - docs: add comprehensive code review report (2025-11-20)
+6. `dd11e0c` - docs: add comprehensive CLAUDE.md for AI assistants (2025-11-20)
+7. `837ab90` - feat(dashboard): implement route-based multi-page layout
+8. `cc718c9` - refactor(dashboard): extract page into a reusable layout component
+9. `1b222b8` - feat(dashboard): implement initial repository management UI
+10. `0e19dc2` - style(css): remove universal reset from global stylesheet
 
 ### Development Milestones
-- **Recent Focus**: Critical security fixes, error handling, and confirmation dialogs (2025-11-20)
+- **Recent Focus**: UX improvements with loading states, empty states, and toast notifications (2025-11-20)
 - **Completed**:
   - Landing page, basic dashboard layout, repository table UI
   - Comprehensive documentation (CLAUDE.md, CODE_REVIEW.md)
   - Error boundaries for graceful error handling
   - Confirmation dialogs for destructive actions
   - Security vulnerability fixes (zero vulnerabilities)
-  - Dependency updates (React 19.2.0, lucide-react 0.554.0)
+  - Dependency updates (React 19.2.0, lucide-react 0.554.0, sonner 2.0.7)
   - Environment configuration template (.env.example)
-- **In Progress**: Authentication implementation (GitHub OAuth)
-- **Next Steps**: GitHub API integration, testing infrastructure, accessibility improvements
+  - Toast notification system (success, error feedback)
+  - Loading states (spinner, skeleton, overlay)
+  - Empty states (no results, no data scenarios)
+  - Async operation simulation with error handling
+- **In Progress**: Accessibility improvements (ARIA labels, keyboard navigation)
+- **Next Steps**: GitHub API integration, testing infrastructure, authentication (GitHub OAuth)
 
 ### Branch Information
 - **Current Branch**: `claude/add-claude-documentation-01YAv12QgjwLQetjgftfQvgD`

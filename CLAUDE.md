@@ -160,6 +160,16 @@ This documentation was created with contributions from the project team to provi
   - Handles conflicting Tailwind classes
   - Used in the `cn()` utility function
 
+- **use-debounce**: React hook for debouncing values
+  - Used for search input optimization (300ms delay)
+  - Prevents excessive filtering on every keystroke
+  - Integrated in RepositoriesPage component
+
+- **sonner**: Toast notification library for React
+  - Beautiful, customizable toast notifications
+  - Dark theme styling matching app design
+  - Used for user feedback on bulk operations
+
 ### Development Tools
 - **TypeScript 5**: Static type checking
   - Strict mode enabled
@@ -492,20 +502,32 @@ export { Component, componentVariants }
 
 #### `src/components/dashboard/RepositoriesPage.tsx`
 - **Purpose**: Main container for repository management feature
+- **Optimizations** (2025-11-20):
+  - **useMemo()** for filtered repositories - recalculates only when repositories or searchQuery changes
+  - **useMemo()** for paginated repositories - recalculates only when filteredRepos, currentPage, or itemsPerPage changes
+  - **useDebounce()** for search query - 300ms debounce prevents excessive filtering on every keystroke
+  - Loading states with TableSkeleton component
+  - Empty states with context-aware messaging
+  - Confirmation dialogs for destructive actions (archive, delete)
 - **Responsibilities**:
   - Manage selected repositories state
-  - Manage search query state
+  - Manage search query state (immediate + debounced)
   - Manage pagination state
-  - Filter repositories based on search
-  - Calculate pagination
-  - Handle bulk actions (make private, archive, delete)
-- **Size**: 104 lines
+  - Filter repositories based on debounced search
+  - Calculate pagination on filtered data
+  - Handle bulk actions with async/await and toast notifications
+- **Size**: 244 lines
 - **Props**: `{ repositories: Repository[] }`
 - **State**:
   - `selectedRepos`: number[] (IDs of checked repos)
   - `selectAll`: boolean (select all on current page)
-  - `searchQuery`: string (search filter)
+  - `searchQuery`: string (immediate search filter for input)
+  - `debouncedSearchQuery`: string (debounced for actual filtering)
   - `currentPage`: number (pagination)
+  - `showDeleteDialog`: boolean
+  - `showArchiveDialog`: boolean
+  - `isLoading`: boolean
+- **Dependencies**: react, use-debounce, sonner, lucide-react
 - **TODO Comments**: API integration needed for action handlers
 
 #### `src/components/dashboard/RepositoryTable.tsx`
@@ -524,13 +546,18 @@ export { Component, componentVariants }
 
 #### `src/components/dashboard/RepositoryRow.tsx`
 - **Purpose**: Single table row representing one repository
+- **Optimizations** (2025-11-20):
+  - Wrapped with React.memo() to prevent unnecessary re-renders
+  - Only re-renders when props (repository, isSelected, onSelectionChange) change
+  - Keyboard navigation support (Enter/Space keys)
+  - Full accessibility with ARIA labels
 - **Displays**:
   - Checkbox (with hover effects)
   - Repository name
   - Visibility badge (Public/Private with color)
   - Star count with icon
   - Last updated timestamp
-- **Size**: 43 lines
+- **Size**: 58 lines
 - **Props**:
   - `repository: Repository`
   - `isSelected: boolean`
@@ -918,33 +945,36 @@ Based on recent history, follows conventional commits:
 
 ## Recent Development History
 
-### Latest Commits (10 most recent)
-1. `5607b2a` - feat: add loading states and empty state handling (2025-11-20)
-2. `8919ddf` - feat: add toast notification system for user feedback (2025-11-20)
-3. `840cea3` - docs: update CLAUDE.md with critical fixes and new components (2025-11-20)
-4. `3700ac1` - fix: implement critical security and UX improvements (2025-11-20)
-5. `342f82b` - docs: add comprehensive code review report (2025-11-20)
-6. `dd11e0c` - docs: add comprehensive CLAUDE.md for AI assistants (2025-11-20)
-7. `837ab90` - feat(dashboard): implement route-based multi-page layout
-8. `cc718c9` - refactor(dashboard): extract page into a reusable layout component
-9. `1b222b8` - feat(dashboard): implement initial repository management UI
-10. `0e19dc2` - style(css): remove universal reset from global stylesheet
+### Latest Commits (11 most recent)
+1. `c7771b9` - feat: implement comprehensive performance optimizations (2025-11-20)
+2. `5607b2a` - feat: add loading states and empty state handling (2025-11-20)
+3. `8919ddf` - feat: add toast notification system for user feedback (2025-11-20)
+4. `840cea3` - docs: update CLAUDE.md with critical fixes and new components (2025-11-20)
+5. `3700ac1` - fix: implement critical security and UX improvements (2025-11-20)
+6. `342f82b` - docs: add comprehensive code review report (2025-11-20)
+7. `dd11e0c` - docs: add comprehensive CLAUDE.md for AI assistants (2025-11-20)
+8. `837ab90` - feat(dashboard): implement route-based multi-page layout
+9. `cc718c9` - refactor(dashboard): extract page into a reusable layout component
+10. `1b222b8` - feat(dashboard): implement initial repository management UI
+11. `0e19dc2` - style(css): remove universal reset from global stylesheet
 
 ### Development Milestones
-- **Recent Focus**: UX improvements with loading states, empty states, and toast notifications (2025-11-20)
+- **Recent Focus**: Performance optimizations, UX improvements, and comprehensive documentation (2025-11-20)
 - **Completed**:
   - Landing page, basic dashboard layout, repository table UI
-  - Comprehensive documentation (CLAUDE.md, CODE_REVIEW.md)
+  - Comprehensive documentation (CLAUDE.md, CODE_REVIEW.md, updated README)
   - Error boundaries for graceful error handling
   - Confirmation dialogs for destructive actions
   - Security vulnerability fixes (zero vulnerabilities)
-  - Dependency updates (React 19.2.0, lucide-react 0.554.0, sonner 2.0.7)
+  - Dependency updates (React 19.2.0, lucide-react 0.554.0, sonner 2.0.7, use-debounce 4.0.2)
   - Environment configuration template (.env.example)
   - Toast notification system (success, error feedback)
-  - Loading states (spinner, skeleton, overlay)
-  - Empty states (no results, no data scenarios)
+  - Loading states (Spinner, LoadingOverlay, TableSkeleton)
+  - Empty states with context-aware messaging
+  - Accessibility improvements (ARIA labels, keyboard navigation, focus indicators)
+  - Performance optimizations (React.memo, useMemo, search debouncing)
   - Async operation simulation with error handling
-- **In Progress**: Accessibility improvements (ARIA labels, keyboard navigation)
+- **In Progress**: Authentication implementation (GitHub OAuth)
 - **Next Steps**: GitHub API integration, testing infrastructure, authentication (GitHub OAuth)
 
 ### Branch Information
@@ -965,16 +995,26 @@ Based on recent history, follows conventional commits:
    - Tailwind CSS tree-shaking (unused classes removed)
    - CSS variables for theme (single source of truth)
 
-3. **Component Optimizations**:
-   - Memoization opportunities in pagination/search
+3. **Component Optimizations** (Implemented 2025-11-20):
+   - **React.memo()**: RepositoryRow component wrapped with memo to prevent unnecessary re-renders
+   - **useMemo() hooks**: Filtered and paginated repository data memoized to avoid recalculation
+   - **Search Debouncing**: 300ms debounce on search input using `use-debounce` library
    - Pagination limits items to 10 per page
+   - Dependencies optimized to trigger recalculation only when necessary
+
+### Performance Impact
+- **RepositoryRow**: With 10+ rows per page, React.memo prevents wasted re-renders when parent state changes
+- **Filtered Data**: useMemo prevents filter operations on every render, only when search query or data changes
+- **Pagination**: useMemo prevents slice operations on every render, only when page or filtered data changes
+- **Search**: Debouncing reduces filter operations from every keystroke to once per 300ms pause
 
 ### Potential Performance Improvements
-1. Implement React.memo() for RepositoryRow components
-2. Add useMemo() for filtered/paginated data
-3. Lazy load future feature pages (Issues, PRs, Members)
-4. Implement virtual scrolling for large repository lists
-5. Add image optimization for profile pictures
+1. ✅ ~~Implement React.memo() for RepositoryRow components~~ (COMPLETED)
+2. ✅ ~~Add useMemo() for filtered/paginated data~~ (COMPLETED)
+3. ✅ ~~Implement search debouncing~~ (COMPLETED)
+4. Lazy load future feature pages (Issues, PRs, Members)
+5. Implement virtual scrolling for large repository lists
+6. Add image optimization for profile pictures
 
 ---
 

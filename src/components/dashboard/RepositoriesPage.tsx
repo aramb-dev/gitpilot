@@ -2,10 +2,13 @@
 
 import { useState } from 'react'
 import { toast } from 'sonner'
+import { Search, FolderGit2 } from 'lucide-react'
 import { RepositoryTable } from './RepositoryTable'
 import { RepositoryActions } from './RepositoryActions'
 import { Pagination } from './Pagination'
 import { Repository } from '@/types/dashboard'
+import { EmptyState } from '@/components/ui/empty-state'
+import { TableSkeleton } from '@/components/ui/loading'
 import {
     AlertDialog,
     AlertDialogAction,
@@ -28,6 +31,7 @@ export function RepositoriesPage({ repositories }: RepositoriesPageProps) {
     const [currentPage, setCurrentPage] = useState(1)
     const [showDeleteDialog, setShowDeleteDialog] = useState(false)
     const [showArchiveDialog, setShowArchiveDialog] = useState(false)
+    const [isLoading, setIsLoading] = useState(false)
 
     const itemsPerPage = 10
     const filteredRepos = repositories.filter(repo =>
@@ -64,41 +68,68 @@ export function RepositoriesPage({ repositories }: RepositoriesPageProps) {
         setSelectAll(false)
     }
 
-    const handleMakePrivate = () => {
+    const handleMakePrivate = async () => {
         const count = selectedRepos.length
-        console.log('Making private:', selectedRepos)
-        // TODO: Implement API call
-        toast.success(`${count} ${count === 1 ? 'repository' : 'repositories'} made private successfully`)
-        setSelectedRepos([])
-        setSelectAll(false)
+        setIsLoading(true)
+        try {
+            console.log('Making private:', selectedRepos)
+            // TODO: Implement API call
+            // Simulate API delay
+            await new Promise(resolve => setTimeout(resolve, 1000))
+            toast.success(`${count} ${count === 1 ? 'repository' : 'repositories'} made private successfully`)
+            setSelectedRepos([])
+            setSelectAll(false)
+        } catch (error) {
+            toast.error('Failed to make repositories private')
+        } finally {
+            setIsLoading(false)
+        }
     }
 
     const handleArchive = () => {
         setShowArchiveDialog(true)
     }
 
-    const confirmArchive = () => {
+    const confirmArchive = async () => {
         const count = selectedRepos.length
-        console.log('Archiving:', selectedRepos)
-        // TODO: Implement API call
         setShowArchiveDialog(false)
-        toast.success(`${count} ${count === 1 ? 'repository' : 'repositories'} archived successfully`)
-        setSelectedRepos([])
-        setSelectAll(false)
+        setIsLoading(true)
+        try {
+            console.log('Archiving:', selectedRepos)
+            // TODO: Implement API call
+            // Simulate API delay
+            await new Promise(resolve => setTimeout(resolve, 1000))
+            toast.success(`${count} ${count === 1 ? 'repository' : 'repositories'} archived successfully`)
+            setSelectedRepos([])
+            setSelectAll(false)
+        } catch (error) {
+            toast.error('Failed to archive repositories')
+        } finally {
+            setIsLoading(false)
+        }
     }
 
     const handleDelete = () => {
         setShowDeleteDialog(true)
     }
 
-    const confirmDelete = () => {
+    const confirmDelete = async () => {
         const count = selectedRepos.length
-        console.log('Deleting:', selectedRepos)
-        // TODO: Implement API call
         setShowDeleteDialog(false)
-        toast.success(`${count} ${count === 1 ? 'repository' : 'repositories'} deleted successfully`)
-        setSelectedRepos([])
-        setSelectAll(false)
+        setIsLoading(true)
+        try {
+            console.log('Deleting:', selectedRepos)
+            // TODO: Implement API call
+            // Simulate API delay
+            await new Promise(resolve => setTimeout(resolve, 1000))
+            toast.success(`${count} ${count === 1 ? 'repository' : 'repositories'} deleted successfully`)
+            setSelectedRepos([])
+            setSelectAll(false)
+        } catch (error) {
+            toast.error('Failed to delete repositories')
+        } finally {
+            setIsLoading(false)
+        }
     }
 
     const hasSelectedRepos = selectedRepos.length > 0
@@ -118,22 +149,46 @@ export function RepositoriesPage({ repositories }: RepositoriesPageProps) {
             </div>
 
             {/* Repositories Table */}
-            <RepositoryTable
-                repositories={paginatedRepos}
-                selectedRepos={selectedRepos}
-                selectAll={selectAll}
-                onSelectAll={handleSelectAll}
-                onSelectRepo={handleSelectRepo}
-            />
+            {isLoading ? (
+                <TableSkeleton rows={itemsPerPage} />
+            ) : filteredRepos.length === 0 ? (
+                searchQuery ? (
+                    <EmptyState
+                        icon={Search}
+                        title="No repositories found"
+                        description={`No repositories match "${searchQuery}". Try adjusting your search query.`}
+                        action={{
+                            label: 'Clear search',
+                            onClick: () => handleSearch(''),
+                        }}
+                    />
+                ) : (
+                    <EmptyState
+                        icon={FolderGit2}
+                        title="No repositories yet"
+                        description="Connect your GitHub account to start managing your repositories."
+                    />
+                )
+            ) : (
+                <>
+                    <RepositoryTable
+                        repositories={paginatedRepos}
+                        selectedRepos={selectedRepos}
+                        selectAll={selectAll}
+                        onSelectAll={handleSelectAll}
+                        onSelectRepo={handleSelectRepo}
+                    />
 
-            {/* Pagination */}
-            <Pagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                totalItems={filteredRepos.length}
-                itemsPerPage={itemsPerPage}
-                onPageChange={setCurrentPage}
-            />
+                    {/* Pagination */}
+                    <Pagination
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        totalItems={filteredRepos.length}
+                        itemsPerPage={itemsPerPage}
+                        onPageChange={setCurrentPage}
+                    />
+                </>
+            )}
 
             {/* Archive Confirmation Dialog */}
             <AlertDialog open={showArchiveDialog} onOpenChange={setShowArchiveDialog}>

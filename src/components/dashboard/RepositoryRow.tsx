@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { Checkbox } from "@/components/ui/checkbox"
 import { Badge } from "@/components/ui/badge"
 import { Star } from "lucide-react"
@@ -9,7 +10,7 @@ interface RepositoryRowProps {
     onSelectionChange: (repoId: number, checked: boolean) => void
 }
 
-export function RepositoryRow({ repository, isSelected, onSelectionChange }: RepositoryRowProps) {
+export const RepositoryRow = memo(function RepositoryRow({ repository, isSelected, onSelectionChange }: RepositoryRowProps) {
     const handleKeyDown = (e: React.KeyboardEvent) => {
         if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault()
@@ -54,4 +55,4 @@ export function RepositoryRow({ repository, isSelected, onSelectionChange }: Rep
             <td className="p-4 text-gray-400">{repository.updated}</td>
         </tr>
     )
-}
+})

@@ -19,10 +19,14 @@ Managing GitHub repositories one by one can be tedious and time-consuming, espec
 
 ## 💻 Tech Stack
 
-- **Frontend**: React with ShadCN UI components
-- **Authentication**: Firebase Authentication with GitHub OAuth
-- **State Management**: Zustand
-- **API Integration**: GitHub API
+- **Framework**: Next.js 15.5.2 with App Router
+- **Frontend**: React 19.2.0 with TypeScript (strict mode)
+- **Styling**: Tailwind CSS v4 with dark theme
+- **UI Components**: shadcn/ui built on Radix UI primitives
+- **Icons**: Lucide React
+- **Notifications**: Sonner toast library
+- **Authentication**: GitHub OAuth (planned)
+- **API Integration**: GitHub API (planned)
 - **Hosting**: Netlify
 
 ## 🔑 Getting Started
@@ -52,41 +56,88 @@ Managing GitHub repositories one by one can be tedious and time-consuming, espec
    ```
 
 3. Set up environment variables:
-   Create a `.env` file in the root directory with the following variables:
+   Copy the example environment file and fill in your values:
 
+   ```bash
+   cp .env.example .env.local
    ```
-   REACT_APP_FIREBASE_API_KEY=your_firebase_api_key
-   REACT_APP_FIREBASE_AUTH_DOMAIN=your_firebase_auth_domain
-   REACT_APP_FIREBASE_PROJECT_ID=your_firebase_project_id
-   REACT_APP_GITHUB_CLIENT_ID=your_github_oauth_client_id
-   ```
+
+   See `.env.example` for all required environment variables including:
+   - GitHub OAuth credentials
+   - NextAuth.js configuration
+   - Database connection (when implemented)
+   - Optional: Sentry, Google Analytics
 
 4. Start the development server:
    ```bash
-   npm start
+   npm run dev
    # or
-   yarn start
+   yarn dev
    ```
+
+   The application will be available at `http://localhost:3000`
+
+### Available Scripts
+
+- `npm run dev` - Start development server with hot reload
+- `npm run build` - Create production build
+- `npm run start` - Run production server
+- `npm run lint` - Run ESLint for code quality checks
 
 ## 📊 Project Structure
 
 ```
-gitpilot-app/
-├── public/             # Static assets
-├── src/                # Main application source code
-│   ├── assets/         # Static assets (images, fonts, icons)
-│   ├── components/     # Reusable UI components
-│   ├── hooks/          # Custom React hooks
-│   ├── pages/          # Page-level components
-│   ├── routes/         # Routing configuration
-│   ├── services/       # API interaction logic
-│   ├── store/          # Global state management
-│   ├── styles/         # Global styles, themes
-│   ├── types/          # TypeScript type definitions
-│   ├── utils/          # Utility functions and helpers
-│   ├── App.jsx         # Root application component
-│   └── index.jsx       # Application entry point
-└── ... (config files)
+gitpilot/
+├── public/                      # Static assets (images, icons)
+├── src/
+│   ├── app/                     # Next.js App Router (file-based routing)
+│   │   ├── layout.tsx           # Root layout with Providers
+│   │   ├── page.tsx             # Landing page (marketing)
+│   │   ├── globals.css          # Global styles & Tailwind theme
+│   │   └── dashboard/           # Dashboard routes
+│   │       ├── layout.tsx       # Dashboard layout with Sidebar & ErrorBoundary
+│   │       ├── page.tsx         # Dashboard home (redirects to /repos)
+│   │       ├── repos/           # Repository management
+│   │       ├── issues/          # Issues management (coming soon)
+│   │       ├── prs/             # Pull requests (coming soon)
+│   │       ├── members/         # Team members (coming soon)
+│   │       └── settings/        # User settings
+│   │
+│   ├── components/              # Reusable React components
+│   │   ├── ErrorBoundary.tsx    # Error boundary for graceful errors
+│   │   ├── Providers.tsx        # Global providers (Toaster)
+│   │   ├── dashboard/           # Dashboard-specific components
+│   │   │   ├── Sidebar.tsx      # Navigation sidebar
+│   │   │   ├── Breadcrumbs.tsx  # Dynamic breadcrumbs
+│   │   │   ├── RepositoriesPage.tsx
+│   │   │   ├── RepositoryTable.tsx
+│   │   │   ├── RepositoryRow.tsx
+│   │   │   ├── RepositoryActions.tsx
+│   │   │   └── Pagination.tsx
+│   │   └── ui/                  # shadcn/ui components
+│   │       ├── button.tsx
+│   │       ├── input.tsx
+│   │       ├── checkbox.tsx
+│   │       ├── badge.tsx
+│   │       ├── alert-dialog.tsx
+│   │       ├── loading.tsx
+│   │       └── empty-state.tsx
+│   │
+│   ├── types/                   # TypeScript type definitions
+│   │   └── dashboard.ts
+│   ├── data/                    # Mock data (temporary)
+│   │   └── dashboard.ts
+│   └── lib/                     # Utility functions
+│       └── utils.ts             # cn() helper for class merging
+│
+├── .env.example                 # Environment variables template
+├── package.json                 # Dependencies and scripts
+├── tsconfig.json                # TypeScript configuration
+├── next.config.ts               # Next.js configuration
+├── tailwind.config.ts           # Tailwind CSS configuration
+├── components.json              # shadcn/ui configuration
+├── CLAUDE.md                    # AI assistant documentation
+└── CODE_REVIEW.md               # Code review report
 ```
 
 ## 💰 Pricing Plans

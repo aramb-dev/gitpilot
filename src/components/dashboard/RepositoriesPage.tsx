@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
+import { useDebounce } from 'use-debounce'
 import { toast } from 'sonner'
 import { Search, FolderGit2 } from 'lucide-react'
 import { RepositoryTable } from './RepositoryTable'
@@ -33,14 +34,28 @@ export function RepositoriesPage({ repositories }: RepositoriesPageProps) {
     const [showArchiveDialog, setShowArchiveDialog] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
 
+    // Debounce search query to avoid excessive filtering on every keystroke
+    const [debouncedSearchQuery] = useDebounce(searchQuery, 300)
+
     const itemsPerPage = 10
-    const filteredRepos = repositories.filter(repo =>
-        repo.name.toLowerCase().includes(searchQuery.toLowerCase())
+
+    // Memoize filtered repositories to avoid unnecessary recalculations
+    const filteredRepos = useMemo(() =>
+        repositories.filter(repo =>
+            repo.name.toLowerCase().includes(debouncedSearchQuery.toLowerCase())
+        ),
+        [repositories, debouncedSearchQuery]
     )
+
     const totalPages = Math.ceil(filteredRepos.length / itemsPerPage)
-    const paginatedRepos = filteredRepos.slice(
-        (currentPage - 1) * itemsPerPage,
-        currentPage * itemsPerPage
+
+    // Memoize paginated repositories to avoid unnecessary slicing operations
+    const paginatedRepos = useMemo(() =>
+        filteredRepos.slice(
+            (currentPage - 1) * itemsPerPage,
+            currentPage * itemsPerPage
+        ),
+        [filteredRepos, currentPage, itemsPerPage]
     )
 
     const handleSelectAll = (checked: boolean) => {

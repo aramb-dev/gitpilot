@@ -20,10 +20,11 @@ export function RepositoryActions({
     return (
         <div className="flex items-center space-x-2">
             <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" aria-hidden="true" />
                 <Input
                     type="search"
                     placeholder="Search repositories..."
+                    aria-label="Search repositories"
                     className="bg-[#0d1117] border-gray-700 pl-10 w-64 focus:ring-blue-500"
                     onChange={(e) => onSearch(e.target.value)}
                 />
@@ -32,6 +33,7 @@ export function RepositoryActions({
                 variant="outline"
                 disabled={!hasSelectedRepos}
                 onClick={onMakePrivate}
+                aria-label="Make selected repositories private"
                 className="bg-[#21262d] text-gray-300 border-gray-700 hover:bg-gray-700 disabled:opacity-50"
             >
                 Make Private
@@ -40,6 +42,7 @@ export function RepositoryActions({
                 variant="outline"
                 disabled={!hasSelectedRepos}
                 onClick={onArchive}
+                aria-label="Archive selected repositories"
                 className="bg-[#21262d] text-gray-300 border-gray-700 hover:bg-gray-700 disabled:opacity-50"
             >
                 Archive
@@ -48,6 +51,7 @@ export function RepositoryActions({
                 variant="destructive"
                 disabled={!hasSelectedRepos}
                 onClick={onDelete}
+                aria-label="Delete selected repositories"
                 className="bg-red-800/50 text-red-300 border-red-600/50 hover:bg-red-800/80 disabled:opacity-50"
             >
                 Delete

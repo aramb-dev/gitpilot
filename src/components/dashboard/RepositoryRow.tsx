@@ -10,12 +10,26 @@ interface RepositoryRowProps {
 }
 
 export function RepositoryRow({ repository, isSelected, onSelectionChange }: RepositoryRowProps) {
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault()
+            onSelectionChange(repository.id, !isSelected)
+        }
+    }
+
     return (
-        <tr className="border-b border-gray-800 hover:bg-gray-800/50">
+        <tr
+            className="border-b border-gray-800 hover:bg-gray-800/50 focus-within:ring-2 focus-within:ring-blue-500"
+            tabIndex={0}
+            onKeyDown={handleKeyDown}
+            role="row"
+            aria-selected={isSelected}
+        >
             <td className="p-4">
                 <Checkbox
                     checked={isSelected}
                     onCheckedChange={(checked: boolean) => onSelectionChange(repository.id, checked)}
+                    aria-label={`Select ${repository.name}`}
                     className="bg-gray-800 border-gray-600"
                 />
             </td>
@@ -33,8 +47,8 @@ export function RepositoryRow({ repository, isSelected, onSelectionChange }: Rep
             </td>
             <td className="p-4 text-gray-400">
                 <div className="flex items-center">
-                    <Star className="w-4 h-4 mr-1.5 text-yellow-500" />
-                    {repository.stars}
+                    <Star className="w-4 h-4 mr-1.5 text-yellow-500" aria-hidden="true" />
+                    <span aria-label={`${repository.stars} stars`}>{repository.stars}</span>
                 </div>
             </td>
             <td className="p-4 text-gray-400">{repository.updated}</td>

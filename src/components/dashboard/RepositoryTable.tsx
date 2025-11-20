@@ -26,6 +26,7 @@ export function RepositoryTable({
                             <Checkbox
                                 checked={selectAll}
                                 onCheckedChange={onSelectAll}
+                                aria-label="Select all repositories on this page"
                                 className="bg-gray-800 border-gray-600"
                             />
                         </th>

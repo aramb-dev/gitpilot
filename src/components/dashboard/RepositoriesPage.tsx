@@ -17,9 +17,15 @@ export function RepositoriesPage({ repositories }: RepositoriesPageProps) {
     const [currentPage, setCurrentPage] = useState(1)
 
     const itemsPerPage = 10
-    const filteredRepos = repositories.filter(repo =>
-        repo.name.toLowerCase().includes(searchQuery.toLowerCase())
-    )
+    const normalizedQuery = searchQuery.toLowerCase()
+    const filteredRepos = repositories.filter((repo) => {
+        if (!normalizedQuery) return true
+        return (
+            repo.name.toLowerCase().includes(normalizedQuery) ||
+            repo.owner.toLowerCase().includes(normalizedQuery) ||
+            repo.full_name.toLowerCase().includes(normalizedQuery)
+        )
+    })
     const totalPages = Math.ceil(filteredRepos.length / itemsPerPage)
     const paginatedRepos = filteredRepos.slice(
         (currentPage - 1) * itemsPerPage,

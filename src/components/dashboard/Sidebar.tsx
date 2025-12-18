@@ -1,6 +1,7 @@
 import { Send, Settings } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { signOut } from "next-auth/react"
 import { SidebarItem } from '@/types/dashboard'
 
 interface SidebarProps {
@@ -85,9 +86,13 @@ export function Sidebar({ sidebarItems }: SidebarProps) {
                     </div>
                     <div className="ml-3">
                         <p className="text-sm font-semibold text-white">Alex Doe</p>
-                        <Link href="/" className="text-xs text-gray-400 hover:text-red-500 transition">
+                        <button
+                            type="button"
+                            onClick={() => void signOut({ callbackUrl: "/" })}
+                            className="text-xs text-gray-400 hover:text-red-500 transition"
+                        >
                             Log out
-                        </Link>
+                        </button>
                     </div>
                 </div>
             </div>

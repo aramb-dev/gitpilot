@@ -19,7 +19,10 @@ export function RepositoryRow({ repository, isSelected, onSelectionChange }: Rep
                     className="bg-gray-800 border-gray-600"
                 />
             </td>
-            <td className="p-4 font-medium text-white">{repository.name}</td>
+            <td className="p-4">
+                <div className="font-medium text-white">{repository.name}</div>
+                <div className="text-xs text-gray-500">{repository.full_name}</div>
+            </td>
             <td className="p-4">
                 <Badge
                     variant={repository.visibility === 'Public' ? 'default' : 'secondary'}

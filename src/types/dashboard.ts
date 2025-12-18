@@ -1,6 +1,8 @@
 export interface Repository {
     id: number
     name: string
+    owner: string
+    full_name: string
     visibility: 'Public' | 'Private'
     stars: number
     updated: string

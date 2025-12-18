@@ -1,6 +1,7 @@
 'use client'
 
 import Link from "next/link";
+import { signIn } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import {
@@ -16,6 +17,10 @@ import {
 } from "lucide-react";
 
 export default function Home() {
+  const handleSignIn = () => {
+    void signIn("github", { callbackUrl: "/dashboard" });
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* Header */}
@@ -30,12 +35,15 @@ export default function Home() {
             <Link href="#pricing" className="text-muted-foreground hover:text-foreground transition">Pricing</Link>
             <Link href="#faq" className="text-muted-foreground hover:text-foreground transition">FAQ</Link>
           </nav>
-          <Link href="/dashboard">
-            <Button variant="outline" className="flex items-center space-x-2 bg-muted hover:bg-muted/80 text-foreground font-semibold border-border">
-              <Github className="w-4 h-4" />
-              <span>Sign in with GitHub</span>
-            </Button>
-          </Link>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleSignIn}
+            className="flex items-center space-x-2 bg-muted hover:bg-muted/80 text-foreground font-semibold border-border"
+          >
+            <Github className="w-4 h-4" />
+            <span>Sign in with GitHub</span>
+          </Button>
         </div>
       </header>
 
@@ -52,11 +60,13 @@ export default function Home() {
                 start the automation.
               </p>
               <div className="flex justify-center items-center space-x-4">
-                <Link href="/dashboard">
-                  <Button className="cta-button text-white font-bold py-3 px-8 rounded-lg text-lg">
-                    Get Started for Free
-                  </Button>
-                </Link>
+                <Button
+                  type="button"
+                  onClick={handleSignIn}
+                  className="cta-button text-white font-bold py-3 px-8 rounded-lg text-lg"
+                >
+                  Get Started for Free
+                </Button>
               </div>
             </div>
 

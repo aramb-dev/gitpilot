@@ -1,7 +1,7 @@
 import { Send, Settings } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { signOut } from "next-auth/react"
+import { signOut, useSession } from "next-auth/react"
 import { SidebarItem } from '@/types/dashboard'
 
 interface SidebarProps {
@@ -10,6 +10,11 @@ interface SidebarProps {
 
 export function Sidebar({ sidebarItems }: SidebarProps) {
     const pathname = usePathname()
+    const { data: session } = useSession()
+
+    const userName = session?.user?.name ?? "GitHub User"
+    const userEmail = session?.user?.email ?? ""
+    const userInitial = (userName?.trim()?.[0] ?? userEmail?.trim()?.[0] ?? "U").toUpperCase()
 
     // Map route paths to sidebar item IDs for active state detection
     const getActiveId = (pathname: string): string => {
@@ -82,10 +87,13 @@ export function Sidebar({ sidebarItems }: SidebarProps) {
                 </Link>
                 <div className="flex items-center mt-4 p-2 rounded-lg">
                     <div className="w-10 h-10 rounded-full bg-[#58a6ff] flex items-center justify-center">
-                        <span className="text-white font-semibold">A</span>
+                        <span className="text-white font-semibold">{userInitial}</span>
                     </div>
                     <div className="ml-3">
-                        <p className="text-sm font-semibold text-white">Alex Doe</p>
+                        <p className="text-sm font-semibold text-white">{userName}</p>
+                        {userEmail ? (
+                            <p className="text-xs text-gray-500">{userEmail}</p>
+                        ) : null}
                         <button
                             type="button"
                             onClick={() => void signOut({ callbackUrl: "/" })}

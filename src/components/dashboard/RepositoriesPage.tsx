@@ -1,31 +1,88 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { RepositoryTable } from './RepositoryTable'
 import { RepositoryActions } from './RepositoryActions'
 import { Pagination } from './Pagination'
 import { Repository } from '@/types/dashboard'
 
 interface RepositoriesPageProps {
-    repositories: Repository[]
+    repositories?: Repository[]
 }
 
-export function RepositoriesPage({ repositories }: RepositoriesPageProps) {
+export function RepositoriesPage({ repositories: initialRepositories }: RepositoriesPageProps) {
+    const [repositories, setRepositories] = useState<Repository[]>(initialRepositories ?? [])
+    const [isLoading, setIsLoading] = useState(initialRepositories ? false : true)
+    const [error, setError] = useState<string | null>(null)
     const [selectedRepos, setSelectedRepos] = useState<number[]>([])
     const [selectAll, setSelectAll] = useState(false)
     const [searchQuery, setSearchQuery] = useState('')
     const [currentPage, setCurrentPage] = useState(1)
 
+    useEffect(() => {
+        if (initialRepositories) return
+
+        let cancelled = false
+        async function loadRepos() {
+            try {
+                setIsLoading(true)
+                setError(null)
+
+                const res = await fetch('/api/github/repos', {
+                    method: 'GET',
+                    cache: 'no-store',
+                })
+
+                if (!res.ok) {
+                    if (res.status === 401) {
+                        window.location.href = '/api/auth/signin?callbackUrl=/dashboard/repos'
+                        return
+                    }
+
+                    const text = await res.text()
+                    throw new Error(text || `Failed to load repositories (${res.status})`)
+                }
+
+                const data = (await res.json()) as Repository[]
+                if (!cancelled) {
+                    setRepositories(data)
+                }
+            } catch (e) {
+                const message = e instanceof Error ? e.message : 'Failed to load repositories'
+                if (!cancelled) {
+                    setError(message)
+                }
+            } finally {
+                if (!cancelled) {
+                    setIsLoading(false)
+                }
+            }
+        }
+
+        void loadRepos()
+
+        return () => {
+            cancelled = true
+        }
+    }, [initialRepositories])
+
+    useEffect(() => {
+        setSelectedRepos([])
+        setSelectAll(false)
+    }, [repositories])
+
     const itemsPerPage = 10
     const normalizedQuery = searchQuery.toLowerCase()
-    const filteredRepos = repositories.filter((repo) => {
-        if (!normalizedQuery) return true
-        return (
-            repo.name.toLowerCase().includes(normalizedQuery) ||
-            repo.owner.toLowerCase().includes(normalizedQuery) ||
-            repo.full_name.toLowerCase().includes(normalizedQuery)
-        )
-    })
+    const filteredRepos = useMemo(() => {
+        return repositories.filter((repo) => {
+            if (!normalizedQuery) return true
+            return (
+                repo.name.toLowerCase().includes(normalizedQuery) ||
+                repo.owner.toLowerCase().includes(normalizedQuery) ||
+                repo.full_name.toLowerCase().includes(normalizedQuery)
+            )
+        })
+    }, [normalizedQuery, repositories])
     const totalPages = Math.ceil(filteredRepos.length / itemsPerPage)
     const paginatedRepos = filteredRepos.slice(
         (currentPage - 1) * itemsPerPage,
@@ -88,14 +145,23 @@ export function RepositoriesPage({ repositories }: RepositoriesPageProps) {
                 />
             </div>
 
-            {/* Repositories Table */}
+            {error ? (
+                <div className="bg-[#161b22] border border-gray-800 rounded-lg p-4 text-sm text-red-300">
+                    {error}
+                </div>
+            ) : null}
+
             <RepositoryTable
-                repositories={paginatedRepos}
+                repositories={isLoading ? [] : paginatedRepos}
                 selectedRepos={selectedRepos}
                 selectAll={selectAll}
                 onSelectAll={handleSelectAll}
                 onSelectRepo={handleSelectRepo}
             />
+
+            {isLoading ? (
+                <div className="text-sm text-gray-400">Loading repositories…</div>
+            ) : null}
 
             {/* Pagination */}
             <Pagination

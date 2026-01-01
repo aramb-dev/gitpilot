@@ -2,7 +2,7 @@
 
 ## Phase 1: Robust Authentication & Session Management
 - [x] Task: Audit and stabilize GitHub OAuth flow in `src/app/api/auth/[...nextauth]/route.ts` [c07c870]
-- [ ] Task: Implement session helper to securely expose the GitHub access token to client/server components
+- [x] Task: Implement session helper to securely expose the GitHub access token to client/server components [b87d569]
 - [ ] Task: Write Tests: Verify session creation and token exposure
 - [ ] Task: Implement Feature: Finalize Auth flow
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Robust Authentication & Session Management' (Protocol in workflow.md)

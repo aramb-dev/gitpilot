@@ -17,7 +17,7 @@ export async function GET() {
 
   const [userRes, orgsRes] = await Promise.all([
     fetch("https://api.github.com/user", { headers, cache: "no-store" }),
-    fetch("https://api.github.com/user/orgs", { headers, cache: "no-store" }),
+    fetch("https://api.github.com/user/orgs?per_page=100", { headers, cache: "no-store" }),
   ]);
 
   if (!userRes.ok || !orgsRes.ok) {

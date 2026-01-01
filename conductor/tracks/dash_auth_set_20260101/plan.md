@@ -8,7 +8,7 @@
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Robust Authentication & Session Management' (Protocol in workflow.md)
 
 ## Phase 2: Organization Settings & Management
-- [ ] Task: Create UI for organization selection in `src/app/dashboard/settings/page.tsx`
+- [x] Task: Create UI for organization selection in `src/app/dashboard/settings/page.tsx` [6489b0f]
 - [ ] Task: Write Tests: Verify fetching organizations from GitHub API
 - [ ] Task: Implement Feature: Fetch and display organizations in Settings
 - [ ] Task: Write Tests: Verify organization selection persistence

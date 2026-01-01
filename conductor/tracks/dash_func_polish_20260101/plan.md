@@ -12,7 +12,7 @@
     - [x] Task: Implement Feature: DELETE handler [cf1996f]
 - [x] Task: Conductor - User Manual Verification 'Phase 1: Backend API for Repository Actions' (Protocol in workflow.md)
 
-## Phase 2: UI Safety & Feedback Components
+## Phase 2: UI Safety & Feedback Components [checkpoint: 60e9c8d]
 - [x] Task: Set up toast notification system (e.g., Sonner or ShadCN Toast) [ab985da]
     - [x] Task: Implement Feature: Add toast provider and helper hook [ab985da]
 - [x] Task: Create Confirmation Modals for destructive actions [b039108]

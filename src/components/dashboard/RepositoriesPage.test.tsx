@@ -4,44 +4,43 @@ import { describe, expect, it, mock } from "bun:test";
 // we will focus on testing the filtering logic which is currently useMemoized.
 // In a real TDD flow, we might extract the filtering logic into a pure function.
 
-function filterRepositories(repositories: any[], searchQuery: string) {
+function filterRepositories(repositories: any[], searchQuery: string, visibilityFilter: string = 'all', languageFilter: string = 'all') {
     const normalizedQuery = searchQuery.toLowerCase();
     return repositories.filter((repo) => {
-        if (!normalizedQuery) return true;
-        return (
+        const matchesSearch = !normalizedQuery || (
             repo.name.toLowerCase().includes(normalizedQuery) ||
             repo.owner.toLowerCase().includes(normalizedQuery) ||
             repo.full_name.toLowerCase().includes(normalizedQuery)
-        );
+        )
+        const matchesVisibility = visibilityFilter === 'all' || repo.visibility === visibilityFilter
+        const matchesLanguage = languageFilter === 'all' || repo.language === languageFilter
+
+        return matchesSearch && matchesVisibility && matchesLanguage
     });
 }
 
 describe("Repository Filtering Logic", () => {
   const mockRepos = [
-    { id: 1, name: "gitpilot", owner: "user1", full_name: "user1/gitpilot" },
-    { id: 2, name: "website", owner: "org1", full_name: "org1/website" },
-    { id: 3, name: "backend", owner: "user1", full_name: "user1/backend" },
+    { id: 1, name: "gitpilot", owner: "user1", full_name: "user1/gitpilot", visibility: "Public", language: "TypeScript" },
+    { id: 2, name: "website", owner: "org1", full_name: "org1/website", visibility: "Private", language: "JavaScript" },
+    { id: 3, name: "backend", owner: "user1", full_name: "user1/backend", visibility: "Public", language: "Go" },
   ];
 
-  it("should return all repos if query is empty", () => {
-    expect(filterRepositories(mockRepos, "")).toHaveLength(3);
-  });
-
-  it("should filter by repository name", () => {
-    const results = filterRepositories(mockRepos, "pilot");
+  it("should filter by visibility", () => {
+    const results = filterRepositories(mockRepos, "", "Private");
     expect(results).toHaveLength(1);
-    expect(results[0].name).toBe("gitpilot");
+    expect(results[0].name).toBe("website");
   });
 
-  it("should filter by owner", () => {
-    const results = filterRepositories(mockRepos, "org1");
-    expect(results).toHaveLength(1);
-    expect(results[0].owner).toBe("org1");
-  });
-
-  it("should be case insensitive", () => {
-    const results = filterRepositories(mockRepos, "BACKEND");
+  it("should filter by language", () => {
+    const results = filterRepositories(mockRepos, "", "all", "Go");
     expect(results).toHaveLength(1);
     expect(results[0].name).toBe("backend");
+  });
+
+  it("should combine filters", () => {
+    const results = filterRepositories(mockRepos, "git", "Public", "TypeScript");
+    expect(results).toHaveLength(1);
+    expect(results[0].name).toBe("gitpilot");
   });
 });

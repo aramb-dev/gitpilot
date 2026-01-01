@@ -14,7 +14,7 @@ const originalFetch = global.fetch;
 describe("Organizations API Route", () => {
   it("should fetch organizations and user from GitHub", async () => {
     global.fetch = mock((url) => {
-      if (url === "https://api.github.com/user/orgs") {
+      if (url === "https://api.github.com/user/orgs?per_page=100") {
         return Promise.resolve(new Response(JSON.stringify([
           { id: 1, login: "org1", avatar_url: "url1", description: "desc1" }
         ]), { status: 200 }));
@@ -27,7 +27,8 @@ describe("Organizations API Route", () => {
       return Promise.reject("Unknown URL");
     });
 
-    const response = await GET();
+    const req = { url: "http://localhost/api/github/orgs" } as any;
+    const response = await GET(req);
     const data = await response.json();
 
     expect(response.status).toBe(200);

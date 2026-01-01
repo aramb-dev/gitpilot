@@ -16,7 +16,7 @@
 - [x] Task: Conductor - User Manual Verification 'Phase 2: Organization Settings & Management' (Protocol in workflow.md) [e7c1cfc]
 
 ## Phase 3: Dashboard Consolidation (Search & Filter)
-- [ ] Task: Update repository fetching logic in dashboard to respect selected organizations
+- [x] Task: Update repository fetching logic in dashboard to respect selected organizations [bb3d5ae]
 - [ ] Task: Write Tests: Verify repository filtering by organization
 - [ ] Task: Implement Feature: Dashboard repository list filtered by settings
 - [ ] Task: Add real-time search input to the dashboard header and connect to state

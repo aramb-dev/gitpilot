@@ -10,7 +10,7 @@
 - [x] Task: Implement API route for deletion (`DELETE /api/github/repos`) [cf1996f]
     - [x] Task: Write Tests: Verify deletion logic [cf1996f]
     - [x] Task: Implement Feature: DELETE handler [cf1996f]
-- [ ] Task: Conductor - User Manual Verification 'Phase 1: Backend API for Repository Actions' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 1: Backend API for Repository Actions' (Protocol in workflow.md)
 
 ## Phase 2: UI Safety & Feedback Components
 - [ ] Task: Set up toast notification system (e.g., Sonner or ShadCN Toast)

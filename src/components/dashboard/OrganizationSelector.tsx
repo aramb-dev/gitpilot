@@ -5,7 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2, Plus } from "lucide-react";
+import { Loader2, Plus, AlertCircle, ExternalLink, RotateCw } from "lucide-react";
+import { signIn } from "next-auth/react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 interface Organization {
   id: number;
@@ -101,6 +103,10 @@ export function OrganizationSelector() {
     }, 500);
   };
 
+  const handleReconnect = () => {
+    signIn("github", { callbackUrl: "/dashboard/settings" });
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center p-8">
@@ -133,7 +139,35 @@ export function OrganizationSelector() {
             </div>
         </div>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-6">
+
+        {/* Troubleshooting Alert */}
+        <Alert className="bg-blue-900/20 border-blue-900 text-blue-100">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Not seeing all your organizations?</AlertTitle>
+            <AlertDescription className="mt-2 text-sm text-blue-200/80">
+                <p className="mb-2">
+                    Some organizations require you to explicitly grant <strong>Third-party application access</strong>.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-3 mt-3">
+                    <a 
+                        href="https://github.com/settings/applications" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="flex items-center hover:underline text-white font-medium"
+                    >
+                        Check GitHub Permissions <ExternalLink className="ml-1 w-3 h-3" />
+                    </a>
+                    <button 
+                        onClick={handleReconnect}
+                        className="flex items-center hover:underline text-white font-medium text-left"
+                    >
+                        Reconnect with GitHub <RotateCw className="ml-1 w-3 h-3" />
+                    </button>
+                </div>
+            </AlertDescription>
+        </Alert>
+
         <div className="space-y-3">
           {organizations.map((org) => (
             <div key={org.id} className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-700/50 transition-colors">

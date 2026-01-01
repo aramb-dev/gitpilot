@@ -22,7 +22,7 @@
 - [x] Task: Add real-time search input to the dashboard header and connect to state [cf3cb2f]
 - [x] Task: Write Tests: Verify real-time search logic [9cf5b0b]
 - [x] Task: Implement Feature: Search functionality [9cf5b0b]
-- [ ] Task: Add Visibility and Language filters to the repository table
+- [x] Task: Add Visibility and Language filters to the repository table [b34ecd4]
 - [ ] Task: Write Tests: Verify visibility and language filtering
 - [ ] Task: Implement Feature: Advanced filtering
 - [ ] Task: Conductor - User Manual Verification 'Phase 3: Dashboard Consolidation (Search & Filter)' (Protocol in workflow.md)

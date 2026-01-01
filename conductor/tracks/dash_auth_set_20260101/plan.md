@@ -4,7 +4,7 @@
 - [x] Task: Audit and stabilize GitHub OAuth flow in `src/app/api/auth/[...nextauth]/route.ts` [c07c870]
 - [x] Task: Implement session helper to securely expose the GitHub access token to client/server components [b87d569]
 - [x] Task: Write Tests: Verify session creation and token exposure [60f75ae]
-- [ ] Task: Implement Feature: Finalize Auth flow
+- [x] Task: Implement Feature: Finalize Auth flow [f6e2c0d]
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Robust Authentication & Session Management' (Protocol in workflow.md)
 
 ## Phase 2: Organization Settings & Management

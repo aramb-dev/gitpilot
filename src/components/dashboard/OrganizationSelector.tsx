@@ -20,20 +20,19 @@ export function OrganizationSelector() {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    // Placeholder for fetching organizations
-    // This will be replaced in the next task
     async function fetchOrgs() {
         setLoading(true);
-        // Simulating API call
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        const mockOrgs: Organization[] = [
-            { id: 1, login: "org1", avatar_url: "", description: "Description 1" },
-            { id: 2, login: "org2", avatar_url: "", description: "Description 2" },
-        ];
-        setOrganizations(mockOrgs);
-        setLoading(false);
+        try {
+            const res = await fetch("/api/github/orgs");
+            if (!res.ok) throw new Error("Failed to fetch organizations");
+            const data = await res.json();
+            setOrganizations(data);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
 
-        // Load selection from localStorage for now
         const saved = localStorage.getItem("selected_orgs");
         if (saved) {
             setSelectedOrgs(JSON.parse(saved));
@@ -87,7 +86,11 @@ export function OrganizationSelector() {
                 htmlFor={`org-${org.id}`}
                 className="flex items-center space-x-3 cursor-pointer flex-1"
               >
-                <div className="w-8 h-8 rounded bg-gray-600 flex-shrink-0" />
+                {org.avatar_url ? (
+                  <img src={org.avatar_url} alt={org.login} className="w-8 h-8 rounded flex-shrink-0" />
+                ) : (
+                  <div className="w-8 h-8 rounded bg-gray-600 flex-shrink-0" />
+                )}
                 <div>
                     <div className="text-white font-medium">{org.login}</div>
                     {org.description && (

@@ -4,8 +4,7 @@ import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Loader2, Plus, AlertCircle, RotateCw } from "lucide-react";
+import { Loader2, AlertCircle, RotateCw } from "lucide-react";
 import { signIn } from "next-auth/react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
@@ -22,8 +21,6 @@ export function OrganizationSelector() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [manualOrg, setManualOrg] = useState("");
-  const [searching, setSearching] = useState(false);
 
   useEffect(() => {
     async function fetchOrgs() {
@@ -33,19 +30,10 @@ export function OrganizationSelector() {
             if (!res.ok) throw new Error("Failed to fetch organizations");
             const data = await res.json();
             
-            // Load selection and manually added orgs from localStorage
+            // Load selection from localStorage
             const savedSelected = localStorage.getItem("selected_orgs");
-            const savedManual = localStorage.getItem("manual_orgs");
             
-            let allOrgs = [...data];
-            if (savedManual) {
-                const manual = JSON.parse(savedManual) as Organization[];
-                // Avoid duplicates
-                const manualToAdd = manual.filter(m => !allOrgs.find(o => o.login === m.login));
-                allOrgs = [...allOrgs, ...manualToAdd];
-            }
-
-            setOrganizations(allOrgs);
+            setOrganizations(data);
             if (savedSelected) {
                 setSelectedOrgs(JSON.parse(savedSelected));
             }
@@ -57,32 +45,6 @@ export function OrganizationSelector() {
     }
     fetchOrgs();
   }, []);
-
-  const handleAddManual = async () => {
-    if (!manualOrg.trim()) return;
-    setSearching(true);
-    try {
-        const res = await fetch(`/api/github/orgs?name=${manualOrg.trim()}`);
-        if (!res.ok) throw new Error("Org not found");
-        const org = await res.json();
-        
-        setOrganizations(prev => {
-            if (prev.find(o => o.login === org.login)) return prev;
-            const updated = [...prev, org];
-            // Save to manual list
-            const manual = JSON.parse(localStorage.getItem("manual_orgs") || "[]");
-            if (!manual.find((m: any) => m.login === org.login)) {
-                localStorage.setItem("manual_orgs", JSON.stringify([...manual, org]));
-            }
-            return updated;
-        });
-        setManualOrg("");
-    } catch (err) {
-        alert("Organization not found or access denied.");
-    } finally {
-        setSearching(false);
-    }
-  };
 
   const toggleOrg = (login: string) => {
     setSelectedOrgs(prev => 
@@ -121,23 +83,9 @@ export function OrganizationSelector() {
         <CardTitle className="text-xl font-semibold text-white">
           GitHub Organizations
         </CardTitle>
-        <div className="flex flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4 md:items-center justify-between">
-            <p className="text-gray-400 text-sm">
-                Select the organizations you want to manage in your dashboard.
-            </p>
-            <div className="flex space-x-2">
-                <Input 
-                    placeholder="Add org by name..."
-                    value={manualOrg}
-                    onChange={(e) => setManualOrg(e.target.value)}
-                    className="h-9 w-48 bg-gray-700 border-gray-600"
-                    onKeyDown={(e) => e.key === "Enter" && handleAddManual()}
-                />
-                <Button size="sm" onClick={handleAddManual} disabled={searching}>
-                    {searching ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
-                </Button>
-            </div>
-        </div>
+        <p className="text-gray-400 text-sm">
+            Select the organizations you want to manage in your dashboard.
+        </p>
       </CardHeader>
       <CardContent className="space-y-6">
 

@@ -1,8 +1,9 @@
 # Plan: Dashboard Functionality & UI Polish
 
 ## Phase 1: Backend API for Repository Actions
-- [ ] Task: Implement API route for visibility toggling (`PATCH /api/github/repos/visibility`)
-    - [ ] Task: Write Tests: Verify visibility update with GitHub API mock
+- [x] Task: Implement API route for visibility toggling (`PATCH /api/github/repos/visibility`) [71c7b63]
+    - [x] Task: Write Tests: Verify visibility update with GitHub API mock [71c7b63]
+    - [x] Task: Implement Feature: PATCH handler using octokit or fetch [71c7b63]
     - [ ] Task: Implement Feature: PATCH handler using octokit or fetch
 - [ ] Task: Implement API route for archiving (`PATCH /api/github/repos/archive`)
     - [ ] Task: Write Tests: Verify archiving logic

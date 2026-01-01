@@ -82,7 +82,7 @@ export function RepositoryActions({
                 variant="destructive"
                 disabled={!hasSelectedRepos}
                 onClick={onDelete}
-                className="bg-red-900/30 text-red-400 border-red-900/50 hover:bg-red-900/50 hover:text-red-300 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                className="transition-all"
             >
                 Delete
             </Button>

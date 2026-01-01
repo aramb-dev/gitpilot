@@ -5,4 +5,4 @@ This file tracks all major tracks for the project. Each track has its own detail
 ---
 
 
-\n---\n\n## [~] Track: Dashboard Functionality & UI Polish\n*Link: [./conductor/tracks/dash_func_polish_20260101/](./conductor/tracks/dash_func_polish_20260101/)*
+\n---\n\n## [x] Track: Dashboard Functionality & UI Polish\n*Link: [./conductor/tracks/dash_func_polish_20260101/](./conductor/tracks/dash_func_polish_20260101/)*

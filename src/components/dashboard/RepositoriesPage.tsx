@@ -190,6 +190,12 @@ export function RepositoriesPage({ repositories: initialRepositories }: Reposito
     const handleDelete = async () => {
         const repoParams = selectedRepoObjects.map(r => ({ owner: r.owner, repo: r.name }))
 
+        if (repoParams.length === 0) {
+            toast.error('No repositories selected.')
+            setIsDeleteModalOpen(false)
+            return
+        }
+
         try {
             setIsActionLoading(true)
             const res = await fetch('/api/github/repos', {
@@ -198,15 +204,22 @@ export function RepositoriesPage({ repositories: initialRepositories }: Reposito
                 body: JSON.stringify({ repos: repoParams })
             })
 
+            if (!res.ok) {
+                throw new Error(`Delete failed: ${res.statusText}`)
+            }
+
             const data = await res.json()
+
             if (data.success?.length > 0) {
                 toast.success(`Successfully deleted ${data.success.length} repositories.`)
-                setIsDeleteModalOpen(false)
                 await loadRepos(true)
             }
+            
             if (data.errors?.length > 0) {
                 toast.error(`Failed to delete ${data.errors.length} repositories.`)
             }
+
+            setIsDeleteModalOpen(false)
         } catch (e) {
             toast.error('An error occurred while deleting repositories.')
         } finally {

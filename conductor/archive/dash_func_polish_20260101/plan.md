@@ -18,7 +18,7 @@
 - [x] Task: Create Confirmation Modals for destructive actions [b039108]
     - [x] Task: Write Tests: Verify modal appears and blocks action until confirmed [b039108]
     - [x] Task: Implement Feature: General-purpose confirmation modal for Archive and Delete [b039108]
-- [ ] Task: Conductor - User Manual Verification 'Phase 2: UI Safety & Feedback Components' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 2: UI Safety & Feedback Components' (Protocol in workflow.md)
 
 ## Phase 3: Dashboard Integration & Bulk Logic [checkpoint: 2ab3a3a]
 - [x] Task: Update `RepositoriesPage` to handle bulk action requests [2af77e7]
@@ -29,6 +29,6 @@
 - [x] Task: Conductor - User Manual Verification 'Phase 3: Dashboard Integration & Bulk Logic' (Protocol in workflow.md)
 
 ## Phase 4: Visual Polish & Finishing Touches
-- [~] Task: Refine Repository Table UI (Spacing, Typography, Row States)
-- [ ] Task: Final audit against `product-guidelines.md`
-- [ ] Task: Conductor - User Manual Verification 'Phase 4: Visual Polish & Finishing Touches' (Protocol in workflow.md)
+- [x] Task: Refine Repository Table UI (Spacing, Typography, Row States)
+- [x] Task: Final audit against `product-guidelines.md`
+- [x] Task: Conductor - User Manual Verification 'Phase 4: Visual Polish & Finishing Touches' (Protocol in workflow.md)

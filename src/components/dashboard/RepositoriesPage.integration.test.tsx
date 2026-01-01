@@ -55,12 +55,12 @@ describe("RepositoriesPage Integration", () => {
     });
 
     render(React.createElement(RepositoriesPage));
-    await waitFor(() => expect(screen.getByText("repo1")).toBeTruthy());
+    await waitFor(() => expect(screen.getAllByText("repo1").length).toBeGreaterThan(0));
 
     const checkboxes = screen.getAllByRole("checkbox");
     fireEvent.click(checkboxes[1]);
 
-    const visibilityButton = screen.getByText("Make Private");
+    const visibilityButton = screen.getAllByRole("button", { name: /make private/i })[0];
     fireEvent.click(visibilityButton);
 
     await waitFor(() => {
@@ -82,12 +82,12 @@ describe("RepositoriesPage Integration", () => {
       });
 
     render(React.createElement(RepositoriesPage));
-    await waitFor(() => expect(screen.getByText("repo1")).toBeTruthy());
+    await waitFor(() => expect(screen.getAllByText("repo1").length).toBeGreaterThan(0));
 
     const checkboxes = screen.getAllByRole("checkbox");
     fireEvent.click(checkboxes[1]);
 
-    const archiveButton = screen.getByText("Archive");
+    const archiveButton = screen.getAllByRole("button", { name: /archive/i })[0];
     fireEvent.click(archiveButton);
 
     expect(screen.getByText("Archive Repositories")).toBeTruthy();
@@ -114,12 +114,12 @@ describe("RepositoriesPage Integration", () => {
       });
 
     render(React.createElement(RepositoriesPage));
-    await waitFor(() => expect(screen.getByText("repo1")).toBeTruthy());
+    await waitFor(() => expect(screen.getAllByText("repo1").length).toBeGreaterThan(0));
 
     const checkboxes = screen.getAllByRole("checkbox");
     fireEvent.click(checkboxes[1]);
 
-    const deleteButton = screen.getByText("Delete");
+    const deleteButton = screen.getAllByRole("button", { name: /delete/i })[0];
     fireEvent.click(deleteButton);
 
     expect(screen.getByText("Delete Repositories")).toBeTruthy();

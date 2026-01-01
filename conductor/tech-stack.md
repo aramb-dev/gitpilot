@@ -10,8 +10,13 @@
 - **Styling**: [Tailwind CSS 4](https://tailwindcss.com/) - Utility-first CSS framework for rapid UI development.
 - **Component Library**: [ShadCN UI](https://ui.shadcn.com/) - Accessible and customizable UI components built on top of [Radix UI](https://www.radix-ui.com/).
 - **Icons**: [Lucide React](https://lucide.dev/) - Clean and consistent icon set for the dashboard.
+- **Notifications**: [Sonner](https://sonner.stevenly.me/) - Lightweight and customizable toast notifications.
 - **Utilities**: `tailwind-merge`, `clsx`, `class-variance-authority` - For managing dynamic CSS classes efficiently.
 
 ## Backend & Integration
+...
+## Testing
+- **Test Runner**: [Bun Test](https://bun.sh/docs/cli/test) - Fast, built-in test runner for the Bun ecosystem.
+- **DOM Environment**: [Happy DOM](https://github.com/capricorn86/happy-dom) - Lightweight virtual DOM implementation for component testing.
 - **Authentication**: [NextAuth.js](https://next-auth.js.org/) - Flexible authentication solution for Next.js, configured for GitHub OAuth.
 - **API Integration**: GitHub REST API - Used for performing bulk repository operations.

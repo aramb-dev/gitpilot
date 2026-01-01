@@ -1,0 +1,8 @@
+{
+  "track_id": "dash_func_polish_20260101",
+  "type": "feature",
+  "status": "new",
+  "created_at": "2026-01-01T12:00:00Z",
+  "updated_at": "2026-01-01T12:00:00Z",
+  "description": "I want to make things actually work in the dashboard and improve the UI, all of our data-fetching seems to work but our actual functionlity is not working at the moment. so the make pricate/public buttons dont work, etc."
+}

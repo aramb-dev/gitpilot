@@ -9,6 +9,11 @@ interface RepositoryActionsProps {
     onArchive: () => void
     onDelete: () => void
     onSearch: (query: string) => void
+    visibilityFilter: string
+    onVisibilityChange: (value: string) => void
+    languageFilter: string
+    onLanguageChange: (value: string) => void
+    languages: string[]
 }
 
 export function RepositoryActions({
@@ -17,7 +22,12 @@ export function RepositoryActions({
     onToggleVisibility,
     onArchive,
     onDelete,
-    onSearch
+    onSearch,
+    visibilityFilter,
+    onVisibilityChange,
+    languageFilter,
+    onLanguageChange,
+    languages
 }: RepositoryActionsProps) {
     return (
         <div className="flex items-center space-x-2">
@@ -30,6 +40,28 @@ export function RepositoryActions({
                     onChange={(e) => onSearch(e.target.value)}
                 />
             </div>
+            
+            <select 
+                value={visibilityFilter}
+                onChange={(e) => onVisibilityChange(e.target.value)}
+                className="bg-[#21262d] text-gray-300 border-gray-700 rounded-md px-3 py-1 text-sm focus:ring-blue-500 outline-none"
+            >
+                <option value="all">All Visibility</option>
+                <option value="Public">Public</option>
+                <option value="Private">Private</option>
+            </select>
+
+            <select 
+                value={languageFilter}
+                onChange={(e) => onLanguageChange(e.target.value)}
+                className="bg-[#21262d] text-gray-300 border-gray-700 rounded-md px-3 py-1 text-sm focus:ring-blue-500 outline-none"
+            >
+                <option value="all">All Languages</option>
+                {languages.map(lang => (
+                    <option key={lang} value={lang}>{lang}</option>
+                ))}
+            </select>
+
             <Button
                 variant="outline"
                 disabled={!hasSelectedRepos}

@@ -71,6 +71,7 @@ export async function GET(req: NextRequest) {
       visibility: repo.private ? "Private" : "Public",
       stars: repo.stargazers_count,
       updated: new Date(repo.updated_at).toLocaleString(),
+      language: repo.language,
     }));
 
     return NextResponse.json(repos);

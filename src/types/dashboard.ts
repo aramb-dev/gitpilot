@@ -6,6 +6,7 @@ export interface Repository {
     visibility: 'Public' | 'Private'
     stars: number
     updated: string
+    language?: string | null
 }
 
 export interface SidebarItem {

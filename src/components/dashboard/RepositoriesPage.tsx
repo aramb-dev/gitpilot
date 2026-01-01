@@ -17,6 +17,8 @@ export function RepositoriesPage({ repositories: initialRepositories }: Reposito
     const [selectedRepos, setSelectedRepos] = useState<number[]>([])
     const [selectAll, setSelectAll] = useState(false)
     const [searchQuery, setSearchQuery] = useState('')
+    const [visibilityFilter, setVisibilityFilter] = useState('all')
+    const [languageFilter, setLanguageFilter] = useState('all')
     const [currentPage, setCurrentPage] = useState(1)
 
     useEffect(() => {
@@ -74,18 +76,29 @@ export function RepositoriesPage({ repositories: initialRepositories }: Reposito
         setSelectAll(false)
     }, [repositories])
 
+    const languages = useMemo(() => {
+        const set = new Set<string>()
+        repositories.forEach(repo => {
+            if (repo.language) set.add(repo.language)
+        })
+        return Array.from(set).sort()
+    }, [repositories])
+
     const itemsPerPage = 10
     const normalizedQuery = searchQuery.toLowerCase()
     const filteredRepos = useMemo(() => {
         return repositories.filter((repo) => {
-            if (!normalizedQuery) return true
-            return (
+            const matchesSearch = !normalizedQuery || (
                 repo.name.toLowerCase().includes(normalizedQuery) ||
                 repo.owner.toLowerCase().includes(normalizedQuery) ||
                 repo.full_name.toLowerCase().includes(normalizedQuery)
             )
+            const matchesVisibility = visibilityFilter === 'all' || repo.visibility === visibilityFilter
+            const matchesLanguage = languageFilter === 'all' || repo.language === languageFilter
+
+            return matchesSearch && matchesVisibility && matchesLanguage
         })
-    }, [normalizedQuery, repositories])
+    }, [normalizedQuery, repositories, visibilityFilter, languageFilter])
     const totalPages = Math.ceil(filteredRepos.length / itemsPerPage)
     const paginatedRepos = filteredRepos.slice(
         (currentPage - 1) * itemsPerPage,
@@ -151,6 +164,11 @@ export function RepositoriesPage({ repositories: initialRepositories }: Reposito
                     onArchive={handleArchive}
                     onDelete={handleDelete}
                     onSearch={handleSearch}
+                    visibilityFilter={visibilityFilter}
+                    onVisibilityChange={setVisibilityFilter}
+                    languageFilter={languageFilter}
+                    onLanguageChange={setLanguageFilter}
+                    languages={languages}
                 />
             </div>
 

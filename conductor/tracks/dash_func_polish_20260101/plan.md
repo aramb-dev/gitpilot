@@ -4,13 +4,12 @@
 - [x] Task: Implement API route for visibility toggling (`PATCH /api/github/repos/visibility`) [71c7b63]
     - [x] Task: Write Tests: Verify visibility update with GitHub API mock [71c7b63]
     - [x] Task: Implement Feature: PATCH handler using octokit or fetch [71c7b63]
-    - [ ] Task: Implement Feature: PATCH handler using octokit or fetch
 - [x] Task: Implement API route for archiving (`PATCH /api/github/repos/archive`) [9d4c5a3]
     - [x] Task: Write Tests: Verify archiving logic [9d4c5a3]
     - [x] Task: Implement Feature: PATCH handler for archiving [9d4c5a3]
-- [ ] Task: Implement API route for deletion (`DELETE /api/github/repos`)
-    - [ ] Task: Write Tests: Verify deletion logic
-    - [ ] Task: Implement Feature: DELETE handler
+- [x] Task: Implement API route for deletion (`DELETE /api/github/repos`) [cf1996f]
+    - [x] Task: Write Tests: Verify deletion logic [cf1996f]
+    - [x] Task: Implement Feature: DELETE handler [cf1996f]
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Backend API for Repository Actions' (Protocol in workflow.md)
 
 ## Phase 2: UI Safety & Feedback Components

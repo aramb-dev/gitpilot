@@ -10,7 +10,7 @@
 ## Phase 2: Organization Settings & Management
 - [x] Task: Create UI for organization selection in `src/app/dashboard/settings/page.tsx` [6489b0f]
 - [x] Task: Write Tests: Verify fetching organizations from GitHub API [04715ce]
-- [ ] Task: Implement Feature: Fetch and display organizations in Settings
+- [x] Task: Implement Feature: Fetch and display organizations in Settings [dd85d12]
 - [ ] Task: Write Tests: Verify organization selection persistence
 - [ ] Task: Implement Feature: Save user-selected organizations to local storage or DB
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: Organization Settings & Management' (Protocol in workflow.md)

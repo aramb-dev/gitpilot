@@ -12,7 +12,7 @@
 - [x] Task: Write Tests: Verify fetching organizations from GitHub API [04715ce]
 - [x] Task: Implement Feature: Fetch and display organizations in Settings [dd85d12]
 - [x] Task: Write Tests: Verify organization selection persistence [5d6cdfb]
-- [ ] Task: Implement Feature: Save user-selected organizations to local storage or DB
+- [x] Task: Implement Feature: Save user-selected organizations to local storage or DB [ae9dd8d]
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: Organization Settings & Management' (Protocol in workflow.md)
 
 ## Phase 3: Dashboard Consolidation (Search & Filter)

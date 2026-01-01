@@ -2,16 +2,24 @@ import { describe, expect, it, mock } from "bun:test";
 import { authOptions, getAuthSession } from "./auth";
 
 // Mock getServerSession
-mock.module("next-auth", () => ({
-  getServerSession: () => Promise.resolve({ 
+mock.module("next-auth", () => {
+  let session: any = { 
     user: { name: "Test User", id: "123" }, 
     accessToken: "mock-access-token" 
-  }),
-  default: () => {}, // Mock NextAuth default export
-}));
+  };
+  return {
+    getServerSession: () => Promise.resolve(session),
+    default: () => {}, // Mock NextAuth default export
+    __setSession: (s: any) => session = s, // Helper to change mock behavior
+  };
+});
 
 describe("authOptions", () => {
-// ... existing tests ...
+  it("should have the correct secret", () => {
+    expect(authOptions.providers).toHaveLength(1);
+    expect(authOptions.providers[0].id).toBe("github");
+  });
+
   describe("callbacks", () => {
     it("should assign accessToken to token in jwt callback", async () => {
       const token = {};
@@ -44,9 +52,24 @@ describe("authOptions", () => {
 
 describe("getAuthSession", () => {
   it("should return the session with access token", async () => {
+    // Ensure session is set
+    const { __setSession } = require("next-auth");
+    __setSession({ 
+      user: { name: "Test User", id: "123" }, 
+      accessToken: "mock-access-token" 
+    });
+    
     const session = await getAuthSession();
     expect(session).not.toBeNull();
     expect(session?.accessToken).toBe("mock-access-token");
     expect(session?.user?.id).toBe("123");
+  });
+
+  it("should return null if no session", async () => {
+    const { __setSession } = require("next-auth");
+    __setSession(null);
+    
+    const session = await getAuthSession();
+    expect(session).toBeNull();
   });
 });

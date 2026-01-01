@@ -72,6 +72,7 @@ export async function GET(req: NextRequest) {
       stars: repo.stargazers_count,
       updated: new Date(repo.updated_at).toLocaleString(),
       language: repo.language,
+      url: repo.html_url,
     }));
 
     return NextResponse.json(repos);

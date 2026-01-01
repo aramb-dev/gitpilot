@@ -18,10 +18,10 @@ describe("Repositories API Route", () => {
     it("should fetch repos for user and multiple orgs", async () => {
       global.fetch = mock((url: string) => {
         if (url.includes("/user/repos")) {
-          return Promise.resolve(new Response(JSON.stringify([{ id: 1, name: "user-repo", full_name: "user/user-repo", owner: { login: "user" }, private: false, stargazers_count: 5, updated_at: "2023-01-01T00:00:00Z" }])));
+          return Promise.resolve(new Response(JSON.stringify([{ id: 1, name: "user-repo", full_name: "user/user-repo", owner: { login: "user" }, private: false, stargazers_count: 5, updated_at: "2023-01-01T00:00:00Z", html_url: "https://github.com/user/user-repo" }])));
         }
         if (url.includes("/orgs/org1/repos")) {
-          return Promise.resolve(new Response(JSON.stringify([{ id: 2, name: "org1-repo", full_name: "org1/org1-repo", owner: { login: "org1" }, private: true, stargazers_count: 10, updated_at: "2023-01-02T00:00:00Z" }])));
+          return Promise.resolve(new Response(JSON.stringify([{ id: 2, name: "org1-repo", full_name: "org1/org1-repo", owner: { login: "org1" }, private: true, stargazers_count: 10, updated_at: "2023-01-02T00:00:00Z", html_url: "https://github.com/org1/org1-repo" }])));
         }
         return Promise.resolve(new Response(JSON.stringify([])));
       });
@@ -40,7 +40,7 @@ describe("Repositories API Route", () => {
     it("should handle empty orgs list", async () => {
       global.fetch = mock((url: string) => {
         if (url.includes("/user/repos")) {
-          return Promise.resolve(new Response(JSON.stringify([{ id: 1, name: "user-repo", full_name: "user/user-repo", owner: { login: "user" }, private: false, stargazers_count: 5, updated_at: "2023-01-01T00:00:00Z" }])));
+          return Promise.resolve(new Response(JSON.stringify([{ id: 1, name: "user-repo", full_name: "user/user-repo", owner: { login: "user" }, private: false, stargazers_count: 5, updated_at: "2023-01-01T00:00:00Z", html_url: "https://github.com/user/user-repo" }])));
         }
         return Promise.resolve(new Response(JSON.stringify([])));
       });

@@ -30,8 +30,8 @@ mock.module("./ConfirmationModal", () => ({
 
 describe("RepositoriesPage Integration", () => {
   const mockRepos = [
-    { id: 1, name: "repo1", owner: "user", full_name: "user/repo1", visibility: "Public", language: "TypeScript", updated: "2023-01-01" },
-    { id: 2, name: "repo2", owner: "user", full_name: "user/repo2", visibility: "Public", language: "JavaScript", updated: "2023-01-01" },
+    { id: 1, name: "repo1", owner: "user", full_name: "user/repo1", visibility: "Public", language: "TypeScript", updated: "2023-01-01", url: "https://github.com/user/repo1" },
+    { id: 2, name: "repo2", owner: "user", full_name: "user/repo2", visibility: "Public", language: "JavaScript", updated: "2023-01-01", url: "https://github.com/user/repo2" },
   ];
 
   beforeEach(() => {

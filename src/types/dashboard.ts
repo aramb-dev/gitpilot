@@ -7,6 +7,7 @@ export interface Repository {
     stars: number
     updated: string
     language?: string | null
+    url: string
 }
 
 export interface SidebarItem {

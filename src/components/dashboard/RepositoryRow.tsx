@@ -1,6 +1,6 @@
 import { Checkbox } from "@/components/ui/checkbox"
 import { Badge } from "@/components/ui/badge"
-import { Star } from "lucide-react"
+import { Star, ExternalLink } from "lucide-react"
 import { Repository } from '@/types/dashboard'
 
 interface RepositoryRowProps {
@@ -20,7 +20,17 @@ export function RepositoryRow({ repository, isSelected, onSelectionChange }: Rep
                 />
             </td>
             <td className="p-4">
-                <div className="font-medium text-white">{repository.name}</div>
+                <div className="flex items-center space-x-2">
+                    <a 
+                        href={repository.url} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="font-medium text-white hover:text-blue-400 flex items-center gap-1.5"
+                    >
+                        {repository.name}
+                        <ExternalLink className="w-3.5 h-3.5 text-gray-500" />
+                    </a>
+                </div>
                 <div className="text-xs text-gray-500">{repository.full_name}</div>
             </td>
             <td className="p-4">

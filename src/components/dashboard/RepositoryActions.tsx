@@ -4,7 +4,8 @@ import { Search } from "lucide-react"
 
 interface RepositoryActionsProps {
     hasSelectedRepos: boolean
-    onMakePrivate: () => void
+    visibilityLabel: string
+    onToggleVisibility: () => void
     onArchive: () => void
     onDelete: () => void
     onSearch: (query: string) => void
@@ -12,7 +13,8 @@ interface RepositoryActionsProps {
 
 export function RepositoryActions({
     hasSelectedRepos,
-    onMakePrivate,
+    visibilityLabel,
+    onToggleVisibility,
     onArchive,
     onDelete,
     onSearch
@@ -31,10 +33,10 @@ export function RepositoryActions({
             <Button
                 variant="outline"
                 disabled={!hasSelectedRepos}
-                onClick={onMakePrivate}
+                onClick={onToggleVisibility}
                 className="bg-[#21262d] text-gray-300 border-gray-700 hover:bg-gray-700 disabled:opacity-50"
             >
-                Make Private
+                {visibilityLabel}
             </Button>
             <Button
                 variant="outline"

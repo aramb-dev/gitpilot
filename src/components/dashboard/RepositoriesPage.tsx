@@ -114,8 +114,13 @@ export function RepositoriesPage({ repositories: initialRepositories }: Reposito
         setSelectAll(false)
     }
 
-    const handleMakePrivate = () => {
-        console.log('Making private:', selectedRepos)
+    const selectedRepoObjects = repositories.filter(repo => selectedRepos.includes(repo.id))
+    const hasPublicSelected = selectedRepoObjects.some(repo => repo.visibility === 'Public')
+    const visibilityLabel = hasPublicSelected ? 'Make Private' : 'Make Public'
+
+    const handleToggleVisibility = () => {
+        const action = hasPublicSelected ? 'private' : 'public'
+        console.log(`Making ${action}:`, selectedRepos)
         // TODO: Implement API call
     }
 
@@ -138,7 +143,8 @@ export function RepositoriesPage({ repositories: initialRepositories }: Reposito
                 <h1 className="text-3xl font-bold text-white">Repositories</h1>
                 <RepositoryActions
                     hasSelectedRepos={hasSelectedRepos}
-                    onMakePrivate={handleMakePrivate}
+                    visibilityLabel={visibilityLabel}
+                    onToggleVisibility={handleToggleVisibility}
                     onArchive={handleArchive}
                     onDelete={handleDelete}
                     onSearch={handleSearch}

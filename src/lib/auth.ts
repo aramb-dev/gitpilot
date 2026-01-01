@@ -28,6 +28,9 @@ export const authOptions: NextAuthOptions = {
       if (token.accessToken) {
         session.accessToken = token.accessToken as string;
       }
+      if (session.user && token.sub) {
+        session.user.id = token.sub;
+      }
       return session;
     },
   },

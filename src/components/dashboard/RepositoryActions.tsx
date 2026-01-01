@@ -44,7 +44,7 @@ export function RepositoryActions({
             <select 
                 value={visibilityFilter}
                 onChange={(e) => onVisibilityChange(e.target.value)}
-                className="bg-[#21262d] text-gray-300 border-gray-700 rounded-md px-3 py-1 text-sm focus:ring-blue-500 outline-none"
+                className="bg-[#0d1117] text-gray-300 border border-gray-700 rounded-md px-3 py-1.5 text-sm focus:ring-1 focus:ring-blue-500 outline-none transition-all hover:border-gray-600 cursor-pointer"
             >
                 <option value="all">All Visibility</option>
                 <option value="Public">Public</option>
@@ -54,7 +54,7 @@ export function RepositoryActions({
             <select 
                 value={languageFilter}
                 onChange={(e) => onLanguageChange(e.target.value)}
-                className="bg-[#21262d] text-gray-300 border-gray-700 rounded-md px-3 py-1 text-sm focus:ring-blue-500 outline-none"
+                className="bg-[#0d1117] text-gray-300 border border-gray-700 rounded-md px-3 py-1.5 text-sm focus:ring-1 focus:ring-blue-500 outline-none transition-all hover:border-gray-600 cursor-pointer"
             >
                 <option value="all">All Languages</option>
                 {languages.map(lang => (
@@ -66,7 +66,7 @@ export function RepositoryActions({
                 variant="outline"
                 disabled={!hasSelectedRepos}
                 onClick={onToggleVisibility}
-                className="bg-[#21262d] text-gray-300 border-gray-700 hover:bg-gray-700 disabled:opacity-50"
+                className="bg-[#21262d] text-gray-300 border-gray-700 hover:bg-gray-700 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all"
             >
                 {visibilityLabel}
             </Button>
@@ -74,7 +74,7 @@ export function RepositoryActions({
                 variant="outline"
                 disabled={!hasSelectedRepos}
                 onClick={onArchive}
-                className="bg-[#21262d] text-gray-300 border-gray-700 hover:bg-gray-700 disabled:opacity-50"
+                className="bg-[#21262d] text-gray-300 border-gray-700 hover:bg-gray-700 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all"
             >
                 Archive
             </Button>
@@ -82,7 +82,7 @@ export function RepositoryActions({
                 variant="destructive"
                 disabled={!hasSelectedRepos}
                 onClick={onDelete}
-                className="bg-red-800/50 text-red-300 border-red-600/50 hover:bg-red-800/80 disabled:opacity-50"
+                className="bg-red-900/30 text-red-400 border-red-900/50 hover:bg-red-900/50 hover:text-red-300 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
             >
                 Delete
             </Button>

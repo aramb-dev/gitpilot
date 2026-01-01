@@ -36,14 +36,22 @@ export function RepositoryTable({
                     </tr>
                 </thead>
                 <tbody>
-                    {repositories.map((repo) => (
-                        <RepositoryRow
-                            key={repo.id}
-                            repository={repo}
-                            isSelected={selectedRepos.includes(repo.id)}
-                            onSelectionChange={onSelectRepo}
-                        />
-                    ))}
+                    {repositories.length > 0 ? (
+                        repositories.map((repo) => (
+                            <RepositoryRow
+                                key={repo.id}
+                                repository={repo}
+                                isSelected={selectedRepos.includes(repo.id)}
+                                onSelectionChange={onSelectRepo}
+                            />
+                        ))
+                    ) : (
+                        <tr>
+                            <td colSpan={5} className="p-12 text-center text-gray-500 italic">
+                                No repositories found matching your filters.
+                            </td>
+                        </tr>
+                    )}
                 </tbody>
             </table>
         </div>

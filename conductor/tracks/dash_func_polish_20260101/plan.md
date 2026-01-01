@@ -29,6 +29,6 @@
 - [x] Task: Conductor - User Manual Verification 'Phase 3: Dashboard Integration & Bulk Logic' (Protocol in workflow.md)
 
 ## Phase 4: Visual Polish & Finishing Touches
-- [ ] Task: Refine Repository Table UI (Spacing, Typography, Row States)
+- [~] Task: Refine Repository Table UI (Spacing, Typography, Row States)
 - [ ] Task: Final audit against `product-guidelines.md`
 - [ ] Task: Conductor - User Manual Verification 'Phase 4: Visual Polish & Finishing Touches' (Protocol in workflow.md)

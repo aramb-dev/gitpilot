@@ -1,6 +1,6 @@
 # Plan: Consolidate Dashboard, Auth, and Settings
 
-## Phase 1: Robust Authentication & Session Management
+## Phase 1: Robust Authentication & Session Management [checkpoint: 81d67a8]
 - [x] Task: Audit and stabilize GitHub OAuth flow in `src/app/api/auth/[...nextauth]/route.ts` [c07c870]
 - [x] Task: Implement session helper to securely expose the GitHub access token to client/server components [b87d569]
 - [x] Task: Write Tests: Verify session creation and token exposure [60f75ae]

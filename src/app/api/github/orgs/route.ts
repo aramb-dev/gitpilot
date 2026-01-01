@@ -1,9 +1,11 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
+  const { searchParams } = new URL(req.url);
+  const orgName = searchParams.get("name");
 
   if (!session?.accessToken) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -15,10 +17,29 @@ export async function GET() {
     "X-GitHub-Api-Version": "2022-11-28",
   };
 
+  if (orgName) {
+    try {
+      const res = await fetch(`https://api.github.com/orgs/${orgName}`, { headers, cache: "no-store" });
+      if (!res.ok) {
+        return NextResponse.json({ error: "Organization not found" }, { status: 404 });
+      }
+      const org = await res.json();
+      return NextResponse.json({
+        id: org.id,
+        login: org.login,
+        avatar_url: org.avatar_url,
+        description: org.description,
+      });
+    } catch (error) {
+      return NextResponse.json({ error: "Failed to fetch organization" }, { status: 500 });
+    }
+  }
+
   const [userRes, orgsRes] = await Promise.all([
     fetch("https://api.github.com/user", { headers, cache: "no-store" }),
     fetch("https://api.github.com/user/orgs?per_page=100", { headers, cache: "no-store" }),
   ]);
+// ... rest of the existing code ...
 
   if (!userRes.ok || !orgsRes.ok) {
     return NextResponse.json(

@@ -20,13 +20,13 @@
     - [x] Task: Implement Feature: General-purpose confirmation modal for Archive and Delete [b039108]
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: UI Safety & Feedback Components' (Protocol in workflow.md)
 
-## Phase 3: Dashboard Integration & Bulk Logic
+## Phase 3: Dashboard Integration & Bulk Logic [checkpoint: 2ab3a3a]
 - [x] Task: Update `RepositoriesPage` to handle bulk action requests [2af77e7]
     - [x] Task: Write Tests: Verify state updates correctly during/after bulk actions [2af77e7]
     - [x] Task: Implement Feature: Connect UI buttons to new API routes with loading states [2af77e7]
 - [x] Task: Implement optimistic UI updates or smart re-fetching [2af77e7]
     - [x] Task: Implement Feature: Refresh repo list after successful bulk action [2af77e7]
-- [ ] Task: Conductor - User Manual Verification 'Phase 3: Dashboard Integration & Bulk Logic' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 3: Dashboard Integration & Bulk Logic' (Protocol in workflow.md)
 
 ## Phase 4: Visual Polish & Finishing Touches
 - [ ] Task: Refine Repository Table UI (Spacing, Typography, Row States)

@@ -18,6 +18,7 @@ export function OrganizationSelector() {
   const [selectedOrgs, setSelectedOrgs] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [success, setSuccess] = useState(false);
 
   useEffect(() => {
     async function fetchOrgs() {
@@ -47,12 +48,17 @@ export function OrganizationSelector() {
         ? prev.filter(o => o !== login) 
         : [...prev, login]
     );
+    setSuccess(false);
   };
 
   const handleSave = () => {
     setSaving(true);
+    setSuccess(false);
     localStorage.setItem("selected_orgs", JSON.stringify(selectedOrgs));
-    setTimeout(() => setSaving(false), 500);
+    setTimeout(() => {
+        setSaving(false);
+        setSuccess(true);
+    }, 500);
   };
 
   if (loading) {
@@ -105,7 +111,10 @@ export function OrganizationSelector() {
           )}
         </div>
 
-        <div className="pt-4 flex justify-end">
+        <div className="pt-4 flex items-center justify-end space-x-4">
+          {success && (
+            <span className="text-green-500 text-sm font-medium">Selection saved!</span>
+          )}
           <Button onClick={handleSave} disabled={saving}>
             {saving ? "Saving..." : "Save Selection"}
           </Button>

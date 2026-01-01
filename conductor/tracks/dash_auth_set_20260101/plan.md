@@ -21,7 +21,7 @@
 - [x] Task: Implement Feature: Dashboard repository list filtered by settings [bb3d5ae]
 - [x] Task: Add real-time search input to the dashboard header and connect to state [cf3cb2f]
 - [x] Task: Write Tests: Verify real-time search logic [9cf5b0b]
-- [ ] Task: Implement Feature: Search functionality
+- [x] Task: Implement Feature: Search functionality [9cf5b0b]
 - [ ] Task: Add Visibility and Language filters to the repository table
 - [ ] Task: Write Tests: Verify visibility and language filtering
 - [ ] Task: Implement Feature: Advanced filtering

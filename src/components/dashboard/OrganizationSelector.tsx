@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2, Plus, AlertCircle, ExternalLink, RotateCw } from "lucide-react";
+import { Loader2, Plus, AlertCircle, RotateCw } from "lucide-react";
 import { signIn } from "next-auth/react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
@@ -150,14 +150,6 @@ export function OrganizationSelector() {
                     Some organizations require you to explicitly grant <strong>Third-party application access</strong>.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3 mt-3">
-                    <a 
-                        href="https://github.com/settings/applications" 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="flex items-center hover:underline text-white font-medium"
-                    >
-                        Check GitHub Permissions <ExternalLink className="ml-1 w-3 h-3" />
-                    </a>
                     <button 
                         onClick={handleReconnect}
                         className="flex items-center hover:underline text-white font-medium text-left"

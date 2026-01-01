@@ -9,31 +9,42 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const res = await fetch("https://api.github.com/user/orgs", {
-    headers: {
-      Accept: "application/vnd.github+json",
-      Authorization: `Bearer ${session.accessToken}`,
-      "X-GitHub-Api-Version": "2022-11-28",
-    },
-    cache: "no-store",
-  });
+  const headers = {
+    Accept: "application/vnd.github+json",
+    Authorization: `Bearer ${session.accessToken}`,
+    "X-GitHub-Api-Version": "2022-11-28",
+  };
 
-  if (!res.ok) {
-    const text = await res.text();
+  const [userRes, orgsRes] = await Promise.all([
+    fetch("https://api.github.com/user", { headers, cache: "no-store" }),
+    fetch("https://api.github.com/user/orgs", { headers, cache: "no-store" }),
+  ]);
+
+  if (!userRes.ok || !orgsRes.ok) {
     return NextResponse.json(
-      { error: "GitHub API error", status: res.status, details: text },
+      { error: "GitHub API error", status: 502 },
       { status: 502 }
     );
   }
 
-  const data = await res.json();
+  const [userData, orgsData] = await Promise.all([
+    userRes.json(),
+    orgsRes.json(),
+  ]);
 
-  const orgs = data.map((org: any) => ({
+  const userOrg = {
+    id: userData.id,
+    login: userData.login,
+    avatar_url: userData.avatar_url,
+    description: userData.bio || "Personal Account",
+  };
+
+  const orgs = orgsData.map((org: any) => ({
     id: org.id,
     login: org.login,
     avatar_url: org.avatar_url,
     description: org.description,
   }));
 
-  return NextResponse.json(orgs);
+  return NextResponse.json([userOrg, ...orgs]);
 }

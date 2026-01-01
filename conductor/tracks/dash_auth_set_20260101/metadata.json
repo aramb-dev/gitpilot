@@ -1,0 +1,8 @@
+{
+  "track_id": "dash_auth_set_20260101",
+  "type": "feature",
+  "status": "new",
+  "created_at": "2026-01-01T00:00:00Z",
+  "updated_at": "2026-01-01T00:00:00Z",
+  "description": "Consolidate Dashboard, Auth, and Settings: Finalize core dashboard functionality (search/filtering), robustness of GitHub OAuth, and implement settings to allow customization of chosen organizations."
+}

@@ -4,7 +4,9 @@ import { useEffect, useMemo, useState } from 'react'
 import { RepositoryTable } from './RepositoryTable'
 import { RepositoryActions } from './RepositoryActions'
 import { Pagination } from './Pagination'
+import { ConfirmationModal } from './ConfirmationModal'
 import { Repository } from '@/types/dashboard'
+import { toast } from 'sonner'
 
 interface RepositoriesPageProps {
     repositories?: Repository[]
@@ -13,6 +15,7 @@ interface RepositoriesPageProps {
 export function RepositoriesPage({ repositories: initialRepositories }: RepositoriesPageProps) {
     const [repositories, setRepositories] = useState<Repository[]>(initialRepositories ?? [])
     const [isLoading, setIsLoading] = useState(initialRepositories ? false : true)
+    const [isActionLoading, setIsActionLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const [selectedRepos, setSelectedRepos] = useState<number[]>([])
     const [selectAll, setSelectAll] = useState(false)
@@ -21,54 +24,50 @@ export function RepositoriesPage({ repositories: initialRepositories }: Reposito
     const [languageFilter, setLanguageFilter] = useState('all')
     const [currentPage, setCurrentPage] = useState(1)
 
+    // Modal states
+    const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false)
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+
+    const loadRepos = async (silent = false) => {
+        try {
+            if (!silent) setIsLoading(true)
+            setError(null)
+
+            const savedOrgs = localStorage.getItem("selected_orgs");
+            const orgsQuery = savedOrgs ? `?orgs=${JSON.parse(savedOrgs).join(",")}` : "";
+
+            const res = await fetch(`/api/github/repos${orgsQuery}`, {
+                method: 'GET',
+                cache: 'no-store',
+            })
+
+            if (!res.ok) {
+                if (res.status === 401) {
+                    window.location.href = '/api/auth/signin?callbackUrl=/dashboard/repos'
+                    return
+                }
+
+                const text = await res.text()
+                throw new Error(text || `Failed to load repositories (${res.status})`)
+            }
+
+            const data = (await res.json()) as Repository[]
+            setRepositories(data)
+        } catch (e) {
+            const message = e instanceof Error ? e.message : 'Failed to load repositories'
+            if (!silent) {
+                setError(message)
+            } else {
+                toast.error(message)
+            }
+        } finally {
+            if (!silent) setIsLoading(false)
+        }
+    }
+
     useEffect(() => {
         if (initialRepositories) return
-
-        let cancelled = false
-        async function loadRepos() {
-            try {
-                setIsLoading(true)
-                setError(null)
-
-                const savedOrgs = localStorage.getItem("selected_orgs");
-                const orgsQuery = savedOrgs ? `?orgs=${JSON.parse(savedOrgs).join(",")}` : "";
-
-                const res = await fetch(`/api/github/repos${orgsQuery}`, {
-                    method: 'GET',
-                    cache: 'no-store',
-                })
-
-                if (!res.ok) {
-                    if (res.status === 401) {
-                        window.location.href = '/api/auth/signin?callbackUrl=/dashboard/repos'
-                        return
-                    }
-
-                    const text = await res.text()
-                    throw new Error(text || `Failed to load repositories (${res.status})`)
-                }
-
-                const data = (await res.json()) as Repository[]
-                if (!cancelled) {
-                    setRepositories(data)
-                }
-            } catch (e) {
-                const message = e instanceof Error ? e.message : 'Failed to load repositories'
-                if (!cancelled) {
-                    setError(message)
-                }
-            } finally {
-                if (!cancelled) {
-                    setIsLoading(false)
-                }
-            }
-        }
-
         void loadRepos()
-
-        return () => {
-            cancelled = true
-        }
     }, [initialRepositories])
 
     useEffect(() => {
@@ -134,20 +133,85 @@ export function RepositoriesPage({ repositories: initialRepositories }: Reposito
     const hasPublicSelected = selectedRepoObjects.some(repo => repo.visibility === 'Public')
     const visibilityLabel = hasPublicSelected ? 'Make Private' : 'Make Public'
 
-    const handleToggleVisibility = () => {
+    const handleToggleVisibility = async () => {
         const action = hasPublicSelected ? 'private' : 'public'
-        console.log(`Making ${action}:`, selectedRepos)
-        // TODO: Implement API call
+        const repoParams = selectedRepoObjects.map(r => ({ owner: r.owner, repo: r.name }))
+
+        try {
+            setIsActionLoading(true)
+            const res = await fetch('/api/github/repos/visibility', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ repos: repoParams, visibility: action })
+            })
+
+            const data = await res.json()
+            if (data.success?.length > 0) {
+                toast.success(`Successfully updated visibility for ${data.success.length} repositories.`)
+                await loadRepos(true)
+            }
+            if (data.errors?.length > 0) {
+                toast.error(`Failed to update ${data.errors.length} repositories.`)
+            }
+        } catch (e) {
+            toast.error('An error occurred while updating visibility.')
+        } finally {
+            setIsActionLoading(false)
+        }
     }
 
-    const handleArchive = () => {
-        console.log('Archiving:', selectedRepos)
-        // TODO: Implement API call
+    const handleArchive = async () => {
+        const repoParams = selectedRepoObjects.map(r => ({ owner: r.owner, repo: r.name }))
+
+        try {
+            setIsActionLoading(true)
+            const res = await fetch('/api/github/repos/archive', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ repos: repoParams })
+            })
+
+            const data = await res.json()
+            if (data.success?.length > 0) {
+                toast.success(`Successfully archived ${data.success.length} repositories.`)
+                setIsArchiveModalOpen(false)
+                await loadRepos(true)
+            }
+            if (data.errors?.length > 0) {
+                toast.error(`Failed to archive ${data.errors.length} repositories.`)
+            }
+        } catch (e) {
+            toast.error('An error occurred while archiving repositories.')
+        } finally {
+            setIsActionLoading(false)
+        }
     }
 
-    const handleDelete = () => {
-        console.log('Deleting:', selectedRepos)
-        // TODO: Implement API call
+    const handleDelete = async () => {
+        const repoParams = selectedRepoObjects.map(r => ({ owner: r.owner, repo: r.name }))
+
+        try {
+            setIsActionLoading(true)
+            const res = await fetch('/api/github/repos', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ repos: repoParams })
+            })
+
+            const data = await res.json()
+            if (data.success?.length > 0) {
+                toast.success(`Successfully deleted ${data.success.length} repositories.`)
+                setIsDeleteModalOpen(false)
+                await loadRepos(true)
+            }
+            if (data.errors?.length > 0) {
+                toast.error(`Failed to delete ${data.errors.length} repositories.`)
+            }
+        } catch (e) {
+            toast.error('An error occurred while deleting repositories.')
+        } finally {
+            setIsActionLoading(false)
+        }
     }
 
     const hasSelectedRepos = selectedRepos.length > 0
@@ -161,8 +225,8 @@ export function RepositoriesPage({ repositories: initialRepositories }: Reposito
                     hasSelectedRepos={hasSelectedRepos}
                     visibilityLabel={visibilityLabel}
                     onToggleVisibility={handleToggleVisibility}
-                    onArchive={handleArchive}
-                    onDelete={handleDelete}
+                    onArchive={() => setIsArchiveModalOpen(true)}
+                    onDelete={() => setIsDeleteModalOpen(true)}
                     onSearch={handleSearch}
                     visibilityFilter={visibilityFilter}
                     onVisibilityChange={setVisibilityFilter}
@@ -197,6 +261,29 @@ export function RepositoriesPage({ repositories: initialRepositories }: Reposito
                 totalItems={filteredRepos.length}
                 itemsPerPage={itemsPerPage}
                 onPageChange={setCurrentPage}
+            />
+
+            {/* Modals */}
+            <ConfirmationModal
+                isOpen={isArchiveModalOpen}
+                onClose={() => setIsArchiveModalOpen(false)}
+                onConfirm={handleArchive}
+                title="Archive Repositories"
+                description={`Are you sure you want to archive ${selectedRepos.length} repositories? This will make them read-only.`}
+                confirmButtonText="Archive"
+                isLoading={isActionLoading}
+            />
+
+            <ConfirmationModal
+                isOpen={isDeleteModalOpen}
+                onClose={() => setIsDeleteModalOpen(false)}
+                onConfirm={handleDelete}
+                title="Delete Repositories"
+                description={`This action is IRREVERSIBLE. Are you sure you want to PERMANENTLY DELETE ${selectedRepos.length} repositories?`}
+                confirmText="DELETE"
+                confirmButtonText="Delete Permanently"
+                isDestructive
+                isLoading={isActionLoading}
             />
         </div>
     )

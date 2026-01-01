@@ -21,8 +21,8 @@
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: UI Safety & Feedback Components' (Protocol in workflow.md)
 
 ## Phase 3: Dashboard Integration & Bulk Logic
-- [ ] Task: Update `RepositoriesPage` to handle bulk action requests
-    - [ ] Task: Write Tests: Verify state updates correctly during/after bulk actions
+- [~] Task: Update `RepositoriesPage` to handle bulk action requests
+    - [~] Task: Write Tests: Verify state updates correctly during/after bulk actions
     - [ ] Task: Implement Feature: Connect UI buttons to new API routes with loading states
 - [ ] Task: Implement optimistic UI updates or smart re-fetching
     - [ ] Task: Implement Feature: Refresh repo list after successful bulk action

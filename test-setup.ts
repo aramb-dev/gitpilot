@@ -8,4 +8,23 @@ global.HTMLElement = window.HTMLElement as any;
 global.Node = window.Node as any;
 global.HTMLButtonElement = window.HTMLButtonElement as any;
 global.HTMLInputElement = window.HTMLInputElement as any;
-// Add other globals as needed
+global.getComputedStyle = window.getComputedStyle.bind(window) as any;
+
+// localStorage mock
+const localStorageMock = (() => {
+  let store: Record<string, string> = {};
+  return {
+    getItem: (key: string) => store[key] || null,
+    setItem: (key: string, value: string) => {
+      store[key] = value.toString();
+    },
+    clear: () => {
+      store = {};
+    },
+    removeItem: (key: string) => {
+      delete store[key];
+    },
+  };
+})();
+
+global.localStorage = localStorageMock as any;

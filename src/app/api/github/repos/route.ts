@@ -82,3 +82,74 @@ export async function GET(req: NextRequest) {
     );
   }
 }
+
+export async function DELETE(req: NextRequest) {
+  const session = (await getServerSession(authOptions)) as (Session & {
+    accessToken?: string;
+  }) | null;
+
+  if (!session?.accessToken) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
+    const body = await req.json();
+    const { repos } = body;
+
+    if (!repos || !Array.isArray(repos) || repos.length === 0) {
+      return NextResponse.json(
+        { error: "Invalid request: 'repos' array is required." },
+        { status: 400 }
+      );
+    }
+
+    const headers = {
+      Accept: "application/vnd.github+json",
+      Authorization: `Bearer ${session.accessToken}`,
+      "X-GitHub-Api-Version": "2022-11-28",
+    };
+
+    const results = await Promise.all(
+      repos.map(async ({ owner, repo }: { owner: string; repo: string }) => {
+        try {
+          const res = await fetch(`https://api.github.com/repos/${owner}/${repo}`, {
+            method: "DELETE",
+            headers,
+            cache: "no-store",
+          });
+
+          if (!res.ok) {
+            const errorData = await res.json().catch(() => ({ message: "Failed to delete" }));
+            return {
+              repo: `${owner}/${repo}`,
+              status: "error",
+              error: errorData.message || "Failed to delete repository",
+            };
+          }
+
+          return {
+            repo: `${owner}/${repo}`,
+            status: "success",
+            data: { full_name: `${owner}/${repo}` }
+          };
+        } catch (error) {
+          return {
+            repo: `${owner}/${repo}`,
+            status: "error",
+            error: error instanceof Error ? error.message : "Unknown network error",
+          };
+        }
+      })
+    );
+
+    const success = results.filter((r) => r.status === "success").map((r) => r.data);
+    const errors = results.filter((r) => r.status === "error");
+
+    return NextResponse.json({ success, errors });
+  } catch (error) {
+    return NextResponse.json(
+      { error: "Bad Request" },
+      { status: 400 }
+    );
+  }
+}

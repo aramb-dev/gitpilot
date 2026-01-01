@@ -13,8 +13,8 @@
 - [x] Task: Conductor - User Manual Verification 'Phase 1: Backend API for Repository Actions' (Protocol in workflow.md)
 
 ## Phase 2: UI Safety & Feedback Components
-- [~] Task: Set up toast notification system (e.g., Sonner or ShadCN Toast)
-    - [~] Task: Implement Feature: Add toast provider and helper hook
+- [x] Task: Set up toast notification system (e.g., Sonner or ShadCN Toast) [ab985da]
+    - [x] Task: Implement Feature: Add toast provider and helper hook [ab985da]
 - [ ] Task: Create Confirmation Modals for destructive actions
     - [ ] Task: Write Tests: Verify modal appears and blocks action until confirmed
     - [ ] Task: Implement Feature: General-purpose confirmation modal for Archive and Delete

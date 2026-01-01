@@ -28,7 +28,10 @@ export function RepositoriesPage({ repositories: initialRepositories }: Reposito
                 setIsLoading(true)
                 setError(null)
 
-                const res = await fetch('/api/github/repos', {
+                const savedOrgs = localStorage.getItem("selected_orgs");
+                const orgsQuery = savedOrgs ? `?orgs=${JSON.parse(savedOrgs).join(",")}` : "";
+
+                const res = await fetch(`/api/github/repos${orgsQuery}`, {
                     method: 'GET',
                     cache: 'no-store',
                 })

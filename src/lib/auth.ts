@@ -1,4 +1,5 @@
 import GitHubProvider from "next-auth/providers/github";
+import { getServerSession } from "next-auth";
 import type { NextAuthOptions } from "next-auth";
 
 export const authOptions: NextAuthOptions = {
@@ -35,3 +36,5 @@ export const authOptions: NextAuthOptions = {
     },
   },
 };
+
+export const getAuthSession = () => getServerSession(authOptions);

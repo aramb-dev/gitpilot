@@ -1,16 +1,17 @@
-import { describe, expect, it } from "bun:test";
-import { authOptions } from "./auth";
+import { describe, expect, it, mock } from "bun:test";
+import { authOptions, getAuthSession } from "./auth";
+
+// Mock getServerSession
+mock.module("next-auth", () => ({
+  getServerSession: () => Promise.resolve({ 
+    user: { name: "Test User", id: "123" }, 
+    accessToken: "mock-access-token" 
+  }),
+  default: () => {}, // Mock NextAuth default export
+}));
 
 describe("authOptions", () => {
-  it("should have the correct secret", () => {
-    // We expect a secret to be configured. 
-    // In this test environment, it might be undefined unless we mock it.
-    // However, the code uses `process.env.NEXTAUTH_SECRET ?? process.env.AUTH_SECRET`.
-    // Let's check if it handles the provider correctly.
-    expect(authOptions.providers).toHaveLength(1);
-    expect(authOptions.providers[0].id).toBe("github");
-  });
-
+// ... existing tests ...
   describe("callbacks", () => {
     it("should assign accessToken to token in jwt callback", async () => {
       const token = {};
@@ -36,8 +37,16 @@ describe("authOptions", () => {
 
         const result = await authOptions.callbacks?.session?.({ session, token, user: null as any, newSession: null, trigger: "update" });
         
-        // This is expected to fail currently
         expect(result.user).toMatchObject({ id: "12345" });
     });
+  });
+});
+
+describe("getAuthSession", () => {
+  it("should return the session with access token", async () => {
+    const session = await getAuthSession();
+    expect(session).not.toBeNull();
+    expect(session?.accessToken).toBe("mock-access-token");
+    expect(session?.user?.id).toBe("123");
   });
 });

@@ -19,15 +19,26 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async jwt({ token, account }) {
+    async jwt({ token, account, trigger }) {
+      // On initial sign-in, store access token and connected timestamp
       if (account?.access_token) {
         token.accessToken = account.access_token;
+        token.connectedAt = new Date().toISOString();
+        
+        // Store the requested scopes (we know what we asked for)
+        token.scopes = ["read:user", "repo", "read:org"];
       }
       return token;
     },
     async session({ session, token }) {
       if (token.accessToken) {
         session.accessToken = token.accessToken as string;
+      }
+      if (token.scopes) {
+        session.scopes = token.scopes as string[];
+      }
+      if (token.connectedAt) {
+        session.connectedAt = token.connectedAt as string;
       }
       if (session.user && token.sub) {
         session.user.id = token.sub;

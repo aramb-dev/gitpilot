@@ -1,8 +1,9 @@
 import { Send, Settings } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { signOut, useSession } from "next-auth/react"
+import { useSession } from "next-auth/react"
 import { SidebarItem } from '@/types/dashboard'
+import { handleSignOut } from '@/lib/auth/signout'
 
 interface SidebarProps {
     sidebarItems: SidebarItem[]
@@ -96,7 +97,7 @@ export function Sidebar({ sidebarItems }: SidebarProps) {
                         ) : null}
                         <button
                             type="button"
-                            onClick={() => void signOut({ callbackUrl: "/" })}
+                            onClick={() => void handleSignOut("/")}
                             className="text-xs text-gray-400 hover:text-red-500 transition"
                         >
                             Log out

@@ -8,7 +8,7 @@ import type { Issue, IssueLabel, IssueUser, BulkIssueAction } from '@/types/issu
 interface BulkActionBarProps {
   selectedIssues: Issue[];
   onClearSelection: () => void;
-  onExecuteAction: (action: BulkIssueAction) => Promise<void>;
+  onExecuteAction: (action: BulkIssueAction) => Promise<unknown>;
   isExecuting: boolean;
   availableLabels: IssueLabel[];
   availableAssignees: IssueUser[];

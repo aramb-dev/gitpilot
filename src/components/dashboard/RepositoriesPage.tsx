@@ -6,6 +6,7 @@ import { RepositoryActions } from './RepositoryActions'
 import { Pagination } from './Pagination'
 import { ConfirmationModal } from './ConfirmationModal'
 import { Repository } from '@/types/dashboard'
+import type { ApiResponse } from '@/types/api-errors'
 import { toast } from 'sonner'
 
 interface RepositoriesPageProps {
@@ -51,8 +52,17 @@ export function RepositoriesPage({ repositories: initialRepositories }: Reposito
                 throw new Error(text || `Failed to load repositories (${res.status})`)
             }
 
-            const data = (await res.json()) as Repository[]
-            setRepositories(data)
+            const json = (await res.json()) as ApiResponse<Repository[]>
+            
+            if (json.error) {
+                throw new Error(json.error.message)
+            }
+
+            if (json.warnings && json.warnings.length > 0) {
+                json.warnings.forEach(warning => toast.warning(warning))
+            }
+
+            setRepositories(json.data ?? [])
         } catch (e) {
             const message = e instanceof Error ? e.message : 'Failed to load repositories'
             if (!silent) {
@@ -130,7 +140,7 @@ export function RepositoriesPage({ repositories: initialRepositories }: Reposito
     }
 
     const selectedRepoObjects = repositories.filter(repo => selectedRepos.includes(repo.id))
-    const hasPublicSelected = selectedRepoObjects.some(repo => repo.visibility === 'Public')
+    const hasPublicSelected = selectedRepoObjects.some(repo => repo.visibility === 'public')
     const visibilityLabel = hasPublicSelected ? 'Make Private' : 'Make Public'
 
     const handleToggleVisibility = async () => {

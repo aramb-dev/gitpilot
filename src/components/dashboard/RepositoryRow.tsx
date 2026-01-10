@@ -24,7 +24,7 @@ export function RepositoryRow({ repository, isSelected, onSelectionChange }: Rep
             <td className="p-4">
                 <div className="flex items-center space-x-2">
                     <a 
-                        href={repository.url} 
+                        href={repository.html_url} 
                         target="_blank" 
                         rel="noopener noreferrer" 
                         className="font-semibold text-white hover:text-blue-400 flex items-center gap-1.5 transition-colors"
@@ -37,13 +37,13 @@ export function RepositoryRow({ repository, isSelected, onSelectionChange }: Rep
             </td>
             <td className="p-4">
                 <Badge
-                    variant={repository.visibility === 'Public' ? 'outline' : 'secondary'}
-                    className={repository.visibility === 'Public'
+                    variant={repository.visibility === 'public' ? 'outline' : 'secondary'}
+                    className={repository.visibility === 'public'
                         ? 'border-green-800/50 text-green-400 bg-green-900/10'
                         : 'bg-purple-900/20 text-purple-400 border-purple-800/50'
                     }
                 >
-                    {repository.visibility}
+                    {repository.visibility === 'public' ? 'Public' : 'Private'}
                 </Badge>
             </td>
             <td className="p-4">
@@ -52,7 +52,7 @@ export function RepositoryRow({ repository, isSelected, onSelectionChange }: Rep
                     {repository.stars}
                 </div>
             </td>
-            <td className="p-4 text-sm text-gray-400">{repository.updated}</td>
+            <td className="p-4 text-sm text-gray-400">{new Date(repository.updated_at).toLocaleDateString()}</td>
         </tr>
     )
 }

@@ -89,15 +89,6 @@ gitpilot-app/
 └── ... (config files)
 ```
 
-## 💰 Pricing Plans
-
-| Feature                    | Free Plan                  | Paid Plan                 |
-| -------------------------- | -------------------------- | ------------------------- |
-| Bulk Repository Management | Personal repositories only | Organization repositories |
-| Repository Filters         | Basic                      | Advanced                  |
-| Number of Operations       | Limited                    | Unlimited                 |
-| Support                    | Standard                   | Priority                  |
-
 ## 🔄 Deployment
 
 GitPilot is configured for easy deployment to Netlify. Simply connect your GitHub repository to Netlify for continuous deployment.

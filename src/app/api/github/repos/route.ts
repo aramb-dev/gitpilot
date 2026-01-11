@@ -4,13 +4,15 @@ import type { Session } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { fetchAllRepos } from "@/lib/github/repos";
 import { normalizeRepositories } from "@/lib/github/normalize";
-import { errorCodeToHttpStatus, ERROR_MESSAGES } from "@/lib/github/errors";
+import { ERROR_MESSAGES } from "@/lib/github/errors";
 import type { ApiResponse } from "@/types/api-errors";
 import type { Repository } from "@/types/repository";
+import { getCached, setCache } from "@/db/cache";
 
 export async function GET(req: NextRequest) {
   const session = (await getServerSession(authOptions)) as (Session & {
     accessToken?: string;
+    user?: { id?: string };
   }) | null;
 
   if (!session?.accessToken) {
@@ -23,13 +25,32 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(response, { status: 401 });
   }
 
+  const userId = session.user?.id ?? "anonymous";
   const { searchParams } = new URL(req.url);
   const selectedOrgs = searchParams.get("orgs")?.split(",").filter(Boolean) || [];
+  const skipCache = searchParams.get("refresh") === "true";
+  
+  const cacheKey = `repos:${selectedOrgs.sort().join(",")}`;
+
+  if (!skipCache) {
+    const cached = await getCached<Repository[]>(userId, cacheKey);
+    if (cached && !cached.isStale) {
+      const response: ApiResponse<Repository[]> = {
+        data: cached.data,
+        meta: { fromCache: true },
+      };
+      return NextResponse.json(response);
+    }
+  }
 
   try {
     const result = await fetchAllRepos(session.accessToken, selectedOrgs);
 
     const normalizedRepos = normalizeRepositories(result.repos);
+
+    await setCache(userId, cacheKey, "repositories", normalizedRepos, {
+      ttlMinutes: 5,
+    });
 
     const warnings: string[] = [...result.warnings];
 

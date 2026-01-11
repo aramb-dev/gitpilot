@@ -21,6 +21,10 @@ export interface ApiResponse<T> {
   data?: T;
   error?: ApiError;
   warnings?: string[];
+  meta?: {
+    fromCache?: boolean;
+    [key: string]: unknown;
+  };
 }
 
 export interface RateLimitInfo {

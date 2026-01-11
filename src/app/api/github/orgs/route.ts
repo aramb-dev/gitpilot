@@ -1,15 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { getCached, setCache } from "@/db/cache";
+
+interface OrgData {
+  id: number;
+  login: string;
+  avatar_url: string;
+  description: string | null;
+}
 
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
   const { searchParams } = new URL(req.url);
   const orgName = searchParams.get("name");
+  const skipCache = searchParams.get("refresh") === "true";
 
   if (!session?.accessToken) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
+  const userId = (session.user as { id?: string })?.id ?? "anonymous";
 
   const headers = {
     Accept: "application/vnd.github+json",
@@ -18,20 +29,42 @@ export async function GET(req: NextRequest) {
   };
 
   if (orgName) {
+    const cacheKey = `org:${orgName}`;
+    
+    if (!skipCache) {
+      const cached = await getCached<OrgData>(userId, cacheKey);
+      if (cached && !cached.isStale) {
+        return NextResponse.json(cached.data);
+      }
+    }
+
     try {
       const res = await fetch(`https://api.github.com/orgs/${orgName}`, { headers, cache: "no-store" });
       if (!res.ok) {
         return NextResponse.json({ error: "Organization not found" }, { status: 404 });
       }
       const org = await res.json();
-      return NextResponse.json({
+      const orgData: OrgData = {
         id: org.id,
         login: org.login,
         avatar_url: org.avatar_url,
         description: org.description,
-      });
+      };
+      
+      await setCache(userId, cacheKey, "orgs", orgData, { ttlMinutes: 10 });
+      
+      return NextResponse.json(orgData);
     } catch (error) {
       return NextResponse.json({ error: "Failed to fetch organization" }, { status: 500 });
+    }
+  }
+
+  const cacheKey = "orgs:list";
+  
+  if (!skipCache) {
+    const cached = await getCached<OrgData[]>(userId, cacheKey);
+    if (cached && !cached.isStale) {
+      return NextResponse.json(cached.data);
     }
   }
 
@@ -67,5 +100,9 @@ export async function GET(req: NextRequest) {
     description: org.description,
   }));
 
-  return NextResponse.json([userOrg, ...orgs]);
+  const allOrgs = [userOrg, ...orgs];
+  
+  await setCache(userId, cacheKey, "orgs", allOrgs, { ttlMinutes: 10 });
+
+  return NextResponse.json(allOrgs);
 }

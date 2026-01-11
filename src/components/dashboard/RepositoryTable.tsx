@@ -18,21 +18,21 @@ export function RepositoryTable({
     onSelectRepo
 }: RepositoryTableProps) {
     return (
-        <div className="bg-[#161b22] border border-gray-800 rounded-lg overflow-hidden">
+        <div className="bg-[#0d0d0d] border border-[#333] overflow-hidden font-mono">
             <table className="w-full">
-                <thead className="bg-[#21262d] border-b border-gray-800">
+                <thead className="bg-[#1a1a1a] border-b border-[#333]">
                     <tr>
                         <th className="p-4 w-12">
                             <Checkbox
                                 checked={selectAll}
                                 onCheckedChange={onSelectAll}
-                                className="bg-gray-800 border-gray-600"
+                                className="bg-[#1a1a1a] border-[#333] accent-[#00ff00]"
                             />
                         </th>
-                        <th className="p-4 text-left text-sm font-semibold text-gray-300">Name</th>
-                        <th className="p-4 text-left text-sm font-semibold text-gray-300">Visibility</th>
-                        <th className="p-4 text-left text-sm font-semibold text-gray-300">Stars</th>
-                        <th className="p-4 text-left text-sm font-semibold text-gray-300">Last Updated</th>
+                        <th className="p-4 text-left text-sm text-[#666]">name</th>
+                        <th className="p-4 text-left text-sm text-[#666]">visibility</th>
+                        <th className="p-4 text-left text-sm text-[#666]">stars</th>
+                        <th className="p-4 text-left text-sm text-[#666]">updated</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -47,8 +47,8 @@ export function RepositoryTable({
                         ))
                     ) : (
                         <tr>
-                            <td colSpan={5} className="p-12 text-center text-gray-500 italic">
-                                No repositories found matching your filters.
+                            <td colSpan={5} className="p-12 text-center text-[#666] font-mono">
+                                no data
                             </td>
                         </tr>
                     )}

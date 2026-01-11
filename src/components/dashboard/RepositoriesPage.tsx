@@ -53,7 +53,7 @@ export function RepositoriesPage({ repositories: initialRepositories }: Reposito
             }
 
             const json = (await res.json()) as ApiResponse<Repository[]>
-            
+
             if (json.error) {
                 throw new Error(json.error.message)
             }
@@ -141,7 +141,7 @@ export function RepositoriesPage({ repositories: initialRepositories }: Reposito
 
     const selectedRepoObjects = repositories.filter(repo => selectedRepos.includes(repo.id))
     const hasPublicSelected = selectedRepoObjects.some(repo => repo.visibility === 'public')
-    const visibilityLabel = hasPublicSelected ? 'Make Private' : 'Make Public'
+    const visibilityLabel = hasPublicSelected ? 'make_private' : 'make_public'
 
     const handleToggleVisibility = async () => {
         const action = hasPublicSelected ? 'private' : 'public'
@@ -224,7 +224,7 @@ export function RepositoriesPage({ repositories: initialRepositories }: Reposito
                 toast.success(`Successfully deleted ${data.success.length} repositories.`)
                 await loadRepos(true)
             }
-            
+
             if (data.errors?.length > 0) {
                 toast.error(`Failed to delete ${data.errors.length} repositories.`)
             }
@@ -240,10 +240,13 @@ export function RepositoriesPage({ repositories: initialRepositories }: Reposito
     const hasSelectedRepos = selectedRepos.length > 0
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 font-mono">
             {/* Page Header */}
             <div className="flex justify-between items-center">
-                <h1 className="text-3xl font-bold text-white">Repositories</h1>
+                <div>
+                    <p className="text-[#666] text-sm mb-2">$ ls repos</p>
+                    <h1 className="text-2xl font-bold text-white">// REPOSITORIES</h1>
+                </div>
                 <RepositoryActions
                     hasSelectedRepos={hasSelectedRepos}
                     visibilityLabel={visibilityLabel}
@@ -260,8 +263,8 @@ export function RepositoriesPage({ repositories: initialRepositories }: Reposito
             </div>
 
             {error ? (
-                <div className="bg-[#161b22] border border-gray-800 rounded-lg p-4 text-sm text-red-300">
-                    {error}
+                <div className="bg-[#0d0d0d] border border-red-900/50 p-4 text-sm text-red-400">
+                    <span className="text-[#666]">error: </span>{error}
                 </div>
             ) : null}
 
@@ -274,7 +277,7 @@ export function RepositoriesPage({ repositories: initialRepositories }: Reposito
             />
 
             {isLoading ? (
-                <div className="text-sm text-gray-400">Loading repositories…</div>
+                <div className="text-sm text-[#666]">loading...</div>
             ) : null}
 
             {/* Pagination */}
@@ -291,9 +294,9 @@ export function RepositoriesPage({ repositories: initialRepositories }: Reposito
                 isOpen={isArchiveModalOpen}
                 onClose={() => setIsArchiveModalOpen(false)}
                 onConfirm={handleArchive}
-                title="Archive Repositories"
-                description={`Are you sure you want to archive ${selectedRepos.length} repositories? This will make them read-only.`}
-                confirmButtonText="Archive"
+                title="archive_repos"
+                description={`Archive ${selectedRepos.length} repositories? This will make them read-only.`}
+                confirmButtonText="archive"
                 isLoading={isActionLoading}
             />
 
@@ -301,10 +304,10 @@ export function RepositoriesPage({ repositories: initialRepositories }: Reposito
                 isOpen={isDeleteModalOpen}
                 onClose={() => setIsDeleteModalOpen(false)}
                 onConfirm={handleDelete}
-                title="Delete Repositories"
-                description={`This action is IRREVERSIBLE. Are you sure you want to PERMANENTLY DELETE ${selectedRepos.length} repositories?`}
+                title="delete_repos"
+                description={`IRREVERSIBLE. Permanently delete ${selectedRepos.length} repositories?`}
                 confirmText="DELETE"
-                confirmButtonText="Delete Permanently"
+                confirmButtonText="delete"
                 isDestructive
                 isLoading={isActionLoading}
             />

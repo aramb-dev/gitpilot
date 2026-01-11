@@ -2,7 +2,6 @@
 
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
-import { ChevronRight } from 'lucide-react'
 
 export function Breadcrumbs() {
     const pathname = usePathname()
@@ -10,17 +9,17 @@ export function Breadcrumbs() {
     const getBreadcrumbs = (pathname: string) => {
         const segments = pathname.split('/').filter(Boolean)
         const breadcrumbs = [
-            { label: 'Dashboard', href: '/dashboard', isActive: false }
+            { label: '~', href: '/dashboard', isActive: false }
         ]
 
         if (segments.length > 1) {
             const section = segments[1]
             const sectionLabels: Record<string, string> = {
-                'repos': 'Repositories',
-                'issues': 'Issues',
-                'prs': 'Pull Requests',
-                'members': 'Members',
-                'settings': 'Settings'
+                'repos': 'repos',
+                'issues': 'issues',
+                'prs': 'prs',
+                'members': 'members',
+                'settings': 'settings'
             }
 
             breadcrumbs.push({
@@ -36,25 +35,21 @@ export function Breadcrumbs() {
     const breadcrumbs = getBreadcrumbs(pathname)
 
     return (
-        <nav className="flex items-center space-x-2 text-sm">
+        <nav className="flex items-center text-sm font-mono text-[#666]">
             {breadcrumbs.map((breadcrumb, index) => (
-                <div key={breadcrumb.href} className="flex items-center">
-                    {index > 0 && (
-                        <ChevronRight className="w-4 h-4 text-gray-500 mx-2" />
-                    )}
+                <span key={breadcrumb.href}>
+                    {index > 0 && <span className="mx-2">/</span>}
                     {breadcrumb.isActive ? (
-                        <span className="text-white font-medium">
-                            {breadcrumb.label}
-                        </span>
+                        <span className="text-[#00ff00]">{breadcrumb.label}</span>
                     ) : (
                         <Link
                             href={breadcrumb.href}
-                            className="text-gray-400 hover:text-white transition-colors"
+                            className="hover:text-white transition-colors"
                         >
                             {breadcrumb.label}
                         </Link>
                     )}
-                </div>
+                </span>
             ))}
         </nav>
     )

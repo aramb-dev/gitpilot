@@ -31,7 +31,7 @@ export function ConfirmationModal({
   title,
   description,
   confirmText,
-  confirmButtonText = "Confirm",
+  confirmButtonText = "confirm",
   isDestructive = false,
   isLoading = false,
 }: ConfirmationModalProps) {
@@ -43,60 +43,64 @@ export function ConfirmationModal({
     }
   }, [isOpen]);
 
-  const isConfirmDisabled = confirmText 
-    ? userInput.trim().toLowerCase() !== confirmText.toLowerCase() 
+  const isConfirmDisabled = confirmText
+    ? userInput.trim().toLowerCase() !== confirmText.toLowerCase()
     : false;
+  const borderColor = isDestructive ? '#dc2626' : '#00ff00';
 
   if (!isOpen) return null;
 
   return (
-    <div 
-        style={{ 
-            position: 'fixed', 
-            top: 0, 
-            left: 0, 
-            right: 0, 
-            bottom: 0, 
-            backgroundColor: 'rgba(0,0,0,0.85)', 
-            zIndex: 9999, 
-            display: 'flex', 
-            alignItems: 'center', 
+    <div
+        style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0,0,0,0.9)',
+            zIndex: 9999,
+            display: 'flex',
+            alignItems: 'center',
             justifyContent: 'center',
-            padding: '20px'
+            padding: '20px',
+            fontFamily: 'ui-monospace, monospace'
         }}
     >
-        <div 
-            style={{ 
-                backgroundColor: '#161b22', 
-                border: '1px solid #f85149', 
-                padding: '32px', 
-                borderRadius: '12px', 
-                maxWidth: '450px', 
-                width: '100%', 
-                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-                color: 'white'
+        <div
+            style={{
+                backgroundColor: '#0d0d0d',
+                border: `1px solid ${borderColor}`,
+                padding: '32px',
+                maxWidth: '450px',
+                width: '100%',
+                boxShadow: '0 0 40px rgba(0,0,0,0.8)',
+                color: '#e0e0e0'
             }}
         >
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold', marginBottom: '16px' }}>{title}</h2>
-            <p style={{ color: '#8b949e', marginBottom: '24px' }}>{description}</p>
+            <h2 style={{ fontSize: '1.125rem', fontWeight: 'bold', marginBottom: '16px', color: isDestructive ? '#dc2626' : '#00ff00', fontFamily: 'ui-monospace, monospace' }}>
+                {"// " + title}
+            </h2>
+            <p style={{ color: '#888', marginBottom: '24px', fontSize: '0.875rem', fontFamily: 'ui-monospace, monospace' }}>{description}</p>
 
             {confirmText && (
                 <div style={{ marginBottom: '24px' }}>
-                    <p style={{ fontSize: '0.875rem', marginBottom: '8px' }}>
-                        Please type <span style={{ fontWeight: 'bold' }}>"{confirmText}"</span> to confirm.
+                    <p style={{ fontSize: '0.75rem', marginBottom: '8px', color: '#666', fontFamily: 'ui-monospace, monospace' }}>
+                        &gt; type <span style={{ color: isDestructive ? '#dc2626' : '#00ff00' }}>"{confirmText}"</span> to confirm
                     </p>
                     <input
                         value={userInput}
                         onChange={(e) => setUserInput(e.target.value)}
                         placeholder={confirmText}
-                        style={{ 
-                            width: '100%', 
-                            backgroundColor: '#0d1117', 
-                            border: '1px solid #30363d', 
-                            borderRadius: '6px', 
-                            padding: '8px 12px', 
-                            color: 'white',
-                            outline: 'none'
+                        style={{
+                            width: '100%',
+                            backgroundColor: '#1a1a1a',
+                            border: `1px solid ${borderColor}`,
+                            padding: '10px 12px',
+                            color: '#e0e0e0',
+                            outline: 'none',
+                            fontFamily: 'ui-monospace, monospace',
+                            fontSize: '0.875rem'
                         }}
                         autoFocus
                     />
@@ -104,34 +108,37 @@ export function ConfirmationModal({
             )}
 
             <div style={{ display: 'flex', justifyContent: 'end', gap: '12px' }}>
-                <button 
-                    onClick={onClose} 
+                <button
+                    onClick={onClose}
                     disabled={isLoading}
-                    style={{ 
-                        padding: '8px 16px', 
-                        color: '#8b949e', 
-                        background: 'transparent', 
-                        border: 'none', 
-                        cursor: 'pointer' 
+                    style={{
+                        padding: '8px 16px',
+                        color: '#888',
+                        background: 'transparent',
+                        border: '1px solid #333',
+                        cursor: 'pointer',
+                        fontFamily: 'ui-monospace, monospace',
+                        fontSize: '0.875rem'
                     }}
                 >
-                    Cancel
+                    cancel
                 </button>
                 <button
                     onClick={onConfirm}
                     disabled={isConfirmDisabled || isLoading}
-                    style={{ 
-                        padding: '8px 20px', 
-                        borderRadius: '6px', 
-                        fontWeight: 500, 
-                        background: isDestructive ? '#f85149' : '#238636',
-                        color: 'white',
-                        border: 'none',
+                    style={{
+                        padding: '8px 20px',
+                        fontWeight: 500,
+                        background: isDestructive ? '#dc2626' : '#00ff00',
+                        color: isDestructive ? 'white' : 'black',
+                        border: `1px solid ${isDestructive ? '#dc2626' : '#00ff00'}`,
                         cursor: isConfirmDisabled ? 'not-allowed' : 'pointer',
-                        opacity: isConfirmDisabled ? 0.5 : 1
+                        opacity: isConfirmDisabled ? 0.3 : 1,
+                        fontFamily: 'ui-monospace, monospace',
+                        fontSize: '0.875rem'
                     }}
                 >
-                    {isLoading ? "Processing..." : confirmButtonText}
+                    {isLoading ? "processing..." : confirmButtonText}
                 </button>
             </div>
         </div>

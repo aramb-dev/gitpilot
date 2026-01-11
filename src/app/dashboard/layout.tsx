@@ -14,17 +14,17 @@ export default function DashboardLayout({
 }) {
     return (
         <SessionProvider>
-            <div className="flex h-screen bg-gray-900">
+            <div className="flex h-screen bg-[#0a0a0a] font-mono">
                 <Sidebar sidebarItems={sidebarItems} />
                 <div className="flex-1 flex flex-col overflow-hidden">
                     {/* Top bar with breadcrumbs and global search */}
-                    <header className="flex-shrink-0 border-b border-gray-800 px-8 py-4 flex items-center justify-between">
+                    <header className="flex-shrink-0 border-b border-[#333] px-8 py-4 flex items-center justify-between bg-[#0d0d0d]">
                         <Breadcrumbs />
                         <div className="relative w-96">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-                            <Input 
-                                placeholder="Search repositories, issues, PRs..."
-                                className="pl-10 bg-[#161b22] border-gray-800 text-sm h-9 focus:ring-[#58a6ff]"
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#666]" />
+                            <Input
+                                placeholder="search..."
+                                className="pl-10 bg-[#1a1a1a] border-[#333] text-sm h-9 focus:ring-[#00ff00] text-[#888] placeholder:text-[#666]"
                             />
                         </div>
                     </header>

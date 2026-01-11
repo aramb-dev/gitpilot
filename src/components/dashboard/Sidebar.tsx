@@ -1,4 +1,4 @@
-import { Send, Settings } from "lucide-react"
+import { Monitor, Settings } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useSession } from "next-auth/react"
@@ -42,17 +42,17 @@ export function Sidebar({ sidebarItems }: SidebarProps) {
     }
 
     return (
-        <aside className="w-64 flex-shrink-0 bg-[#161b22] border-r border-gray-800 flex flex-col">
+        <aside className="w-64 flex-shrink-0 bg-[#0a0a0a] border-r border-[#333] flex flex-col">
             {/* Header */}
-            <div className="h-16 flex items-center px-6 border-b border-gray-800">
+            <div className="h-16 flex items-center px-6 border-b border-[#333]">
                 <Link href="/" className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
-                    <Send className="w-8 h-8 text-white" />
-                    <span className="text-xl font-bold text-white">GitPilot</span>
+                    <Monitor className="w-6 h-6 text-[#00ff00]" />
+                    <span className="text-lg font-bold text-white">[GitPilot]</span>
                 </Link>
             </div>
 
             {/* Navigation */}
-            <nav className="flex-1 p-4 space-y-2">
+            <nav className="flex-1 p-4 space-y-1 font-mono text-sm">
                 {sidebarItems.map((item) => {
                     const Icon = item.icon
                     const isActive = activePage === item.id
@@ -62,45 +62,45 @@ export function Sidebar({ sidebarItems }: SidebarProps) {
                         <Link
                             key={item.id}
                             href={href}
-                            className={`w-full flex items-center px-6 py-3 rounded-lg transition-all duration-200 ${isActive
-                                ? 'bg-[#21262d] text-[#58a6ff] font-semibold'
-                                : 'text-[#8b949e] hover:bg-[#161b22] hover:text-[#c9d1d9]'
+                            className={`w-full flex items-center px-4 py-2 transition-all duration-200 ${isActive
+                                ? 'text-[#00ff00] bg-[#00ff00]/5 border-l-2 border-[#00ff00]'
+                                : 'text-[#888] hover:text-white hover:bg-[#1a1a1a] border-l-2 border-transparent'
                                 }`}
                         >
-                            <Icon className="w-5 h-5 mr-3" />
-                            {item.label}
+                            <Icon className="w-4 h-4 mr-3" />
+                            <span>[{item.label.toLowerCase()}]</span>
                         </Link>
                     )
                 })}
             </nav>
 
             {/* Footer */}
-            <div className="p-4 border-t border-gray-800">
+            <div className="p-4 border-t border-[#333] font-mono text-sm">
                 <Link
                     href="/dashboard/settings"
-                    className={`w-full flex items-center px-6 py-3 rounded-lg transition-all duration-200 ${activePage === 'settings'
-                        ? 'bg-[#21262d] text-[#58a6ff] font-semibold'
-                        : 'text-[#8b949e] hover:bg-[#161b22] hover:text-[#c9d1d9]'
+                    className={`w-full flex items-center px-4 py-2 transition-all duration-200 ${activePage === 'settings'
+                        ? 'text-[#00ff00] bg-[#00ff00]/5 border-l-2 border-[#00ff00]'
+                        : 'text-[#888] hover:text-white hover:bg-[#1a1a1a] border-l-2 border-transparent'
                         }`}
                 >
-                    <Settings className="w-5 h-5 mr-3" />
-                    Settings
+                    <Settings className="w-4 h-4 mr-3" />
+                    [settings]
                 </Link>
-                <div className="flex items-center mt-4 p-2 rounded-lg">
-                    <div className="w-10 h-10 rounded-full bg-[#58a6ff] flex items-center justify-center">
-                        <span className="text-white font-semibold">{userInitial}</span>
+                <div className="flex items-center mt-4 p-2">
+                    <div className="w-10 h-10 rounded border border-[#333] flex items-center justify-center bg-[#1a1a1a]">
+                        <span className="text-[#00ff00] font-semibold">{userInitial}</span>
                     </div>
                     <div className="ml-3">
-                        <p className="text-sm font-semibold text-white">{userName}</p>
+                        <p className="text-sm text-white">{userName}</p>
                         {userEmail ? (
-                            <p className="text-xs text-gray-500">{userEmail}</p>
+                            <p className="text-xs text-[#666]">{userEmail}</p>
                         ) : null}
                         <button
                             type="button"
                             onClick={() => void handleSignOut("/")}
-                            className="text-xs text-gray-400 hover:text-red-500 transition"
+                            className="text-xs text-[#666] hover:text-red-500 transition"
                         >
-                            Log out
+                            &gt; exit
                         </button>
                     </div>
                 </div>

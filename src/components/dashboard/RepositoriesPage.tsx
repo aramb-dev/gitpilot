@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import { RepositoryTable } from './RepositoryTable'
+import { RepositoryCardGrid } from './RepositoryCardGrid'
 import { RepositoryActions } from './RepositoryActions'
 import { Pagination } from './Pagination'
 import { ConfirmationModal } from './ConfirmationModal'
@@ -270,17 +270,17 @@ export function RepositoriesPage({ repositories: initialRepositories }: Reposito
                 </div>
             ) : null}
 
-            <RepositoryTable
-                repositories={isLoading ? [] : paginatedRepos}
-                selectedRepos={selectedRepos}
-                selectAll={selectAll}
-                onSelectAll={handleSelectAll}
-                onSelectRepo={handleSelectRepo}
-            />
-
             {isLoading ? (
                 <div className="text-sm text-[#666]">loading...</div>
-            ) : null}
+            ) : (
+                <RepositoryCardGrid
+                    repositories={paginatedRepos}
+                    selectedRepos={selectedRepos}
+                    selectAll={selectAll}
+                    onSelectAll={handleSelectAll}
+                    onSelectRepo={handleSelectRepo}
+                />
+            )}
 
             {/* Pagination */}
             <Pagination

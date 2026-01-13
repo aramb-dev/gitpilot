@@ -80,7 +80,6 @@ export function OrganizationSelector() {
 
   return (
     <div className="bg-[#0d0d0d] border border-[#333] p-6 font-mono">
-      <h3 className="text-lg font-semibold text-white mb-2">// github_organizations</h3>
       <p className="text-[#666] text-sm mb-6">
         &gt; select organizations to manage in your dashboard
       </p>

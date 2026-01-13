@@ -18,7 +18,11 @@ interface UseIssuesReturn {
 export function useIssues(filters: IssueFilters): UseIssuesReturn {
   const { preferences } = usePreferences();
   const [issues, setIssues] = useState<Issue[]>([]);
-  // ... rest of state ...
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [totalCount, setTotalCount] = useState(0);
+  const [hasNextPage, setHasNextPage] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const fetchIssues = useCallback(
     async (page: number = 1) => {

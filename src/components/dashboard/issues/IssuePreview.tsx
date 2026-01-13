@@ -14,6 +14,7 @@ import {
   GitPullRequest,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { MarkdownRenderer } from '@/components/MarkdownRenderer';
 import type { Issue } from '@/types/issue';
 
 interface IssuePreviewProps {
@@ -132,9 +133,10 @@ export function IssuePreview({ issue, onClose }: IssuePreviewProps) {
             {/* Body */}
             <div className="prose prose-invert prose-sm max-w-none mb-8 bg-[#0d0d0d] p-4 border border-[#333]">
               {issue.body ? (
-                <div className="whitespace-pre-wrap text-[#888] font-mono leading-relaxed text-xs">
-                  {issue.body}
-                </div>
+                <MarkdownRenderer 
+                  content={issue.body}
+                  className="text-[#888] text-xs"
+                />
               ) : (
                 <p className="text-[#444] italic font-mono text-xs">no_description_provided</p>
               )}

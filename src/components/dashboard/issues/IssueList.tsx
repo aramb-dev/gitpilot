@@ -83,7 +83,7 @@ export function IssueList({
 
   if (isLoading) {
     return (
-      <div className="bg-[#161b22] border border-gray-800 rounded-lg overflow-hidden">
+      <div className="bg-[#0d0d0d] border border-[#333] font-mono">
         <IssueListHeader
           totalCount={0}
           selectedCount={0}
@@ -94,14 +94,14 @@ export function IssueList({
           onSortChange={onSortChange}
           onDirectionChange={onDirectionChange}
         />
-        <div className="divide-y divide-gray-800">
+        <div className="divide-y divide-[#333]">
           {[...Array(5)].map((_, i) => (
             <div key={i} className="flex items-start gap-3 p-4 animate-pulse">
-              <div className="w-4 h-4 bg-gray-700 rounded mt-1" />
-              <div className="w-5 h-5 bg-gray-700 rounded-full" />
+              <div className="w-4 h-4 bg-[#1a1a1a] border border-[#333] mt-1" />
+              <div className="w-5 h-5 bg-[#1a1a1a] border border-[#333]" />
               <div className="flex-1 space-y-2">
-                <div className="h-4 bg-gray-700 rounded w-3/4" />
-                <div className="h-3 bg-gray-700 rounded w-1/2" />
+                <div className="h-4 bg-[#1a1a1a] w-3/4" />
+                <div className="h-3 bg-[#1a1a1a] w-1/2" />
               </div>
             </div>
           ))}
@@ -112,11 +112,11 @@ export function IssueList({
 
   if (issues.length === 0) {
     return (
-      <div className="bg-[#161b22] border border-gray-800 rounded-lg overflow-hidden">
+      <div className="bg-[#0d0d0d] border border-[#333] font-mono">
         <div className="text-center py-12">
-          <div className="text-gray-500 mb-2">No issues found</div>
-          <p className="text-sm text-gray-600">
-            Try adjusting your filters or selecting different repositories
+          <div className="text-[#666] mb-2">// NO_ISSUES_FOUND</div>
+          <p className="text-sm text-[#444]">
+            &gt; Try adjusting your filters or selecting different repositories
           </p>
         </div>
       </div>
@@ -124,7 +124,7 @@ export function IssueList({
   }
 
   return (
-    <div className="bg-[#161b22] border border-gray-800 rounded-lg overflow-hidden">
+    <div className="bg-[#0d0d0d] border border-[#333] font-mono">
       <IssueListHeader
         totalCount={issues.length}
         selectedCount={selectedIssues.length}
@@ -135,7 +135,7 @@ export function IssueList({
         onSortChange={onSortChange}
         onDirectionChange={onDirectionChange}
       />
-      <div className="divide-y divide-gray-800">
+      <div className="divide-y divide-[#333]">
         {issues.map((issue) => (
           <IssueRow
             key={issue.id}

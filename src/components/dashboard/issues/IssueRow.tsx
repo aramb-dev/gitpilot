@@ -25,8 +25,8 @@ export function IssueRow({ issue, isSelected, onSelect, onClick }: IssueRowProps
 
   return (
     <div
-      className={`flex items-start gap-3 p-4 border-b border-gray-800 hover:bg-gray-800/50 cursor-pointer transition-colors ${
-        isSelected ? 'bg-blue-900/20' : ''
+      className={`flex items-start gap-3 p-4 border-b border-[#333] hover:bg-[#1a1a1a] cursor-pointer transition-colors font-mono ${
+        isSelected ? 'bg-[#00ff00]/5 border-l-2 border-[#00ff00]' : 'border-l-2 border-transparent'
       }`}
       onClick={handleRowClick}
     >
@@ -36,16 +36,16 @@ export function IssueRow({ issue, isSelected, onSelect, onClick }: IssueRowProps
           type="checkbox"
           checked={isSelected}
           onChange={handleCheckboxChange}
-          className="w-4 h-4 rounded border-gray-600 bg-gray-800 text-blue-500 focus:ring-blue-500 focus:ring-offset-gray-900"
+          className="w-4 h-4 rounded-none border-[#333] bg-[#0d0d0d] text-[#00ff00] focus:ring-[#00ff00] accent-[#00ff00]"
         />
       </div>
 
       {/* Issue Icon */}
       <div className="pt-0.5">
         <div
-          className={`w-5 h-5 rounded-full flex items-center justify-center ${
+          className={`w-5 h-5 border border-[#333] flex items-center justify-center ${
             issue.state === 'open'
-              ? 'text-green-500'
+              ? 'text-[#00ff00]'
               : 'text-purple-500'
           }`}
         >
@@ -56,7 +56,7 @@ export function IssueRow({ issue, isSelected, onSelect, onClick }: IssueRowProps
       {/* Main Content */}
       <div className="flex-1 min-w-0">
         <div className="flex items-start gap-2">
-          <h3 className="text-white font-medium hover:text-blue-400 truncate">
+          <h3 className="text-white font-medium hover:text-[#00ff00] truncate">
             {issue.title}
           </h3>
         </div>
@@ -67,26 +67,26 @@ export function IssueRow({ issue, isSelected, onSelect, onClick }: IssueRowProps
             {issue.labels.map((label) => (
               <span
                 key={label.id}
-                className="px-2 py-0.5 text-xs font-medium rounded-full"
+                className="px-2 py-0.5 text-[10px] font-mono border"
                 style={{
-                  backgroundColor: `#${label.color}20`,
+                  backgroundColor: `#${label.color}10`,
                   color: `#${label.color}`,
-                  border: `1px solid #${label.color}40`,
+                  borderColor: `#${label.color}30`,
                 }}
               >
-                {label.name}
+                [{label.name.toUpperCase()}]
               </span>
             ))}
           </div>
         )}
 
         {/* Meta info */}
-        <div className="flex items-center gap-3 mt-2 text-xs text-gray-500">
-          <span className="text-gray-400">
+        <div className="flex items-center gap-3 mt-2 text-[10px] text-[#666]">
+          <span className="text-[#888]">
             {issue.repository.fullName}#{issue.number}
           </span>
-          <span>opened {timeAgo}</span>
-          <span>by {issue.user.login}</span>
+          <span>&gt; opened {timeAgo}</span>
+          <span>&gt; by {issue.user.login}</span>
           {issue.comments > 0 && (
             <span className="flex items-center gap-1">
               <MessageSquare className="w-3 h-3" />
@@ -98,18 +98,18 @@ export function IssueRow({ issue, isSelected, onSelect, onClick }: IssueRowProps
 
       {/* Assignees */}
       {issue.assignees.length > 0 && (
-        <div className="flex -space-x-2">
+        <div className="flex -space-x-1">
           {issue.assignees.slice(0, 3).map((assignee) => (
             <img
               key={assignee.id}
               src={assignee.avatarUrl}
               alt={assignee.login}
               title={assignee.login}
-              className="w-6 h-6 rounded-full border-2 border-gray-900"
+              className="w-6 h-6 border border-[#333] bg-[#0d0d0d]"
             />
           ))}
           {issue.assignees.length > 3 && (
-            <div className="w-6 h-6 rounded-full border-2 border-gray-900 bg-gray-700 flex items-center justify-center text-xs text-gray-400">
+            <div className="w-6 h-6 border border-[#333] bg-[#1a1a1a] flex items-center justify-center text-[10px] text-[#666]">
               +{issue.assignees.length - 3}
             </div>
           )}

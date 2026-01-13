@@ -9,6 +9,7 @@ import { ConnectionStatus } from '@/components/dashboard/ConnectionStatus'
 import { PermissionsDisplay } from '@/components/dashboard/PermissionsDisplay'
 import { OrganizationAccessList } from '@/components/dashboard/OrganizationAccessList'
 import { AccountDangerZone } from '@/components/dashboard/AccountDangerZone'
+import { UserPreferences } from '@/components/dashboard/UserPreferences'
 
 type Tab = 'account' | 'github' | 'billing' | 'notifications' | 'security'
 
@@ -61,6 +62,7 @@ export default function SettingsPage() {
                     {activeTab === 'account' && (
                         <div className="space-y-6">
                             <AccountProfile />
+                            <UserPreferences />
                             <ConnectionStatus />
                             <PermissionsDisplay />
                             <OrganizationAccessList />

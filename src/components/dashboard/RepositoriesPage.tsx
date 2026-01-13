@@ -8,12 +8,14 @@ import { ConfirmationModal } from './ConfirmationModal'
 import { Repository } from '@/types/dashboard'
 import type { ApiResponse } from '@/types/api-errors'
 import { toast } from 'sonner'
+import { usePreferences } from '@/hooks/usePreferences'
 
 interface RepositoriesPageProps {
     repositories?: Repository[]
 }
 
 export function RepositoriesPage({ repositories: initialRepositories }: RepositoriesPageProps) {
+    const { preferences } = usePreferences()
     const [repositories, setRepositories] = useState<Repository[]>(initialRepositories ?? [])
     const [isLoading, setIsLoading] = useState(initialRepositories ? false : true)
     const [isActionLoading, setIsActionLoading] = useState(false)
@@ -21,7 +23,7 @@ export function RepositoriesPage({ repositories: initialRepositories }: Reposito
     const [selectedRepos, setSelectedRepos] = useState<number[]>([])
     const [selectAll, setSelectAll] = useState(false)
     const [searchQuery, setSearchQuery] = useState('')
-    const [visibilityFilter, setVisibilityFilter] = useState('all')
+    const [visibilityFilter, setVisibilityFilter] = useState(preferences?.defaultVisibility ?? 'all')
     const [languageFilter, setLanguageFilter] = useState('all')
     const [currentPage, setCurrentPage] = useState(1)
 
@@ -93,7 +95,7 @@ export function RepositoriesPage({ repositories: initialRepositories }: Reposito
         return Array.from(set).sort()
     }, [repositories])
 
-    const itemsPerPage = 10
+    const itemsPerPage = preferences?.itemsPerPage ?? 10
     const normalizedQuery = searchQuery.toLowerCase()
     const filteredRepos = useMemo(() => {
         return repositories.filter((repo) => {

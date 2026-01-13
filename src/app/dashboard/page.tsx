@@ -13,8 +13,11 @@ export default function Dashboard() {
 
     // Show loading state while redirecting
     return (
-        <div className="flex h-screen bg-gray-900 items-center justify-center">
-            <div className="text-white">Loading...</div>
+        <div className="flex h-screen bg-[#0a0a0a] items-center justify-center font-mono">
+            <div className="text-[#00ff00] flex items-center gap-2">
+                <span className="w-4 h-4 border-2 border-[#00ff00]/30 border-t-[#00ff00] animate-spin"></span>
+                [initializing_dashboard...]
+            </div>
         </div>
     )
 }

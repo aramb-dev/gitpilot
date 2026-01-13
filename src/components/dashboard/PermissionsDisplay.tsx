@@ -39,9 +39,9 @@ export function PermissionsDisplay({ initialScopes }: PermissionsDisplayProps) {
       <div className="bg-[#0d0d0d] border border-[#333] p-6 font-mono">
         <h3 className="text-lg font-semibold text-white mb-4">// permissions</h3>
         <div className="animate-pulse space-y-2">
-          <div className="h-4 bg-[#1a1a1a] rounded w-2/3"></div>
-          <div className="h-4 bg-[#1a1a1a] rounded w-1/2"></div>
-          <div className="h-4 bg-[#1a1a1a] rounded w-3/4"></div>
+          <div className="h-4 bg-[#1a1a1a] w-2/3"></div>
+          <div className="h-4 bg-[#1a1a1a] w-1/2"></div>
+          <div className="h-4 bg-[#1a1a1a] w-3/4"></div>
         </div>
       </div>
     );

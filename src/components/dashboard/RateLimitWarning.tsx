@@ -40,38 +40,38 @@ export function RateLimitWarning({
 
   return (
     <div
-      className={`border rounded-lg p-4 ${
+      className={`border p-4 font-mono ${
         isCritical
-          ? 'bg-red-900/10 border-red-800/30'
-          : 'bg-yellow-900/10 border-yellow-800/30'
+          ? 'bg-red-900/10 border-red-900/50'
+          : 'bg-yellow-900/10 border-yellow-900/50'
       }`}
     >
       <div className="flex items-start gap-3">
         <div
-          className={`p-1.5 rounded-full flex-shrink-0 ${
-            isCritical ? 'bg-red-900/30' : 'bg-yellow-900/30'
+          className={`p-1.5 border flex-shrink-0 ${
+            isCritical ? 'bg-red-900/30 border-red-900/50' : 'bg-yellow-900/30 border-yellow-900/50'
           }`}
         >
           <AlertTriangle
-            className={`w-4 h-4 ${isCritical ? 'text-red-400' : 'text-yellow-400'}`}
+            className={`w-4 h-4 ${isCritical ? 'text-red-500' : 'text-yellow-500'}`}
           />
         </div>
         <div className="flex-1 min-w-0">
           <h4
-            className={`text-sm font-medium ${
-              isCritical ? 'text-red-400' : 'text-yellow-400'
+            className={`text-sm font-bold uppercase tracking-tighter ${
+              isCritical ? 'text-red-500' : 'text-yellow-500'
             }`}
           >
-            {isCritical ? 'Rate Limit Critical' : 'Rate Limit Warning'}
+            // {isCritical ? 'RATE_LIMIT_CRITICAL' : 'RATE_LIMIT_WARNING'}
           </h4>
-          <p className="text-sm text-gray-400 mt-1">
-            You have <strong className="text-white">{remaining.toLocaleString()}</strong> of{' '}
+          <p className="text-xs text-[#888] mt-1">
+            &gt; You have <strong className="text-white">{remaining.toLocaleString()}</strong> of{' '}
             {limit.toLocaleString()} API requests remaining.
-            {isCritical && ' Bulk operations are temporarily disabled.'}
+            {isCritical && ' Bulk operations restricted.'}
           </p>
 
           {/* Progress bar */}
-          <div className="mt-2 h-1.5 bg-gray-800 rounded-full overflow-hidden">
+          <div className="mt-3 h-1 bg-[#1a1a1a] border border-[#333]">
             <div
               className={`h-full transition-all ${
                 isCritical ? 'bg-red-500' : 'bg-yellow-500'
@@ -81,18 +81,18 @@ export function RateLimitWarning({
           </div>
 
           {resetTime && (
-            <p className="text-xs text-gray-500 mt-2 flex items-center gap-1">
+            <p className="text-[10px] text-[#666] mt-2 flex items-center gap-1 uppercase">
               <Clock className="w-3 h-3" />
-              Resets in {resetTime}
+              RESETS_IN_{resetTime.replace(' ', '_')}
             </p>
           )}
 
           {onDismiss && (
             <button
               onClick={onDismiss}
-              className="text-xs text-gray-400 hover:text-white mt-2 transition-colors"
+              className="text-[10px] text-[#444] hover:text-[#00ff00] mt-2 transition-colors uppercase"
             >
-              Dismiss
+              [dismiss]
             </button>
           )}
         </div>

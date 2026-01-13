@@ -11,94 +11,102 @@ export const metadata: Metadata = {
 
 export default function MembersPage() {
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 font-mono">
             {/* Page Header */}
-            <div className="border-b border-gray-800 pb-6">
+            <div className="border-b border-[#333] pb-6">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-3xl font-bold text-white">Members</h1>
-                        <p className="text-gray-400 mt-2">
-                            Manage team members and their access across all repositories
-                        </p>
+                        <p className="text-[#666] text-sm mb-2">$ ls members</p>
+                        <h1 className="text-2xl font-bold text-white">// MEMBERS</h1>
                     </div>
                     <div className="flex items-center space-x-3">
-                        <Button variant="outline" size="sm">
+                        <Button 
+                            variant="outline" 
+                            size="sm"
+                            className="border-[#333] hover:border-[#00ff00] text-[#888] hover:text-[#00ff00]"
+                        >
                             <Settings className="w-4 h-4 mr-2" />
-                            Permissions
+                            PERMISSIONS
                         </Button>
-                        <Button size="sm">
+                        <Button 
+                            size="sm"
+                            className="bg-[#00ff00] text-black font-bold hover:bg-[#00cc00]"
+                        >
                             <UserPlus className="w-4 h-4 mr-2" />
-                            Invite Member
+                            INVITE_MEMBER
                         </Button>
                     </div>
                 </div>
             </div>
 
             {/* Coming Soon State */}
-            <div className="text-center py-16">
-                <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-green-500/10 mb-6">
-                    <Users className="w-10 h-10 text-green-500" />
+            <div className="text-center py-16 bg-[#0d0d0d] border border-[#333]">
+                <div className="inline-flex items-center justify-center w-20 h-20 border border-[#00ff00]/30 bg-[#00ff00]/5 mb-6">
+                    <Users className="w-10 h-10 text-[#00ff00]" />
                 </div>
 
-                <h2 className="text-2xl font-semibold text-white mb-4">
-                    Organization Management Coming Soon
+                <h2 className="text-2xl font-bold text-white mb-4 italic uppercase tracking-tighter">
+                    // ORGANIZATION_MANAGEMENT_PENDING
                 </h2>
 
-                <p className="text-gray-400 max-w-md mx-auto mb-8">
-                    Streamline member onboarding and permission management across all your projects.
+                <p className="text-[#888] max-w-md mx-auto mb-8 text-sm">
+                    &gt; Streamline member onboarding and permission management across all your projects.
                 </p>
 
                 {/* Feature Preview */}
-                <Card className="max-w-2xl mx-auto bg-gray-800/50 border-gray-700">
-                    <CardHeader>
-                        <CardTitle className="text-lg font-semibold text-white">
-                            Planned Features:
+                <Card className="max-w-2xl mx-auto bg-[#0a0a0a] border-[#333] rounded-none">
+                    <CardHeader className="border-b border-[#333]">
+                        <CardTitle className="text-sm font-bold text-white uppercase">
+                            [PLANNED_FEATURES]
                         </CardTitle>
                     </CardHeader>
-                    <CardContent>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="flex items-start space-x-3">
-                                <UserPlus className="w-5 h-5 text-[#58a6ff] mt-0.5" />
+                    <CardContent className="pt-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
+                            <div className="flex items-start space-x-3 group">
+                                <UserPlus className="w-5 h-5 text-[#00ff00] mt-0.5 opacity-50 group-hover:opacity-100" />
                                 <div>
-                                    <p className="text-white font-medium">Bulk Invitations</p>
-                                    <p className="text-gray-400 text-sm">Invite multiple developers at once</p>
+                                    <p className="text-white font-bold text-sm">BULK_INVITATIONS</p>
+                                    <p className="text-[#666] text-xs">Invite multiple developers at once</p>
                                 </div>
                             </div>
-                            <div className="flex items-start space-x-3">
-                                <Shield className="w-5 h-5 text-[#58a6ff] mt-0.5" />
+                            <div className="flex items-start space-x-3 group">
+                                <Shield className="w-5 h-5 text-[#00ff00] mt-0.5 opacity-50 group-hover:opacity-100" />
                                 <div>
-                                    <p className="text-white font-medium">Permission Templates</p>
-                                    <p className="text-gray-400 text-sm">Apply consistent roles across repos</p>
+                                    <p className="text-white font-bold text-sm">PERMISSION_TEMPLATES</p>
+                                    <p className="text-[#666] text-xs">Apply consistent roles across repos</p>
                                 </div>
                             </div>
-                            <div className="flex items-start space-x-3">
-                                <Key className="w-5 h-5 text-[#58a6ff] mt-0.5" />
+                            <div className="flex items-start space-x-3 group">
+                                <Key className="w-5 h-5 text-[#00ff00] mt-0.5 opacity-50 group-hover:opacity-100" />
                                 <div>
-                                    <p className="text-white font-medium">Access Reviews</p>
-                                    <p className="text-gray-400 text-sm">Audit and update member permissions</p>
+                                    <p className="text-white font-bold text-sm">ACCESS_REVIEWS</p>
+                                    <p className="text-[#666] text-xs">Audit and update member permissions</p>
                                 </div>
                             </div>
-                            <div className="flex items-start space-x-3">
-                                <Mail className="w-5 h-5 text-[#58a6ff] mt-0.5" />
+                            <div className="flex items-start space-x-3 group">
+                                <Mail className="w-5 h-5 text-[#00ff00] mt-0.5 opacity-50 group-hover:opacity-100" />
                                 <div>
-                                    <p className="text-white font-medium">Onboarding Automation</p>
-                                    <p className="text-gray-400 text-sm">Automated welcome flows for new members</p>
+                                    <p className="text-white font-bold text-sm">ONBOARDING_AUTO</p>
+                                    <p className="text-[#666] text-xs">Automated welcome flows for new members</p>
                                 </div>
                             </div>
                         </div>
                     </CardContent>
                 </Card>
 
-                <div className="mt-8">
-                    <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4 max-w-md mx-auto mb-6">
-                        <p className="text-blue-400 text-sm">
-                            <Badge variant="secondary" className="mr-2">Pro Tip:</Badge>
+                <div className="mt-12">
+                    <div className="bg-[#00ff00]/5 border border-[#00ff00]/20 p-4 max-w-md mx-auto mb-8">
+                        <p className="text-[#00ff00] text-xs">
+                            <span className="font-black mr-2 uppercase">[PRO_TIP]:</span>
                             Member management will integrate with your existing GitHub organization settings
                         </p>
                     </div>
 
-                    <Button variant="outline">
-                        Notify Me When Available
+                    <Button 
+                        variant="outline"
+                        className="border-[#333] hover:border-[#00ff00] text-[#888] hover:text-[#00ff00] font-bold"
+                    >
+                        &gt; NOTIFY_ME_WHEN_AVAILABLE
                     </Button>
                 </div>
             </div>

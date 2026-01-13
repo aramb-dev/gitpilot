@@ -28,19 +28,19 @@ export function IssueListHeader({
   };
 
   return (
-    <div className="flex items-center justify-between px-4 py-3 bg-gray-800/50 border-b border-gray-800">
+    <div className="flex items-center justify-between px-4 py-3 bg-[#1a1a1a] border-b border-[#333] font-mono">
       <div className="flex items-center gap-3">
         <input
           type="checkbox"
           checked={allSelected && totalCount > 0}
           onChange={handleSelectAllChange}
-          className="w-4 h-4 rounded border-gray-600 bg-gray-800 text-blue-500 focus:ring-blue-500 focus:ring-offset-gray-900"
+          className="w-4 h-4 rounded-none border-[#333] bg-[#0d0d0d] text-[#00ff00] focus:ring-[#00ff00] accent-[#00ff00]"
         />
-        <span className="text-sm text-gray-400">
+        <span className="text-sm text-[#666]">
           {selectedCount > 0 ? (
-            <span className="text-white">{selectedCount} selected</span>
+            <span className="text-[#00ff00] font-bold">[{selectedCount} SELECTED]</span>
           ) : (
-            <span>{totalCount.toLocaleString()} issues</span>
+            <span>// {totalCount.toLocaleString()} ISSUES</span>
           )}
         </span>
       </div>
@@ -52,20 +52,20 @@ export function IssueListHeader({
             onChange={(e) =>
               onSortChange(e.target.value as 'created' | 'updated' | 'comments')
             }
-            className="appearance-none bg-gray-800 border border-gray-700 rounded-md px-3 py-1.5 pr-8 text-sm text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="appearance-none bg-[#0d0d0d] border border-[#333] px-3 py-1.5 pr-8 text-xs text-[#888] focus:outline-none focus:ring-1 focus:ring-[#00ff00] font-mono"
           >
-            <option value="created">Newest</option>
-            <option value="updated">Recently updated</option>
-            <option value="comments">Most commented</option>
+            <option value="created">NEWEST</option>
+            <option value="updated">RECENTLY_UPDATED</option>
+            <option value="comments">MOST_COMMENTED</option>
           </select>
-          <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
+          <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-[#666] pointer-events-none" />
         </div>
 
         <button
           onClick={() =>
             onDirectionChange(sortDirection === 'desc' ? 'asc' : 'desc')
           }
-          className="p-1.5 text-gray-400 hover:text-white hover:bg-gray-700 rounded transition-colors"
+          className="p-1.5 text-[#666] hover:text-[#00ff00] hover:bg-[#1a1a1a] border border-transparent hover:border-[#333] transition-all"
           title={sortDirection === 'desc' ? 'Descending' : 'Ascending'}
         >
           <svg

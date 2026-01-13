@@ -43,11 +43,11 @@ export function AccountProfile({ initialAccount }: AccountProfileProps) {
     return (
       <div className="bg-[#0d0d0d] border border-[#333] p-6 font-mono">
         <div className="animate-pulse flex space-x-4">
-          <div className="rounded bg-[#1a1a1a] h-16 w-16"></div>
+          <div className="bg-[#1a1a1a] h-16 w-16"></div>
           <div className="flex-1 space-y-3 py-1">
-            <div className="h-4 bg-[#1a1a1a] rounded w-1/3"></div>
-            <div className="h-3 bg-[#1a1a1a] rounded w-1/4"></div>
-            <div className="h-3 bg-[#1a1a1a] rounded w-1/2"></div>
+            <div className="h-4 bg-[#1a1a1a] w-1/3"></div>
+            <div className="h-3 bg-[#1a1a1a] w-1/4"></div>
+            <div className="h-3 bg-[#1a1a1a] w-1/2"></div>
           </div>
         </div>
       </div>

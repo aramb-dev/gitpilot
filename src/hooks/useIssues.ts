@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import type { Issue, IssueFilters, IssuesListResponse } from '@/types/issue';
+import { usePreferences } from './usePreferences';
 
 interface UseIssuesReturn {
   issues: Issue[];
@@ -15,12 +16,9 @@ interface UseIssuesReturn {
 }
 
 export function useIssues(filters: IssueFilters): UseIssuesReturn {
+  const { preferences } = usePreferences();
   const [issues, setIssues] = useState<Issue[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [totalCount, setTotalCount] = useState(0);
-  const [hasNextPage, setHasNextPage] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
+  // ... rest of state ...
 
   const fetchIssues = useCallback(
     async (page: number = 1) => {
@@ -38,6 +36,10 @@ export function useIssues(filters: IssueFilters): UseIssuesReturn {
         const params = new URLSearchParams();
         params.set('repos', filters.repos.join(','));
         params.set('page', String(page));
+        
+        if (preferences?.itemsPerPage) {
+          params.set('per_page', String(preferences.itemsPerPage));
+        }
 
         if (filters.state) params.set('state', filters.state);
         if (filters.labels?.length) params.set('labels', filters.labels.join(','));
@@ -66,7 +68,7 @@ export function useIssues(filters: IssueFilters): UseIssuesReturn {
         setIsLoading(false);
       }
     },
-    [filters]
+    [filters, preferences]
   );
 
   useEffect(() => {

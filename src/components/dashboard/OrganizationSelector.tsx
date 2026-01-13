@@ -69,8 +69,11 @@ export function OrganizationSelector() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center p-8 font-mono">
-        <Loader2 className="w-8 h-8 animate-spin text-[#00ff00]" />
+      <div className="flex items-center justify-center p-12 font-mono">
+        <div className="flex items-center gap-3 text-[#00ff00]">
+          <span className="w-5 h-5 border-2 border-[#00ff00]/30 border-t-[#00ff00] animate-spin"></span>
+          <span className="text-sm font-bold uppercase tracking-widest">loading_orgs...</span>
+        </div>
       </div>
     );
   }

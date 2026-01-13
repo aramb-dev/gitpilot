@@ -36,51 +36,51 @@ export function TokenRevokedModal({ isOpen, onClose }: TokenRevokedModalProps) {
       />
 
       {/* Modal */}
-      <div className="relative bg-[#161b22] border border-gray-800 rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="p-2 bg-red-900/30 rounded-full">
-            <AlertCircle className="w-6 h-6 text-red-400" />
+      <div className="relative bg-[#0d0d0d] border border-red-900 shadow-2xl p-8 max-w-md w-full mx-4 font-mono">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="p-2 border border-red-900 bg-red-900/10">
+            <AlertCircle className="w-6 h-6 text-red-500" />
           </div>
-          <h2 className="text-xl font-semibold text-white">Session Expired</h2>
+          <h2 className="text-xl font-bold text-white uppercase tracking-tighter">// SESSION_EXPIRED</h2>
         </div>
 
-        <p className="text-gray-300 mb-2">
-          Your GitHub access has been revoked or expired. This can happen if:
+        <p className="text-[#888] mb-4 text-sm leading-relaxed">
+          &gt; Your GitHub access has been revoked or expired. Possible causes:
         </p>
 
-        <ul className="text-sm text-gray-400 mb-6 space-y-1 list-disc list-inside">
-          <li>You revoked GitPilot's access in GitHub settings</li>
-          <li>An organization admin revoked the app's access</li>
-          <li>Your session timed out</li>
+        <ul className="text-xs text-[#666] mb-8 space-y-2">
+          <li>[01] Access revoked via GitHub settings</li>
+          <li>[02] Organization admin restricted access</li>
+          <li>[03] Execution context timed out</li>
         </ul>
 
-        <p className="text-gray-300 mb-6">
-          Please sign in again to continue using GitPilot.
+        <p className="text-[#888] mb-8 text-sm italic">
+          Please re-authenticate to restore system access.
         </p>
 
-        <div className="flex gap-3">
+        <div className="flex gap-4">
           {onClose && (
             <button
               onClick={onClose}
-              className="flex-1 px-4 py-2 text-sm text-gray-400 hover:text-white border border-gray-700 hover:border-gray-600 rounded-md transition-colors"
+              className="flex-1 px-4 py-2 text-xs text-[#666] hover:text-white border border-[#333] hover:border-[#666] transition-all"
             >
-              Cancel
+              CANCEL
             </button>
           )}
           <button
             onClick={handleSignIn}
             disabled={isRedirecting}
-            className="flex-1 px-4 py-2 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="flex-1 px-4 py-3 text-xs bg-[#00ff00] hover:bg-[#00cc00] text-black font-black transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 uppercase"
           >
             {isRedirecting ? (
               <>
-                <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                Redirecting...
+                <span className="w-3.5 h-3.5 border-2 border-black/30 border-t-black animate-spin" />
+                REDIRECTING...
               </>
             ) : (
               <>
-                <LogIn className="w-4 h-4" />
-                Sign In Again
+                <LogIn className="w-3.5 h-3.5" />
+                SIGN_IN_AGAIN
               </>
             )}
           </button>

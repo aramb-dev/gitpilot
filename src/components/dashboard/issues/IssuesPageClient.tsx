@@ -11,6 +11,7 @@ import { IssueListPagination } from './IssueListPagination';
 import { useIssues } from '@/hooks/useIssues';
 import { useIssueFilters } from '@/hooks/useIssueFilters';
 import { useBulkIssueActions } from '@/hooks/useBulkIssueActions';
+import { usePreferences } from '@/hooks/usePreferences';
 import type { Issue, IssueLabel, IssueUser } from '@/types/issue';
 
 interface IssuesPageClientProps {
@@ -18,6 +19,7 @@ interface IssuesPageClientProps {
 }
 
 export function IssuesPageClient({ availableRepos }: IssuesPageClientProps) {
+  const { preferences } = usePreferences();
   const { filters, setFilters } = useIssueFilters();
   const [previewIssue, setPreviewIssue] = useState<Issue | null>(null);
   const [availableLabels, setAvailableLabels] = useState<IssueLabel[]>([]);
@@ -97,7 +99,7 @@ export function IssuesPageClient({ availableRepos }: IssuesPageClientProps) {
   // Show repo selection prompt if no repos selected
   if (!filters.repos || filters.repos.length === 0) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-6 font-mono">
         <IssueFilters
           filters={filters}
           onFiltersChange={setFilters}
@@ -106,15 +108,15 @@ export function IssuesPageClient({ availableRepos }: IssuesPageClientProps) {
           availableAssignees={[]}
         />
 
-        <div className="text-center py-16">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-500/10 mb-4">
-            <AlertCircle className="w-8 h-8 text-blue-500" />
+        <div className="text-center py-16 bg-[#0d0d0d] border border-[#333]">
+          <div className="inline-flex items-center justify-center w-16 h-16 border border-[#00ff00]/30 bg-[#00ff00]/5 mb-4">
+            <AlertCircle className="w-8 h-8 text-[#00ff00]" />
           </div>
-          <h3 className="text-lg font-medium text-white mb-2">
-            Select repositories to view issues
+          <h3 className="text-lg font-bold text-white mb-2">
+            // SELECT_REPOSITORIES
           </h3>
-          <p className="text-gray-400 text-sm max-w-md mx-auto">
-            Use the repository filter above to select which repositories you want to view issues from.
+          <p className="text-[#666] text-sm max-w-md mx-auto">
+            &gt; Use the repository filter above to select which repositories you want to view issues from.
           </p>
         </div>
       </div>
@@ -122,7 +124,7 @@ export function IssuesPageClient({ availableRepos }: IssuesPageClientProps) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 font-mono">
       {/* Filters */}
       <IssueFilters
         filters={filters}
@@ -134,14 +136,19 @@ export function IssuesPageClient({ availableRepos }: IssuesPageClientProps) {
 
       {/* Error state */}
       {error && (
-        <div className="bg-red-900/20 border border-red-800 rounded-lg p-4 flex items-center justify-between">
+        <div className="bg-red-900/10 border border-red-900/50 p-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <AlertCircle className="w-5 h-5 text-red-500" />
-            <span className="text-red-400">{error}</span>
+            <span className="text-red-400 text-sm"><span className="text-[#666]">error: </span>{error}</span>
           </div>
-          <Button variant="outline" size="sm" onClick={refetch}>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={refetch}
+            className="border-[#333] hover:border-[#00ff00] text-[#888] hover:text-[#00ff00]"
+          >
             <RefreshCw className="w-4 h-4 mr-2" />
-            Retry
+            retry
           </Button>
         </div>
       )}
@@ -169,6 +176,7 @@ export function IssuesPageClient({ availableRepos }: IssuesPageClientProps) {
             isLoading={isLoading}
             onPageChange={loadPage}
             totalCount={totalCount}
+            perPage={preferences?.itemsPerPage}
           />
         )}
       </div>

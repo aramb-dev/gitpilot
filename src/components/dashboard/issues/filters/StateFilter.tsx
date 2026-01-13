@@ -15,7 +15,7 @@ export function StateFilter({ value, onChange }: StateFilterProps) {
   ];
 
   return (
-    <div className="flex items-center gap-1 bg-gray-800 rounded-lg p-1">
+    <div className="flex items-center gap-1 bg-[#1a1a1a] border border-[#333] p-1 font-mono">
       {states.map((state) => {
         const Icon = state.icon;
         const isActive = value === state.id;
@@ -24,14 +24,14 @@ export function StateFilter({ value, onChange }: StateFilterProps) {
           <button
             key={state.id}
             onClick={() => onChange(state.id)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold transition-all ${
               isActive
-                ? 'bg-gray-700 text-white'
-                : 'text-gray-400 hover:text-white hover:bg-gray-700/50'
+                ? 'bg-[#00ff00] text-black'
+                : 'text-[#666] hover:text-white hover:bg-[#0d0d0d]'
             }`}
           >
-            <Icon className={`w-4 h-4 ${isActive ? state.color : ''}`} />
-            {state.label}
+            <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-current' : ''}`} />
+            {state.label.toUpperCase()}
           </button>
         );
       })}

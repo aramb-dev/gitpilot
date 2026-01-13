@@ -87,7 +87,7 @@ export function Sidebar({ sidebarItems }: SidebarProps) {
                     [settings]
                 </Link>
                 <div className="flex items-center mt-4 p-2">
-                    <div className="w-10 h-10 rounded border border-[#333] flex items-center justify-center bg-[#1a1a1a]">
+                    <div className="w-10 h-10 border border-[#333] flex items-center justify-center bg-[#1a1a1a]">
                         <span className="text-[#00ff00] font-semibold">{userInitial}</span>
                     </div>
                     <div className="ml-3">

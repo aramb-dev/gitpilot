@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server';
 import { getAuthSession } from '@/lib/auth';
 import { fetchMultiRepoIssues } from '@/lib/github/issues';
 import type { IssueFilters } from '@/types/issue';
+import { getCached, setCache } from "@/db/cache";
+import { ERROR_MESSAGES } from "@/lib/github/errors";
+import type { ApiResponse } from "@/types/api-errors";
 
 export async function GET(request: Request) {
   try {
@@ -14,6 +17,7 @@ export async function GET(request: Request) {
       );
     }
 
+    const userId = (session.user as any)?.id ?? "anonymous";
     const { searchParams } = new URL(request.url);
 
     // Parse repos parameter (comma-separated)
@@ -74,6 +78,20 @@ export async function GET(request: Request) {
     const page = parseInt(searchParams.get('page') || '1', 10);
     const perPage = parseInt(searchParams.get('per_page') || '30', 10);
 
+    // Create a cache key based on repos and filters and pagination
+    const cacheKey = `issues:${repos.sort().join(",")}:${searchParams.toString()}`;
+    const skipCache = searchParams.get("refresh") === "true";
+
+    if (!skipCache) {
+      const cached = await getCached<any>(userId, cacheKey);
+      if (cached && !cached.isStale) {
+        return NextResponse.json({ 
+          data: cached.data,
+          meta: { fromCache: true }
+        });
+      }
+    }
+
     const result = await fetchMultiRepoIssues(
       session.accessToken,
       repos,
@@ -81,6 +99,10 @@ export async function GET(request: Request) {
       page,
       Math.min(perPage, 100)
     );
+
+    await setCache(userId, cacheKey, "issues", result, {
+      ttlMinutes: 2, // Issues change more frequently than repos
+    });
 
     return NextResponse.json({ data: result });
   } catch (error) {

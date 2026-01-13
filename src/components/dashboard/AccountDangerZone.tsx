@@ -53,7 +53,7 @@ export function AccountDangerZone() {
               >
                 {isSigningOut ? (
                   <>
-                    <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                    <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-none animate-spin"></span>
                     signing_out...
                   </>
                 ) : (

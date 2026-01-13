@@ -25,12 +25,11 @@ export function IssueListPagination({
   const totalPages = totalCount ? Math.ceil(totalCount / perPage) : undefined;
 
   return (
-    <div className="flex items-center justify-between px-4 py-3 border-t border-gray-800">
-      <div className="text-sm text-gray-500">
+    <div className="flex items-center justify-between px-4 py-3 border-t border-[#333] font-mono">
+      <div className="text-xs text-[#666]">
         {totalCount !== undefined && (
           <span>
-            Page {currentPage}
-            {totalPages && ` of ${totalPages}`}
+            [PAGE_{currentPage}{totalPages && `_OF_${totalPages}`}]
           </span>
         )}
       </div>
@@ -39,19 +38,21 @@ export function IssueListPagination({
         <Button
           variant="outline"
           size="sm"
+          className="border-[#333] hover:border-[#00ff00] text-[#888] hover:text-[#00ff00] bg-[#1a1a1a] h-8"
           onClick={() => onPageChange(currentPage - 1)}
           disabled={!hasPrevPage || isLoading}
         >
           <ChevronLeft className="w-4 h-4 mr-1" />
-          Previous
+          PREV
         </Button>
         <Button
           variant="outline"
           size="sm"
+          className="border-[#333] hover:border-[#00ff00] text-[#888] hover:text-[#00ff00] bg-[#1a1a1a] h-8"
           onClick={() => onPageChange(currentPage + 1)}
           disabled={!hasNextPage || isLoading}
         >
-          Next
+          NEXT
           <ChevronRight className="w-4 h-4 ml-1" />
         </Button>
       </div>

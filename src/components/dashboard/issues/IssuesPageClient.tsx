@@ -29,7 +29,7 @@ export function IssuesPageClient({ availableRepos }: IssuesPageClientProps) {
   useEffect(() => {
     if (!filters.repos || filters.repos.length === 0) {
       if (availableRepos.length > 0) {
-        setFilters({ ...filters, repos: availableRepos.slice(0, 5) });
+        setFilters({ ...filters, repos: availableRepos.slice(0, 10) });
       }
     }
   }, [availableRepos, filters, setFilters]);

@@ -20,7 +20,7 @@ export function useIssueFilters() {
     const search = searchParams.get('search');
 
     return {
-      state: state === 'closed' || state === 'all' ? state : 'open',
+      state: (state === 'closed' || state === 'all') ? state : 'open',
       labels: labels ? labels.split(',').filter(Boolean) : undefined,
       assignee: assignee || undefined,
       repos: repos ? repos.split(',').filter(Boolean) : undefined,

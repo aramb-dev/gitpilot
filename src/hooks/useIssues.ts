@@ -25,7 +25,7 @@ export function useIssues(filters: IssueFilters): UseIssuesReturn {
   const [currentPage, setCurrentPage] = useState(1);
 
   const fetchIssues = useCallback(
-    async (page: number = 1) => {
+    async (page: number = 1, refresh: boolean = false) => {
       if (!filters.repos || filters.repos.length === 0) {
         setIssues([]);
         setTotalCount(0);
@@ -40,6 +40,10 @@ export function useIssues(filters: IssueFilters): UseIssuesReturn {
         const params = new URLSearchParams();
         params.set('repos', filters.repos.join(','));
         params.set('page', String(page));
+        
+        if (refresh) {
+          params.set('refresh', 'true');
+        }
         
         if (preferences?.itemsPerPage) {
           params.set('per_page', String(preferences.itemsPerPage));
@@ -80,7 +84,7 @@ export function useIssues(filters: IssueFilters): UseIssuesReturn {
   }, [fetchIssues]);
 
   const refetch = useCallback(() => {
-    fetchIssues(currentPage);
+    fetchIssues(currentPage, true);
   }, [fetchIssues, currentPage]);
 
   const loadPage = useCallback(

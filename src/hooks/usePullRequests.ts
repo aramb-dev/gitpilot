@@ -25,7 +25,7 @@ export function usePullRequests(filters: PRFilters): UsePullRequestsReturn {
   const [currentPage, setCurrentPage] = useState(1);
 
   const fetchPullRequests = useCallback(
-    async (page: number = 1) => {
+    async (page: number = 1, refresh: boolean = false) => {
       if (!filters.repos || filters.repos.length === 0) {
         setPullRequests([]);
         setTotalCount(0);
@@ -40,6 +40,10 @@ export function usePullRequests(filters: PRFilters): UsePullRequestsReturn {
         const params = new URLSearchParams();
         params.set('repos', filters.repos.join(','));
         params.set('page', String(page));
+        
+        if (refresh) {
+          params.set('refresh', 'true');
+        }
         
         if (preferences?.itemsPerPage) {
           params.set('per_page', String(preferences.itemsPerPage));
@@ -81,7 +85,7 @@ export function usePullRequests(filters: PRFilters): UsePullRequestsReturn {
   }, [fetchPullRequests]);
 
   const refetch = useCallback(() => {
-    fetchPullRequests(currentPage);
+    fetchPullRequests(currentPage, true);
   }, [fetchPullRequests, currentPage]);
 
   const loadPage = useCallback(

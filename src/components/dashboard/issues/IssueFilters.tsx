@@ -70,6 +70,9 @@ export function IssueFilters({
     onFiltersChange({
       state: 'open',
       repos: filters.repos, // Keep repos selected
+      labels: undefined,
+      assignee: undefined,
+      search: undefined,
     });
   };
 

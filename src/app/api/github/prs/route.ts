@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAuthSession } from '@/lib/auth';
+import { getCached, setCache } from "@/db/cache";
 
 export async function GET(request: NextRequest) {
   try {
@@ -20,6 +21,21 @@ export async function GET(request: NextRequest) {
     const draft = searchParams.get('draft');
     const sort = searchParams.get('sort') || 'updated';
     const direction = searchParams.get('direction') || 'desc';
+
+    const userId = (session.user as any)?.id ?? "anonymous";
+    const cacheKey = `prs:${repos.sort().join(",")}:${searchParams.toString()}`;
+    const skipCache = searchParams.get("refresh") === "true";
+
+    // Check cache
+    if (!skipCache) {
+      const cached = await getCached<any>(userId, cacheKey);
+      if (cached && !cached.isStale) {
+        return NextResponse.json({
+          data: cached.data,
+          meta: { fromCache: true }
+        });
+      }
+    }
 
     if (!repos.length) {
       return NextResponse.json(
@@ -155,13 +171,20 @@ export async function GET(request: NextRequest) {
     const start = (page - 1) * perPage;
     const paginatedPRs = sorted.slice(start, start + perPage);
 
+    const responseData = {
+      pullRequests: paginatedPRs,
+      totalCount: sorted.length,
+      hasNextPage: start + perPage < sorted.length,
+    };
+
+    // Set cache
+    await setCache(userId, cacheKey, "pulls", responseData, {
+      ttlMinutes: 2,
+    });
+
     return NextResponse.json(
       {
-        data: {
-          pullRequests: paginatedPRs,
-          totalCount: sorted.length,
-          hasNextPage: start + perPage < sorted.length,
-        },
+        data: responseData,
         warnings: warnings.length > 0 ? warnings : undefined,
       },
       { status: 200 }

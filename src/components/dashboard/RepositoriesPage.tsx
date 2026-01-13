@@ -257,7 +257,7 @@ export function RepositoriesPage({ repositories: initialRepositories }: Reposito
                     onDelete={() => setIsDeleteModalOpen(true)}
                     onSearch={handleSearch}
                     visibilityFilter={visibilityFilter}
-                    onVisibilityChange={setVisibilityFilter}
+                    onVisibilityChange={(value: string) => setVisibilityFilter(value as 'all' | 'public' | 'private' | 'forks')}
                     languageFilter={languageFilter}
                     onLanguageChange={setLanguageFilter}
                     languages={languages}

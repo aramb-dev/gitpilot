@@ -4,10 +4,10 @@ import { PullRequest } from '@/types/pull-request'
 
 interface PRCardGridProps {
     pullRequests: PullRequest[]
-    selectedPRs: number[]
+    selectedPRs: number[] | Set<string>
     selectAll: boolean
     onSelectAll: (checked: boolean) => void
-    onSelectPR: (prId: number, checked: boolean) => void
+    onSelectPR: (pr: PullRequest | number, checked: boolean) => void
 }
 
 export function PRCardGrid({
@@ -17,6 +17,20 @@ export function PRCardGrid({
     onSelectAll,
     onSelectPR
 }: PRCardGridProps) {
+    const isSelected = (prId: number) => {
+        if (selectedPRs instanceof Set) {
+            return selectedPRs.has(String(prId));
+        }
+        return selectedPRs.includes(prId);
+    };
+
+    const getSelectedCount = () => {
+        if (selectedPRs instanceof Set) {
+            return selectedPRs.size;
+        }
+        return selectedPRs.length;
+    };
+
     return (
         <div className="space-y-4">
             {/* Select All Header */}
@@ -27,8 +41,7 @@ export function PRCardGrid({
                     className="bg-[#1a1a1a] border-[#333] accent-[#00ff00]"
                 />
                 <span className="text-sm text-[#666] font-mono">
-                    {selectedPRs.length > 0 && `${selectedPRs.length} selected`}
-                    {selectedPRs.length === 0 && 'select all'}
+                    {getSelectedCount() > 0 ? `${getSelectedCount()} selected` : 'select all'}
                 </span>
             </div>
 
@@ -39,8 +52,8 @@ export function PRCardGrid({
                         <PRCard
                             key={pr.id}
                             pr={pr}
-                            isSelected={selectedPRs.includes(pr.id)}
-                            onSelectionChange={onSelectPR}
+                            isSelected={isSelected(pr.id)}
+                            onSelectionChange={() => onSelectPR(pr, !isSelected(pr.id))}
                         />
                     ))}
                 </div>

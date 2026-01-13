@@ -48,8 +48,8 @@ interface MarkdownRendererProps {
  * - Lists: -, *, 1.
  */
 export function MarkdownRenderer({ content, className = '' }: MarkdownRendererProps) {
-  const parseMarkdown = (text: string): (string | JSX.Element)[] => {
-    const elements: (string | JSX.Element)[] = [];
+  const parseMarkdown = (text: string): (string | React.JSX.Element)[] => {
+    const elements: (string | React.JSX.Element)[] = [];
     let lastIndex = 0;
 
     // Pattern for [image ...]
@@ -83,8 +83,8 @@ export function MarkdownRenderer({ content, className = '' }: MarkdownRendererPr
     return elements.length > 0 ? elements : [formatText(text)];
   };
 
-  const formatText = (text: string): JSX.Element => {
-    const parts: (string | JSX.Element)[] = [];
+  const formatText = (text: string): React.JSX.Element => {
+    const parts: (string | React.JSX.Element)[] = [];
     let lastIndex = 0;
 
     // Bold
@@ -155,20 +155,20 @@ export function MarkdownRenderer({ content, className = '' }: MarkdownRendererPr
 
       if (match.type === 'bold') {
         parts.push(
-          <strong key={`bold-${idx}`} className="font-bold">
+          <strong key={`bold-${idx}-${match.index}`} className="font-bold">
             {match.text}
           </strong>
         );
       } else if (match.type === 'italic') {
         parts.push(
-          <em key={`italic-${idx}`} className="italic">
+          <em key={`italic-${idx}-${match.index}`} className="italic">
             {match.text}
           </em>
         );
       } else if (match.type === 'code') {
         parts.push(
           <code
-            key={`code-${idx}`}
+            key={`code-${idx}-${match.index}`}
             className="bg-[#1a1a1a] border border-[#333] px-1.5 py-0.5 rounded text-xs font-mono text-[#00ff00]"
           >
             {match.text}
@@ -185,7 +185,12 @@ export function MarkdownRenderer({ content, className = '' }: MarkdownRendererPr
 
     return (
       <>
-        {parts.map((part, idx) => (typeof part === 'string' ? part : part))}
+        {parts.map((part, idx) => {
+          if (typeof part === 'string') {
+            return <React.Fragment key={`text-${idx}`}>{part}</React.Fragment>;
+          }
+          return part;
+        })}
       </>
     );
   };
@@ -194,7 +199,13 @@ export function MarkdownRenderer({ content, className = '' }: MarkdownRendererPr
 
   return (
     <div className={`prose prose-invert max-w-none text-sm text-[#ccc] leading-relaxed ${className}`}>
-      {elements.map((element, idx) => (typeof element === 'string' ? element : element))}
+      {elements.map((element, idx) => 
+        typeof element === 'string' ? (
+          <React.Fragment key={`element-${idx}`}>{element}</React.Fragment>
+        ) : (
+          <React.Fragment key={`element-${idx}`}>{element}</React.Fragment>
+        )
+      )}
     </div>
   );
 }

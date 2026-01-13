@@ -1,3 +1,5 @@
 export { PRCard } from './PRCard'
 export { PRCardGrid } from './PRCardGrid'
+export { PRRow } from './PRRow'
+export { PRList } from './PRList'
 export { PRsPageClient } from './PRsPageClient'

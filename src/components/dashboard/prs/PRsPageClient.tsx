@@ -1,12 +1,13 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { AlertCircle, RefreshCw } from 'lucide-react';
+import { AlertCircle, RefreshCw, LayoutGrid, List } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PRCardGrid } from './PRCardGrid';
+import { PRList } from './PRList';
 import { usePullRequests } from '@/hooks/usePullRequests';
 import { toast } from 'sonner';
-import type { PRFilters } from '@/types/pull-request';
+import type { PRFilters, PullRequest } from '@/types/pull-request';
 
 interface PRsPageClientProps {
   availableRepos: string[];
@@ -21,6 +22,7 @@ export function PRsPageClient({ availableRepos }: PRsPageClientProps) {
   const [selectAll, setSelectAll] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [isActionLoading, setIsActionLoading] = useState(false);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   
   // Modal states
   const [isMergeModalOpen, setIsMergeModalOpen] = useState(false);
@@ -50,7 +52,8 @@ export function PRsPageClient({ availableRepos }: PRsPageClientProps) {
     }
   };
 
-  const handleSelectPR = (prId: number, checked: boolean) => {
+  const handleSelectPR = (pr: PullRequest | number, checked: boolean) => {
+    const prId = typeof pr === 'number' ? pr : pr.id;
     if (checked) {
       setSelectedPRs([...selectedPRs, prId]);
     } else {
@@ -319,6 +322,32 @@ export function PRsPageClient({ availableRepos }: PRsPageClientProps) {
             <RefreshCw className="w-3 h-3 mr-1" />
             refresh
           </Button>
+
+          {/* View Mode Toggle */}
+          <div className="flex border border-[#333] rounded-none">
+            <button
+              onClick={() => setViewMode('grid')}
+              className={`px-3 py-2 text-xs transition-all ${
+                viewMode === 'grid'
+                  ? 'bg-[#00ff00] text-black'
+                  : 'bg-[#1a1a1a] text-[#888] hover:text-[#00ff00]'
+              }`}
+              title="Grid view"
+            >
+              <LayoutGrid className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setViewMode('list')}
+              className={`px-3 py-2 text-xs transition-all border-l border-[#333] ${
+                viewMode === 'list'
+                  ? 'bg-[#00ff00] text-black'
+                  : 'bg-[#1a1a1a] text-[#888] hover:text-[#00ff00]'
+              }`}
+              title="List view"
+            >
+              <List className="w-4 h-4" />
+            </button>
+          </div>
         </div>
       </div>
 
@@ -378,16 +407,24 @@ export function PRsPageClient({ availableRepos }: PRsPageClientProps) {
         </div>
       )}
 
-      {/* PR Grid */}
+      {/* PR Grid or List */}
       {isLoading ? (
         <div className="text-sm text-[#666]">loading pull requests...</div>
-      ) : (
+      ) : viewMode === 'grid' ? (
         <PRCardGrid
           pullRequests={paginatedPRs}
           selectedPRs={selectedPRs}
           selectAll={selectAll}
           onSelectAll={handleSelectAll}
           onSelectPR={handleSelectPR}
+        />
+      ) : (
+        <PRList
+          prs={paginatedPRs}
+          selectedPRs={new Set(selectedPRs.map(String))}
+          onSelectPR={(pr, checked) => handleSelectPR(pr, checked)}
+          onSelectAll={handleSelectAll}
+          onViewPR={() => {}}
         />
       )}
 

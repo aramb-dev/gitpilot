@@ -102,11 +102,13 @@ export function buildIssueQueryParams(
   params.set('page', String(page));
   params.set('per_page', String(Math.min(perPage, 100)));
 
+  // GitHub API doesn't support state=all, so we default to open if not specified
   if (filters.state && filters.state !== 'all') {
     params.set('state', filters.state);
-  } else if (filters.state === 'all') {
-    params.set('state', 'all');
+  } else if (!filters.state) {
+    params.set('state', 'open');
   }
+  // If state === 'all', we don't set state parameter (will be handled in fetchMultiRepoIssues)
 
   if (filters.labels && filters.labels.length > 0) {
     params.set('labels', filters.labels.join(','));
@@ -213,34 +215,41 @@ export async function fetchMultiRepoIssues(
   const allIssues: Issue[] = [];
   let hasMorePages = false;
 
-  // Process repos in batches
-  for (let i = 0; i < repos.length; i += CONCURRENCY_LIMIT) {
-    const batch = repos.slice(i, i + CONCURRENCY_LIMIT);
-    const promises = batch.map(async (repoFullName) => {
-      const [owner, repo] = repoFullName.split('/');
-      if (!owner || !repo) return null;
+  // If state is 'all', fetch both open and closed issues
+  const statesToFetch = filters.state === 'all' ? ['open', 'closed'] : [filters.state || 'open'];
 
-      try {
-        return await fetchRepoIssues(
-          accessToken,
-          owner,
-          repo,
-          filters,
-          page,
-          perPage
-        );
-      } catch (error) {
-        console.error(`Failed to fetch issues from ${repoFullName}:`, error);
-        return null;
-      }
-    });
+  for (const state of statesToFetch) {
+    const filtersForState = { ...filters, state: state as 'open' | 'closed' };
 
-    const results = await Promise.all(promises);
+    // Process repos in batches
+    for (let i = 0; i < repos.length; i += CONCURRENCY_LIMIT) {
+      const batch = repos.slice(i, i + CONCURRENCY_LIMIT);
+      const promises = batch.map(async (repoFullName) => {
+        const [owner, repo] = repoFullName.split('/');
+        if (!owner || !repo) return null;
 
-    for (const result of results) {
-      if (result) {
-        allIssues.push(...result.issues);
-        if (result.hasNextPage) hasMorePages = true;
+        try {
+          return await fetchRepoIssues(
+            accessToken,
+            owner,
+            repo,
+            filtersForState,
+            page,
+            perPage
+          );
+        } catch (error) {
+          console.error(`Failed to fetch issues from ${repoFullName}:`, error);
+          return null;
+        }
+      });
+
+      const results = await Promise.all(promises);
+
+      for (const result of results) {
+        if (result) {
+          allIssues.push(...result.issues);
+          if (result.hasNextPage) hasMorePages = true;
+        }
       }
     }
   }

@@ -289,11 +289,16 @@ export async function fetchMultiRepoIssues(
     );
   }
 
+  // Paginate the filtered results
+  const startIdx = (page - 1) * perPage;
+  const endIdx = startIdx + perPage;
+  const paginatedIssues = filteredIssues.slice(startIdx, endIdx);
+
   return {
-    issues: filteredIssues,
+    issues: paginatedIssues,
     totalCount: filteredIssues.length,
-    hasNextPage: hasMorePages,
-    nextPage: hasMorePages ? page + 1 : undefined,
+    hasNextPage: endIdx < filteredIssues.length,
+    nextPage: endIdx < filteredIssues.length ? page + 1 : undefined,
   };
 }
 

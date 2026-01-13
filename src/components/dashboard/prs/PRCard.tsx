@@ -111,7 +111,7 @@ export function PRCard({ pr, isSelected, onSelectionChange }: PRCardProps) {
             </div>
 
             {/* Reviewers */}
-            {pr.reviewers.length > 0 && (
+            {pr.reviewers && pr.reviewers.length > 0 && (
                 <div className="mb-3 pb-3 border-b border-[#333]">
                     <div className="text-xs text-[#666] mb-1">reviewers:</div>
                     <div className="flex flex-wrap gap-2">
@@ -129,7 +129,7 @@ export function PRCard({ pr, isSelected, onSelectionChange }: PRCardProps) {
                                 variant="outline"
                                 className="border-[#333] text-[#888] bg-[#1a1a1a]/50 text-xs"
                             >
-                                +{pr.reviewers.length - 3} more
+                                +{String(Math.max(0, pr.reviewers.length - 3))} more
                             </Badge>
                         )}
                     </div>

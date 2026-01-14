@@ -8,7 +8,7 @@ mock.module("next-auth", () => ({
 
 describe("Repo Archive API Route", () => {
   beforeEach(() => {
-    global.fetch = mock(() => Promise.resolve(new Response(JSON.stringify({}))));
+    global.fetch = mock(() => Promise.resolve(new Response(JSON.stringify({})))) as any;
   });
 
   it("should archive multiple repos", async () => {
@@ -20,7 +20,7 @@ describe("Repo Archive API Route", () => {
         }
       }
       return Promise.resolve(new Response(JSON.stringify({}), { status: 404 }));
-    });
+    }) as any;
 
     const req = {
       json: async () => ({
@@ -64,7 +64,7 @@ describe("Repo Archive API Route", () => {
             return Promise.resolve(new Response(JSON.stringify({ name: "repo1", archived: true })));
         }
         return Promise.resolve(new Response(JSON.stringify({ message: "Not Found" }), { status: 404 }));
-    });
+    }) as any;
 
     const req = {
         json: async () => ({
@@ -84,9 +84,8 @@ describe("Repo Archive API Route", () => {
     expect(data.errors[0].repo).toContain("fail-repo");
   });
 
-  it("should handle network errors", async () => {
-    global.fetch = mock(() => Promise.reject(new Error("Network Error")));
-
+      it("should handle network errors", async () => {
+        global.fetch = mock(() => Promise.reject(new Error("Network Error"))) as any;
     const req = {
         json: async () => ({
             repos: [{ owner: "user", repo: "net-fail" }],

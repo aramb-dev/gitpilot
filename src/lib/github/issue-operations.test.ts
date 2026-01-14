@@ -20,8 +20,8 @@ describe('closeIssue', () => {
   it('closes an issue without comment', async () => {
     const mockFetch = mock(() =>
       Promise.resolve({ ok: true, json: () => Promise.resolve({}) })
-    );
-    global.fetch = mockFetch as typeof fetch;
+    ) as any;
+    global.fetch = mockFetch as any;
 
     await closeIssue('token', 'owner', 'repo', 1);
 
@@ -34,8 +34,8 @@ describe('closeIssue', () => {
   it('adds comment before closing when provided', async () => {
     const mockFetch = mock(() =>
       Promise.resolve({ ok: true, json: () => Promise.resolve({}) })
-    );
-    global.fetch = mockFetch as typeof fetch;
+    ) as any;
+    global.fetch = mockFetch as any;
 
     await closeIssue('token', 'owner', 'repo', 1, 'Closing comment');
 
@@ -51,8 +51,8 @@ describe('closeIssue', () => {
         status: 403,
         json: () => Promise.resolve({ message: 'Forbidden' }),
       })
-    );
-    global.fetch = mockFetch as typeof fetch;
+    ) as any;
+    global.fetch = mockFetch as any;
 
     await expect(closeIssue('token', 'owner', 'repo', 1)).rejects.toThrow('Forbidden');
   });
@@ -66,8 +66,8 @@ describe('reopenIssue', () => {
   it('reopens an issue', async () => {
     const mockFetch = mock(() =>
       Promise.resolve({ ok: true, json: () => Promise.resolve({}) })
-    );
-    global.fetch = mockFetch as typeof fetch;
+    ) as any;
+    global.fetch = mockFetch as any;
 
     await reopenIssue('token', 'owner', 'repo', 1);
 
@@ -85,8 +85,8 @@ describe('addLabels', () => {
   it('adds labels to an issue', async () => {
     const mockFetch = mock(() =>
       Promise.resolve({ ok: true, json: () => Promise.resolve({}) })
-    );
-    global.fetch = mockFetch as typeof fetch;
+    ) as any;
+    global.fetch = mockFetch as any;
 
     await addLabels('token', 'owner', 'repo', 1, ['bug', 'help wanted']);
 
@@ -104,8 +104,8 @@ describe('removeLabel', () => {
   it('removes a label from an issue', async () => {
     const mockFetch = mock(() =>
       Promise.resolve({ ok: true })
-    );
-    global.fetch = mockFetch as typeof fetch;
+    ) as any;
+    global.fetch = mockFetch as any;
 
     await removeLabel('token', 'owner', 'repo', 1, 'bug');
 
@@ -117,8 +117,8 @@ describe('removeLabel', () => {
   it('ignores 404 errors', async () => {
     const mockFetch = mock(() =>
       Promise.resolve({ ok: false, status: 404 })
-    );
-    global.fetch = mockFetch as typeof fetch;
+    ) as any;
+    global.fetch = mockFetch as any;
 
     await expect(removeLabel('token', 'owner', 'repo', 1, 'bug')).resolves.toBeUndefined();
   });
@@ -132,8 +132,8 @@ describe('setLabels', () => {
   it('replaces all labels on an issue', async () => {
     const mockFetch = mock(() =>
       Promise.resolve({ ok: true, json: () => Promise.resolve({}) })
-    );
-    global.fetch = mockFetch as typeof fetch;
+    ) as any;
+    global.fetch = mockFetch as any;
 
     await setLabels('token', 'owner', 'repo', 1, ['new-label']);
 
@@ -150,8 +150,8 @@ describe('addAssignees', () => {
   it('adds assignees to an issue', async () => {
     const mockFetch = mock(() =>
       Promise.resolve({ ok: true, json: () => Promise.resolve({}) })
-    );
-    global.fetch = mockFetch as typeof fetch;
+    ) as any;
+    global.fetch = mockFetch as any;
 
     await addAssignees('token', 'owner', 'repo', 1, ['user1', 'user2']);
 
@@ -169,8 +169,8 @@ describe('removeAssignees', () => {
   it('removes assignees from an issue', async () => {
     const mockFetch = mock(() =>
       Promise.resolve({ ok: true, json: () => Promise.resolve({}) })
-    );
-    global.fetch = mockFetch as typeof fetch;
+    ) as any;
+    global.fetch = mockFetch as any;
 
     await removeAssignees('token', 'owner', 'repo', 1, ['user1']);
 
@@ -187,8 +187,8 @@ describe('lockIssue', () => {
   it('locks an issue without reason', async () => {
     const mockFetch = mock(() =>
       Promise.resolve({ ok: true })
-    );
-    global.fetch = mockFetch as typeof fetch;
+    ) as any;
+    global.fetch = mockFetch as any;
 
     await lockIssue('token', 'owner', 'repo', 1);
 
@@ -199,8 +199,8 @@ describe('lockIssue', () => {
   it('locks an issue with reason', async () => {
     const mockFetch = mock(() =>
       Promise.resolve({ ok: true })
-    );
-    global.fetch = mockFetch as typeof fetch;
+    ) as any;
+    global.fetch = mockFetch as any;
 
     await lockIssue('token', 'owner', 'repo', 1, 'spam');
 
@@ -217,8 +217,8 @@ describe('unlockIssue', () => {
   it('unlocks an issue', async () => {
     const mockFetch = mock(() =>
       Promise.resolve({ ok: true })
-    );
-    global.fetch = mockFetch as typeof fetch;
+    ) as any;
+    global.fetch = mockFetch as any;
 
     await unlockIssue('token', 'owner', 'repo', 1);
 
@@ -236,8 +236,8 @@ describe('executeBulkAction', () => {
   it('executes action on multiple issues', async () => {
     const mockFetch = mock(() =>
       Promise.resolve({ ok: true, json: () => Promise.resolve({}) })
-    );
-    global.fetch = mockFetch as typeof fetch;
+    ) as any;
+    global.fetch = mockFetch as any;
 
     const issues = [
       { owner: 'owner', repo: 'repo1', number: 1 },
@@ -263,8 +263,8 @@ describe('executeBulkAction', () => {
         status: 403,
         json: () => Promise.resolve({ message: 'Forbidden' }),
       });
-    });
-    global.fetch = mockFetch as typeof fetch;
+    }) as any;
+    global.fetch = mockFetch as any;
 
     const issues = [
       { owner: 'owner', repo: 'repo1', number: 1 },
@@ -292,8 +292,8 @@ describe('executeBulkAction', () => {
           resolve({ ok: true, json: () => Promise.resolve({}) });
         }, 10);
       });
-    });
-    global.fetch = mockFetch as typeof fetch;
+    }) as any;
+    global.fetch = mockFetch as any;
 
     const issues = Array.from({ length: 10 }, (_, i) => ({
       owner: 'owner',

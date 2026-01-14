@@ -202,8 +202,8 @@ describe('fetchRepoIssues', () => {
         json: () => Promise.resolve([mockGitHubIssue]),
         headers: new Headers(),
       })
-    );
-    global.fetch = mockFetch as typeof fetch;
+    ) as any;
+    global.fetch = mockFetch as any;
 
     const result = await fetchRepoIssues('token', 'owner', 'repo');
 
@@ -220,8 +220,8 @@ describe('fetchRepoIssues', () => {
         json: () => Promise.resolve([mockGitHubIssue, prIssue]),
         headers: new Headers(),
       })
-    );
-    global.fetch = mockFetch as typeof fetch;
+    ) as any;
+    global.fetch = mockFetch as any;
 
     const result = await fetchRepoIssues('token', 'owner', 'repo');
 
@@ -241,8 +241,8 @@ describe('fetchRepoIssues', () => {
         json: () => Promise.resolve([mockGitHubIssue]),
         headers,
       })
-    );
-    global.fetch = mockFetch as typeof fetch;
+    ) as any;
+    global.fetch = mockFetch as any;
 
     const result = await fetchRepoIssues('token', 'owner', 'repo');
 
@@ -257,8 +257,8 @@ describe('fetchRepoIssues', () => {
         status: 404,
         json: () => Promise.resolve({ message: 'Not Found' }),
       })
-    );
-    global.fetch = mockFetch as typeof fetch;
+    ) as any;
+    global.fetch = mockFetch as any;
 
     await expect(fetchRepoIssues('token', 'owner', 'repo')).rejects.toThrow(
       'Not Found'
@@ -289,8 +289,8 @@ describe('fetchMultiRepoIssues', () => {
         json: () => Promise.resolve([issue]),
         headers: new Headers(),
       });
-    });
-    global.fetch = mockFetch as typeof fetch;
+    }) as any;
+    global.fetch = mockFetch as any;
 
     const result = await fetchMultiRepoIssues('token', [
       'owner/repo1',
@@ -316,8 +316,8 @@ describe('fetchMultiRepoIssues', () => {
         status: 404,
         json: () => Promise.resolve({ message: 'Not Found' }),
       });
-    });
-    global.fetch = mockFetch as typeof fetch;
+    }) as any;
+    global.fetch = mockFetch as any;
 
     const result = await fetchMultiRepoIssues('token', [
       'owner/repo1',
@@ -337,8 +337,8 @@ describe('fetchMultiRepoIssues', () => {
         json: () => Promise.resolve([issue1, issue2]),
         headers: new Headers(),
       })
-    );
-    global.fetch = mockFetch as typeof fetch;
+    ) as any;
+    global.fetch = mockFetch as any;
 
     const result = await fetchMultiRepoIssues(
       'token',

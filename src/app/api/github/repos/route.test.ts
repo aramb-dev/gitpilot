@@ -44,12 +44,14 @@ mock.module("next-auth", () => ({
   getServerSession: () => Promise.resolve({ accessToken: "mock-token" }),
 }));
 
+
+
 describe("Repositories API Route", () => {
   beforeEach(() => {
     mock.module("next-auth", () => ({
       getServerSession: () => Promise.resolve({ accessToken: "mock-token" }),
     }));
-    global.fetch = mock(() => Promise.resolve(new Response(JSON.stringify([]))));
+    global.fetch = mock(() => Promise.resolve(new Response(JSON.stringify([])))) as any;
   });
 
   describe("GET", () => {
@@ -66,7 +68,7 @@ describe("Repositories API Route", () => {
           ])));
         }
         return Promise.resolve(new Response(JSON.stringify([])));
-      });
+      }) as any;
 
       const req = { url: "http://localhost/api/github/repos?orgs=org1" } as any;
       const response = await GET(req);
@@ -87,7 +89,7 @@ describe("Repositories API Route", () => {
           ])));
         }
         return Promise.resolve(new Response(JSON.stringify([])));
-      });
+      }) as any;
 
       const req = { url: "http://localhost/api/github/repos" } as any;
       const response = await GET(req);
@@ -112,7 +114,7 @@ describe("Repositories API Route", () => {
     });
 
     it("should include error in warnings when personal repos fetch fails", async () => {
-       global.fetch = mock(() => Promise.reject(new Error("Network error")));
+       global.fetch = mock(() => Promise.reject(new Error("Network error"))) as any;
        const req = { url: "http://localhost/api/github/repos" } as any;
        const response = await GET(req);
        const json = await response.json();
@@ -141,7 +143,7 @@ describe("Repositories API Route", () => {
           return Promise.resolve(new Response(JSON.stringify(page2), { status: 200 }));
         }
         return Promise.resolve(new Response(JSON.stringify([]), { status: 200 }));
-      });
+      }) as any;
 
       const req = { url: "http://localhost/api/github/repos" } as any;
       const response = await GET(req);
@@ -162,7 +164,7 @@ describe("Repositories API Route", () => {
           return Promise.resolve(new Response(JSON.stringify({ message: "Not Found" }), { status: 404 }));
         }
         return Promise.resolve(new Response(JSON.stringify([])));
-      });
+      }) as any;
 
       const req = { url: "http://localhost/api/github/repos?orgs=failing-org" } as any;
       const response = await GET(req);
@@ -198,7 +200,7 @@ describe("Repositories API Route", () => {
           }));
         }
         return Promise.resolve(new Response(JSON.stringify([]), { status: 200 }));
-      });
+      }) as any;
 
       const req = { url: "http://localhost/api/github/repos" } as any;
       const response = await GET(req);
@@ -218,7 +220,7 @@ describe("Repositories API Route", () => {
           return Promise.resolve(new Response(null, { status: 204 }));
         }
         return Promise.resolve(new Response(null, { status: 404 }));
-      });
+      }) as any;
 
       const req = {
         json: async () => ({
@@ -243,7 +245,7 @@ describe("Repositories API Route", () => {
           return Promise.resolve(new Response(null, { status: 204 }));
         }
         return Promise.resolve(new Response(JSON.stringify({ message: "Not Found" }), { status: 404 }));
-      });
+      }) as any;
 
       const req = {
         json: async () => ({
@@ -294,7 +296,7 @@ describe("Repositories API Route", () => {
     });
 
     it("should handle network errors", async () => {
-      global.fetch = mock(() => Promise.reject(new Error("Network Error")));
+      global.fetch = mock(() => Promise.reject(new Error("Network Error"))) as any;
 
       const req = {
         json: async () => ({

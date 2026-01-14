@@ -33,7 +33,7 @@ describe("Organization Status API Route", () => {
         );
       }
       return Promise.resolve(new Response("{}", { status: 200 }));
-    });
+    }) as any;
 
     const response = await GET();
     const json = await response.json();
@@ -63,7 +63,7 @@ describe("Organization Status API Route", () => {
           status: 401,
         })
       )
-    );
+    ) as any;
 
     const response = await GET();
     const json = await response.json();
@@ -75,7 +75,7 @@ describe("Organization Status API Route", () => {
   it("should return empty array when user has no orgs", async () => {
     global.fetch = mock(() =>
       Promise.resolve(new Response(JSON.stringify([]), { status: 200 }))
-    );
+    ) as any;
 
     const response = await GET();
     const json = await response.json();
@@ -85,7 +85,7 @@ describe("Organization Status API Route", () => {
   });
 
   it("should return 502 on network error", async () => {
-    global.fetch = mock(() => Promise.reject(new Error("Network failed")));
+    global.fetch = mock(() => Promise.reject(new Error("Network failed"))) as any;
 
     const response = await GET();
     const json = await response.json();

@@ -9,6 +9,8 @@ mock.module("next-auth", () => ({
   }),
 }));
 
+
+
 // Mock fetch
 const originalFetch = global.fetch;
 describe("Organizations API Route", () => {
@@ -25,7 +27,7 @@ describe("Organizations API Route", () => {
         ), { status: 200 }));
       }
       return Promise.reject("Unknown URL");
-    });
+    }) as any;
 
     const req = { url: "http://localhost/api/github/orgs" } as any;
     const response = await GET(req);

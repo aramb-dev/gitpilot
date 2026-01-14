@@ -34,7 +34,7 @@ describe("Account API Route", () => {
       Promise.resolve(
         new Response(JSON.stringify(createMockGitHubUser()), { status: 200 })
       )
-    );
+    ) as any;
 
     const response = await GET();
     const json = await response.json();
@@ -69,7 +69,7 @@ describe("Account API Route", () => {
           status: 401,
         })
       )
-    );
+    ) as any;
 
     const response = await GET();
     const json = await response.json();
@@ -79,7 +79,7 @@ describe("Account API Route", () => {
   });
 
   it("should return 502 on network error", async () => {
-    global.fetch = mock(() => Promise.reject(new Error("Network failed")));
+    global.fetch = mock(() => Promise.reject(new Error("Network failed"))) as any;
 
     const response = await GET();
     const json = await response.json();
@@ -95,7 +95,7 @@ describe("Account API Route", () => {
           status: 500,
         })
       )
-    );
+    ) as any;
 
     const response = await GET();
     const json = await response.json();

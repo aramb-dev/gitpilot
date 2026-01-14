@@ -8,7 +8,7 @@ mock.module("next-auth", () => ({
 
 describe("Repo Visibility API Route", () => {
   beforeEach(() => {
-    global.fetch = mock(() => Promise.resolve(new Response(JSON.stringify({}))));
+    global.fetch = mock(() => Promise.resolve(new Response(JSON.stringify({})))) as any;
   });
 
   it("should update visibility for multiple repos", async () => {
@@ -26,7 +26,7 @@ describe("Repo Visibility API Route", () => {
           }
       }
       return Promise.resolve(new Response(JSON.stringify({}), { status: 404 }));
-    });
+    }) as any;
 
     const req = {
       json: async () => ({
@@ -86,7 +86,7 @@ describe("Repo Visibility API Route", () => {
             return Promise.resolve(new Response(JSON.stringify({ name: "repo1", private: true })));
         }
         return Promise.resolve(new Response(JSON.stringify({ message: "Not Found" }), { status: 404 }));
-    });
+    }) as any;
 
     const req = {
         json: async () => ({
@@ -107,9 +107,8 @@ describe("Repo Visibility API Route", () => {
     expect(data.errors[0].repo).toContain("fail-repo");
   });
 
-  it("should handle network errors", async () => {
-    global.fetch = mock(() => Promise.reject(new Error("Network Error")));
-
+      it("should handle network errors", async () => {
+        global.fetch = mock(() => Promise.reject(new Error("Network Error"))) as any;
     const req = {
         json: async () => ({
             repos: [{ owner: "user", repo: "net-fail" }],

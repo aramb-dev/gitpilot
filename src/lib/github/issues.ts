@@ -102,13 +102,11 @@ export function buildIssueQueryParams(
   params.set('page', String(page));
   params.set('per_page', String(Math.min(perPage, 100)));
 
-  // GitHub API doesn't support state=all, so we default to open if not specified
-  if (filters.state && filters.state !== 'all') {
+  if (filters.state) {
     params.set('state', filters.state);
-  } else if (!filters.state) {
+  } else {
     params.set('state', 'open');
   }
-  // If state === 'all', we don't set state parameter (will be handled in fetchMultiRepoIssues)
 
   if (filters.labels && filters.labels.length > 0) {
     params.set('labels', filters.labels.join(','));

@@ -23,7 +23,7 @@ describe('fetchUserRepos', () => {
       return Promise.resolve(
         new Response(JSON.stringify(mockRepos), { status: 200 })
       );
-    });
+    }) as any;
 
     const result = await fetchUserRepos('test-token');
 
@@ -33,7 +33,7 @@ describe('fetchUserRepos', () => {
     expect(capturedHeaders).toMatchObject({
       Authorization: 'Bearer test-token',
     });
-    expect(result.data).toEqual(mockRepos);
+    expect(result.data).toEqual(mockRepos as any);
     expect(result.pagesFetched).toBe(1);
   });
 
@@ -57,7 +57,7 @@ describe('fetchUserRepos', () => {
       return Promise.resolve(
         new Response(JSON.stringify(page2), { status: 200 })
       );
-    });
+    }) as any;
 
     const result = await fetchUserRepos('test-token');
 
@@ -71,7 +71,7 @@ describe('fetchUserRepos', () => {
 
     global.fetch = mock(() =>
       Promise.resolve(new Response(JSON.stringify(mockRepos), { status: 200 }))
-    );
+    ) as any;
 
     await fetchUserRepos('test-token', {
       onProgress: (msg) => progressMessages.push(msg),
@@ -97,14 +97,14 @@ describe('fetchOrgRepos', () => {
       return Promise.resolve(
         new Response(JSON.stringify(mockRepos), { status: 200 })
       );
-    });
+    }) as any;
 
     const result = await fetchOrgRepos('test-token', 'my-org');
 
     expect(capturedUrl).toBe(
       'https://api.github.com/orgs/my-org/repos?per_page=100&sort=updated'
     );
-    expect('data' in result && result.data).toEqual(mockRepos);
+    expect('data' in result && result.data).toEqual(mockRepos as any);
   });
 
   it('encodes org name in URL', async () => {
@@ -113,7 +113,7 @@ describe('fetchOrgRepos', () => {
     global.fetch = mock((url: string) => {
       capturedUrl = url;
       return Promise.resolve(new Response(JSON.stringify([]), { status: 200 }));
-    });
+    }) as any;
 
     await fetchOrgRepos('test-token', 'org with spaces');
 
@@ -125,7 +125,7 @@ describe('fetchOrgRepos', () => {
       Promise.resolve(
         new Response(JSON.stringify({ message: 'Not Found' }), { status: 404 })
       )
-    );
+    ) as any;
 
     const result = await fetchOrgRepos('test-token', 'nonexistent-org');
 
@@ -144,7 +144,7 @@ describe('fetchOrgRepos', () => {
           headers: { 'X-RateLimit-Remaining': '100' },
         })
       )
-    );
+    ) as any;
 
     const result = await fetchOrgRepos('test-token', 'private-org');
 
@@ -167,11 +167,11 @@ describe('fetchAllRepos', () => {
 
     global.fetch = mock(() =>
       Promise.resolve(new Response(JSON.stringify(mockRepos), { status: 200 }))
-    );
+    ) as any;
 
     const result = await fetchAllRepos('test-token', []);
 
-    expect(result.repos).toEqual(mockRepos);
+    expect(result.repos).toEqual(mockRepos as any);
     expect(result.errors).toHaveLength(0);
     expect(result.warnings).toHaveLength(0);
   });
@@ -191,13 +191,13 @@ describe('fetchAllRepos', () => {
       return Promise.resolve(
         new Response(JSON.stringify(orgRepos), { status: 200 })
       );
-    });
+    }) as any;
 
     const result = await fetchAllRepos('test-token', ['my-org']);
 
     expect(result.repos).toHaveLength(2);
-    expect(result.repos).toContainEqual(personalRepos[0]);
-    expect(result.repos).toContainEqual(orgRepos[0]);
+    expect(result.repos).toContainEqual(personalRepos[0] as any);
+    expect(result.repos).toContainEqual(orgRepos[0] as any);
   });
 
   it('continues on org fetch failure', async () => {
@@ -218,7 +218,7 @@ describe('fetchAllRepos', () => {
       return Promise.resolve(
         new Response(JSON.stringify(org2Repos), { status: 200 })
       );
-    });
+    }) as any;
 
     const result = await fetchAllRepos('test-token', ['failing-org', 'working-org']);
 
@@ -239,7 +239,7 @@ describe('fetchAllRepos', () => {
           },
         })
       )
-    );
+    ) as any;
 
     const result = await fetchAllRepos('test-token', [], { maxPages: 1 });
 
@@ -252,7 +252,7 @@ describe('fetchAllRepos', () => {
     global.fetch = mock((url: string) => {
       fetchCalls.push(url);
       return Promise.resolve(new Response(JSON.stringify([]), { status: 200 }));
-    });
+    }) as any;
 
     await fetchAllRepos('test-token', ['org1', 'org2', 'org3', 'org4', 'org5', 'org6']);
 

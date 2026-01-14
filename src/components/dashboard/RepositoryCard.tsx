@@ -11,7 +11,7 @@ interface RepositoryCardProps {
 
 export function RepositoryCard({ repository, isSelected, onSelectionChange }: RepositoryCardProps) {
     return (
-        <div className={`
+        <div data-testid={`repository-card-${repository.id}`} className={`
             bg-[#0d0d0d] border transition-all duration-200 rounded-lg p-5 font-mono
             ${isSelected 
                 ? 'border-[#00ff00] bg-[#00ff00]/5 shadow-lg shadow-[#00ff00]/20' 

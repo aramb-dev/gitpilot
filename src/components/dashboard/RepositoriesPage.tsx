@@ -27,6 +27,8 @@ export function RepositoriesPage({ repositories: initialRepositories }: Reposito
     const [languageFilter, setLanguageFilter] = useState('all')
     const [currentPage, setCurrentPage] = useState(1)
 
+
+
     // Modal states
     const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false)
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
@@ -247,7 +249,7 @@ export function RepositoriesPage({ repositories: initialRepositories }: Reposito
             <div className="flex justify-between items-center">
                 <div>
                     <p className="text-[#666] text-sm mb-2">$ ls repos</p>
-                    <h1 className="text-2xl font-bold text-white">// REPOSITORIES</h1>
+                    <h1 className="text-2xl font-bold text-white">REPOSITORIES</h1>
                 </div>
                 <RepositoryActions
                     hasSelectedRepos={hasSelectedRepos}

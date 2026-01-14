@@ -33,7 +33,7 @@ describe("Token Verification API Route", () => {
           }
         )
       )
-    );
+    ) as any;
 
     const response = await GET();
     const data = await response.json();
@@ -67,7 +67,7 @@ describe("Token Verification API Route", () => {
           status: 401,
         })
       )
-    );
+    ) as any;
 
     const response = await GET();
     const data = await response.json();
@@ -78,7 +78,7 @@ describe("Token Verification API Route", () => {
   });
 
   it("should return valid=false on network error", async () => {
-    global.fetch = mock(() => Promise.reject(new Error("Network failed")));
+    global.fetch = mock(() => Promise.reject(new Error("Network failed"))) as any;
 
     const response = await GET();
     const data = await response.json();
@@ -100,7 +100,7 @@ describe("Token Verification API Route", () => {
           { status: 200 }
         )
       )
-    );
+    ) as any;
 
     const response = await GET();
     const data = await response.json();
@@ -117,7 +117,7 @@ describe("Token Verification API Route", () => {
           status: 500,
         })
       )
-    );
+    ) as any;
 
     const response = await GET();
     const data = await response.json();

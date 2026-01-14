@@ -79,7 +79,7 @@ export function ConfirmationModal({
             }}
         >
             <h2 style={{ fontSize: '1.125rem', fontWeight: 'bold', marginBottom: '16px', color: isDestructive ? '#dc2626' : '#00ff00', fontFamily: 'ui-monospace, monospace' }}>
-                {"// " + title}
+                {title}
             </h2>
             <p style={{ color: '#888', marginBottom: '24px', fontSize: '0.875rem', fontFamily: 'ui-monospace, monospace' }}>{description}</p>
 

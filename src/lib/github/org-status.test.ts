@@ -31,7 +31,7 @@ describe('detectOrgAccessStatus', () => {
         );
       }
       return Promise.resolve(new Response('{}', { status: 200 }));
-    });
+    }) as any;
 
     const result = await detectOrgAccessStatus('token', mockOrg);
 
@@ -50,7 +50,7 @@ describe('detectOrgAccessStatus', () => {
           { status: 403 }
         )
       )
-    );
+    ) as any;
 
     const result = await detectOrgAccessStatus('token', mockOrg);
 
@@ -68,7 +68,7 @@ describe('detectOrgAccessStatus', () => {
           { status: 403 }
         )
       )
-    );
+    ) as any;
 
     const result = await detectOrgAccessStatus('token', mockOrg);
 
@@ -81,7 +81,7 @@ describe('detectOrgAccessStatus', () => {
       Promise.resolve(
         new Response(JSON.stringify({ message: 'Not Found' }), { status: 404 })
       )
-    );
+    ) as any;
 
     const result = await detectOrgAccessStatus('token', mockOrg);
 
@@ -89,7 +89,7 @@ describe('detectOrgAccessStatus', () => {
   });
 
   it('returns unknown status on network error', async () => {
-    global.fetch = mock(() => Promise.reject(new Error('Network failed')));
+    global.fetch = mock(() => Promise.reject(new Error('Network failed'))) as any;
 
     const result = await detectOrgAccessStatus('token', mockOrg);
 
@@ -100,7 +100,7 @@ describe('detectOrgAccessStatus', () => {
   it('preserves org info in result', async () => {
     global.fetch = mock(() =>
       Promise.resolve(new Response(JSON.stringify([]), { status: 200 }))
-    );
+    ) as any;
 
     const result = await detectOrgAccessStatus('token', mockOrg);
 
@@ -121,7 +121,7 @@ describe('detectAllOrgStatuses', () => {
   it('processes multiple orgs', async () => {
     global.fetch = mock(() =>
       Promise.resolve(new Response(JSON.stringify([]), { status: 200 }))
-    );
+    ) as any;
 
     const orgs = [
       { ...mockOrg, id: 1, login: 'org1' },

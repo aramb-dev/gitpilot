@@ -80,7 +80,7 @@ describe('fetchAllPages', () => {
           headers: { 'Content-Type': 'application/json' },
         })
       )
-    );
+    ) as any;
 
     const result = await fetchAllPages<{ id: number }>(
       'https://api.github.com/test',
@@ -116,7 +116,7 @@ describe('fetchAllPages', () => {
           headers: { 'Content-Type': 'application/json' },
         })
       );
-    });
+    }) as any;
 
     const result = await fetchAllPages<{ id: number }>(
       'https://api.github.com/test',
@@ -141,7 +141,7 @@ describe('fetchAllPages', () => {
           },
         })
       )
-    );
+    ) as any;
 
     const result = await fetchAllPages<{ id: number }>(
       'https://api.github.com/test',
@@ -174,7 +174,7 @@ describe('fetchAllPages', () => {
       return Promise.resolve(
         new Response(JSON.stringify(page2), { status: 200 })
       );
-    });
+    }) as any;
 
     await fetchAllPages<{ id: number }>(
       'https://api.github.com/test',
@@ -218,7 +218,7 @@ describe('fetchAllPages', () => {
           },
         })
       );
-    });
+    }) as any;
 
     const result = await fetchAllPages<{ id: number }>(
       'https://api.github.com/test',
@@ -237,7 +237,7 @@ describe('fetchAllPages', () => {
           status: 404,
         })
       )
-    );
+    ) as any;
 
     await expect(
       fetchAllPages('https://api.github.com/test', { Authorization: 'Bearer token' })

@@ -1,5 +1,12 @@
-import { expect, it, describe } from "bun:test";
+import { expect, it, describe, mock } from "bun:test";
 import { toast } from "sonner";
+
+mock.module("sonner", () => {
+  const toastMock: any = (message: string) => {};
+  toastMock.success = mock(() => {});
+  toastMock.error = mock(() => {});
+  return { toast: toastMock };
+});
 
 describe("Toast System", () => {
   it("should have toast function available", () => {

@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-# Ralph Loop Script for GitPilot
+# Ralph Loop Script for looped
 # Usage:
 #   ./loop.sh              # Run building mode with Claude (unlimited iterations)
 #   ./loop.sh 20           # Run building mode with Claude (max 20 iterations)
@@ -15,12 +15,17 @@ MODE="build"
 PROMPT_FILE="PROMPT_build.md"
 MAX_ITERATIONS=0
 AGENT="${RALPH_AGENT:-claude}"  # Default to Claude, can override with env var
+CODEX_PROFILE="${CODEX_PROFILE:-default}"  # Codex profile, can override with env var
 
 # Parse command-line arguments
 while [ $# -gt 0 ]; do
     case "$1" in
         --agent)
             AGENT="$2"
+            shift 2
+            ;;
+        --codex-profile)
+            CODEX_PROFILE="$2"
             shift 2
             ;;
         plan)
@@ -72,6 +77,9 @@ else
     echo "Running until manually stopped (Ctrl+C)"
 fi
 echo "Using prompt file: $PROMPT_FILE"
+if [ "$AGENT" = "codex" ]; then
+    echo "Using Codex profile: $CODEX_PROFILE"
+fi
 echo ""
 
 # Function to run the agent
@@ -85,6 +93,7 @@ run_agent() {
             --verbose
     elif [ "$AGENT" = "codex" ]; then
         cat "$PROMPT_FILE" | codex \
+            --profile "$CODEX_PROFILE" \
             -p \
             --dangerously-bypass-approvals-and-sandbox \
             --output-format=stream-json \
@@ -106,10 +115,10 @@ while true; do
     
     EXIT_CODE=$?
     
-    # Check if Claude failed
+    # Check if agent failed
     if [ $EXIT_CODE -ne 0 ]; then
         echo ""
-        echo "Error: Claude exited with code $EXIT_CODE"
+        echo "Error: Agent exited with code $EXIT_CODE"
         echo "Stopping loop"
         exit $EXIT_CODE
     fi

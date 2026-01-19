@@ -77,9 +77,6 @@ else
     echo "Running until manually stopped (Ctrl+C)"
 fi
 echo "Using prompt file: $PROMPT_FILE"
-if [ "$AGENT" = "codex" ]; then
-    echo "Using Codex profile: $CODEX_PROFILE"
-fi
 echo ""
 
 # Function to run the agent
@@ -92,13 +89,10 @@ run_agent() {
             --model opus \
             --verbose
     elif [ "$AGENT" = "codex" ]; then
-        cat "$PROMPT_FILE" | codex \
-            --profile "$CODEX_PROFILE" \
-            -p \
+        cat "$PROMPT_FILE" | codex exec \
             --dangerously-bypass-approvals-and-sandbox \
-            --output-format=stream-json \
-            --model opus \
-            --verbose
+            --json \
+            --model opus
     fi
 }
 

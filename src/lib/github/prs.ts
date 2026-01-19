@@ -1,0 +1,223 @@
+/**
+ * GitHub Pull Request utilities.
+ * Handles fetching, normalization, and bulk operations.
+ */
+
+import { GITHUB_API_BASE, createGitHubHeaders } from "./client";
+import { classifyGitHubError } from "./errors";
+import type { GitHubPullRequest, GitHubUser } from "@/types/github";
+import type { 
+  PullRequest, 
+  PRUser, 
+  PRLabel, 
+  PRMilestone, 
+  PRRepository, 
+  PRFilters,
+  PRsListResponse,
+  PRReviewer
+} from "@/types/pull-request";
+import type { ApiError } from "@/types/api-errors";
+
+/**
+ * Normalizes a raw GitHub PR response to the canonical domain model.
+ */
+export function normalizePullRequest(raw: GitHubPullRequest): PullRequest {
+  const repo = raw.base.repo || raw.head.repo;
+  
+  const prRepository: PRRepository = {
+    id: repo?.id || 0,
+    name: repo?.name || '',
+    fullName: repo?.full_name || '',
+    owner: repo?.owner.login || '',
+    private: repo?.private || false,
+  };
+
+  const normalizeUser = (u: GitHubUser): PRUser => ({
+    id: u.id,
+    login: u.login,
+    avatarUrl: u.avatar_url,
+    htmlUrl: u.html_url || `https://github.com/${u.login}`,
+  });
+
+  return {
+    id: raw.id,
+    nodeId: raw.node_id,
+    number: raw.number,
+    title: raw.title,
+    body: raw.body,
+    state: raw.state as 'open' | 'closed',
+    merged: raw.merged || !!raw.merged_at,
+    draft: raw.draft || false,
+    locked: raw.locked || false,
+
+    user: normalizeUser(raw.user),
+    assignees: raw.assignees.map(normalizeUser),
+    reviewers: raw.requested_reviewers.map(r => ({
+      ...normalizeUser(r),
+      state: 'PENDING' as const,
+    })),
+    labels: raw.labels.map((l): PRLabel => ({
+      id: l.id,
+      name: l.name,
+      color: l.color,
+      description: l.description,
+    })),
+    milestone: raw.milestone ? {
+      id: raw.milestone.id,
+      number: raw.milestone.number,
+      title: raw.milestone.title,
+      state: raw.milestone.state,
+      dueOn: raw.milestone.due_on,
+    } : null,
+
+    repository: prRepository,
+
+    comments: raw.comments || 0,
+    reviewComments: raw.review_comments || 0,
+    commits: raw.commits || 0,
+    additions: raw.additions || 0,
+    deletions: raw.deletions || 0,
+
+    createdAt: raw.created_at,
+    updatedAt: raw.updated_at,
+    closedAt: raw.closed_at,
+    mergedAt: raw.merged_at,
+
+    baseRef: raw.base.ref,
+    headRef: raw.head.ref,
+
+    htmlUrl: raw.html_url,
+    apiUrl: raw.url || `https://api.github.com/repos/${prRepository.owner}/${prRepository.name}/pulls/${raw.number}`,
+  };
+}
+
+/**
+ * Fetches pull requests for multiple repositories with filters.
+ */
+export async function fetchPRsAcrossRepos(
+  accessToken: string,
+  filters: PRFilters,
+  options: { fetchDetails?: boolean } = {}
+): Promise<{ data: PRsListResponse; warnings: string[] }> {
+  const { repos = [], state = 'open', sort = 'updated', direction = 'desc', page = 1, perPage = 30 } = filters as any;
+  const allPRs: PullRequest[] = [];
+  const warnings: string[] = [];
+
+  const headers = createGitHubHeaders(accessToken);
+
+  // Fetch from each repo
+  // Note: For many repos, this should be optimized with GraphQL or better parallelism
+  await Promise.all(repos.map(async (repoFull: string) => {
+    try {
+      const [owner, name] = repoFull.split('/');
+      const query = new URLSearchParams({
+        state: state === 'merged' ? 'closed' : state,
+        sort,
+        direction,
+        per_page: '100', // Fetch max allowed to minimize pagination needs for the unified list
+      });
+
+      const res = await fetch(`${GITHUB_API_BASE}/repos/${owner}/${name}/pulls?${query}`, {
+        headers,
+        next: { revalidate: 60 }
+      });
+
+      if (!res.ok) {
+        warnings.push(`Failed to fetch PRs for ${repoFull}: ${res.statusText}`);
+        return;
+      }
+
+      const rawPRs: GitHubPullRequest[] = await res.json();
+      
+      let filtered = rawPRs;
+      if (state === 'merged') {
+        filtered = rawPRs.filter(pr => pr.merged_at);
+      } else if (state === 'closed') {
+        filtered = rawPRs.filter(pr => !pr.merged_at);
+      }
+
+      // If details are requested, we'd need to fetch each PR individually.
+      // For now, we normalize what we have.
+      allPRs.push(...filtered.map(normalizePullRequest));
+    } catch (error) {
+      warnings.push(`Error fetching PRs for ${repoFull}: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }));
+
+  // Unified sorting
+  allPRs.sort((a, b) => {
+    const dateA = new Date(sort === 'created' ? a.createdAt : a.updatedAt).getTime();
+    const dateB = new Date(sort === 'created' ? b.createdAt : b.updatedAt).getTime();
+    return direction === 'desc' ? dateB - dateA : dateA - dateB;
+  });
+
+  // Client-side pagination for the unified list
+  const start = (page - 1) * perPage;
+  const paginated = allPRs.slice(start, start + perPage);
+
+  return {
+    data: {
+      pullRequests: paginated,
+      totalCount: allPRs.length,
+      hasNextPage: start + perPage < allPRs.length,
+    },
+    warnings,
+  };
+}
+
+/**
+ * Performs bulk actions on pull requests.
+ */
+export async function executePRAction(
+  accessToken: string,
+  pr: { owner: string; repo: string; number: number },
+  action: 'merge' | 'close' | 'reopen' | 'draft' | 'ready',
+  params: { commitMessage?: string; mergeMethod?: 'merge' | 'squash' | 'rebase' } = {}
+): Promise<{ success: boolean; error?: string }> {
+  const headers = createGitHubHeaders(accessToken);
+  const url = `${GITHUB_API_BASE}/repos/${pr.owner}/${pr.repo}/pulls/${pr.number}`;
+
+  try {
+    if (action === 'merge') {
+      const res = await fetch(`${url}/merge`, {
+        method: 'PUT',
+        headers,
+        body: JSON.stringify({
+          commit_message: params.commitMessage,
+          merge_method: params.mergeMethod || 'merge',
+        }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        return { success: false, error: data.message || `Failed to merge: ${res.statusText}` };
+      }
+      return { success: true };
+    }
+
+    // PATCH actions
+    let body: any = {};
+    if (action === 'close') body.state = 'closed';
+    else if (action === 'reopen') body.state = 'open';
+    else if (action === 'draft') body.draft = true;
+    else if (action === 'ready') body.draft = false;
+
+    const res = await fetch(url, {
+      method: 'PATCH',
+      headers,
+      body: JSON.stringify(body),
+    });
+
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      return { success: false, error: data.message || `Failed to ${action}: ${res.statusText}` };
+    }
+
+    return { success: true };
+  } catch (error) {
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : 'Unknown error occurred' 
+    };
+  }
+}

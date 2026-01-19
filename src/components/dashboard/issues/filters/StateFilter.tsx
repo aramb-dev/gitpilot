@@ -1,29 +1,37 @@
 'use client';
 
-import { CircleDot, CheckCircle2, Circle } from 'lucide-react';
+import { CircleDot, CheckCircle2, Circle, GitMerge } from 'lucide-react';
 
-interface StateFilterProps {
-  value: 'open' | 'closed' | 'all';
-  onChange: (state: 'open' | 'closed' | 'all') => void;
+interface StateOption {
+  value: string;
+  label: string;
+  color?: string;
+  icon?: any;
 }
 
-export function StateFilter({ value, onChange }: StateFilterProps) {
-  const states = [
-    { id: 'open' as const, label: 'Open', icon: CircleDot, color: 'text-green-500' },
-    { id: 'closed' as const, label: 'Closed', icon: CheckCircle2, color: 'text-purple-500' },
-    { id: 'all' as const, label: 'All', icon: Circle, color: 'text-gray-400' },
-  ];
+interface StateFilterProps {
+  value: string;
+  onChange: (state: any) => void;
+  options?: StateOption[];
+}
 
+const DEFAULT_OPTIONS: StateOption[] = [
+  { value: 'open', label: 'Open', icon: CircleDot, color: 'text-green-500' },
+  { value: 'closed', label: 'Closed', icon: CheckCircle2, color: 'text-purple-500' },
+  { value: 'all', label: 'All', icon: Circle, color: 'text-gray-400' },
+];
+
+export function StateFilter({ value, onChange, options = DEFAULT_OPTIONS }: StateFilterProps) {
   return (
     <div className="flex items-center gap-1 bg-[#1a1a1a] border border-[#333] p-1 font-mono">
-      {states.map((state) => {
-        const Icon = state.icon;
-        const isActive = value === state.id;
+      {options.map((state) => {
+        const Icon = state.icon || Circle;
+        const isActive = value === state.value;
 
         return (
           <button
-            key={state.id}
-            onClick={() => onChange(state.id)}
+            key={state.value}
+            onClick={() => onChange(state.value)}
             className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold transition-all ${
               isActive
                 ? 'bg-[#00ff00] text-black'

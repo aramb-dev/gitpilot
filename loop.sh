@@ -112,7 +112,7 @@ run_agent() {
         
         eval "$codex_cmd"
     elif [ "$AGENT" = "gemini" ]; then
-        local gemini_cmd="cat \"$PROMPT_FILE\" | gemini"
+        local gemini_cmd="cat \"$PROMPT_FILE\" | gemini --approval-mode yolo"
         
         # Add model flag only if specified
         if [ -n "$GEMINI_MODEL" ]; then

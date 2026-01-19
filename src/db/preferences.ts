@@ -10,6 +10,7 @@ export interface UserPreferences {
   theme: "dark" | "light" | "system";
   showArchived: boolean;
   showForks: boolean;
+  selectedOrgs: string[];
 }
 
 const DEFAULT_PREFERENCES: Omit<UserPreferences, "userId"> = {
@@ -19,6 +20,7 @@ const DEFAULT_PREFERENCES: Omit<UserPreferences, "userId"> = {
   theme: "dark",
   showArchived: false,
   showForks: true,
+  selectedOrgs: [],
 };
 
 export async function getUserPreferences(
@@ -44,6 +46,7 @@ export async function getUserPreferences(
       theme: prefs.theme as UserPreferences["theme"],
       showArchived: prefs.showArchived,
       showForks: prefs.showForks,
+      selectedOrgs: (prefs.selectedOrgs as string[]) ?? [],
     };
   } catch (error) {
     console.error("Error fetching user preferences:", error);

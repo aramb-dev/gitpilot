@@ -10,6 +10,7 @@ export const userPreferences = pgTable(
     theme: text("theme").notNull().default("dark"),
     showArchived: boolean("show_archived").notNull().default(false),
     showForks: boolean("show_forks").notNull().default(true),
+    selectedOrgs: jsonb("selected_orgs").notNull().default([]),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },

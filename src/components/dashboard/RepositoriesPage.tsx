@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { RepositoryCardGrid } from './RepositoryCardGrid'
 import { RepositoryActions } from './RepositoryActions'
 import { Pagination } from './Pagination'
@@ -33,13 +33,14 @@ export function RepositoriesPage({ repositories: initialRepositories }: Reposito
     const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false)
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
 
-    const loadRepos = async (silent = false) => {
+    const loadRepos = useCallback(async (silent = false) => {
         try {
             if (!silent) setIsLoading(true)
             setError(null)
 
-            const savedOrgs = localStorage.getItem("selected_orgs");
-            const orgsQuery = savedOrgs ? `?orgs=${JSON.parse(savedOrgs).join(",")}` : "";
+            const orgsQuery = preferences?.selectedOrgs?.length 
+                ? `?orgs=${preferences.selectedOrgs.join(",")}` 
+                : "";
 
             const res = await fetch(`/api/github/repos${orgsQuery}`, {
                 method: 'GET',
@@ -77,12 +78,12 @@ export function RepositoriesPage({ repositories: initialRepositories }: Reposito
         } finally {
             if (!silent) setIsLoading(false)
         }
-    }
+    }, [preferences?.selectedOrgs])
 
     useEffect(() => {
         if (initialRepositories) return
         void loadRepos()
-    }, [initialRepositories])
+    }, [initialRepositories, loadRepos])
 
     useEffect(() => {
         setSelectedRepos([])

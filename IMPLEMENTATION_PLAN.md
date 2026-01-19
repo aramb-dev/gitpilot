@@ -4,8 +4,6 @@
 **Goal**: A powerful, bulk GitHub management tool for repositories, issues, pull requests, and organization members.
 
 ## Pending (highest priority first)
-- P0: Expand GitHub OAuth scopes to include `delete_repo` and `admin:org` (or `write:org` as needed); update auth scope string + JWT token scopes; confirm GitHub consent flow (`src/lib/auth.ts`), `PermissionsDisplay`, and `SCOPE_DESCRIPTIONS`.
-- P0: Unify repository selection across repos/issues/PRs with org selection: drive available repos from `/api/github/repos` (selected orgs + cache) instead of direct GitHub calls in `src/app/dashboard/issues/page.tsx` and `src/app/dashboard/prs/page.tsx`.
 - P1: Create `src/lib/github/prs.ts` (normalize PRs, merged detection, list across repos with filters, bulk operations); resolve missing PR fields (additions/commits/merged) via detail fetch or adjusted model; move `/api/github/prs/route.ts` and `/api/github/prs/actions/route.ts` to shared lib; add validation + tests.
 - P1: PR UX parity: dedicated PR filters (labels, assignees, author, review requested, search, draft/merged), merge method + commit message input, reviewer/label/assignee bulk actions, pagination UI aligned with preferences, and a PR preview panel.
 - P1: Implement organization member management end-to-end: types (`src/types/member.ts`), GitHub member library, API routes, UI components, and tests (per `specs/organization-member-management.md`).
@@ -21,6 +19,8 @@
 
 ## Completed
 - Specs added for issues, pull requests, and organization members.
+- P0: Expanded GitHub OAuth scopes to include `delete_repo` and `admin:org`; updated auth scope string + JWT token scopes; confirmed GitHub consent flow, `PermissionsDisplay`, and `SCOPE_DESCRIPTIONS`.
+- P0: Unified repository selection across repos/issues/PRs with org selection: driven available repos from `/api/github/repos` logic (selected orgs + cache) via shared service `src/lib/github/repos-service.ts`. Stored `selectedOrgs` in user preferences DB.
 
 ## Specs
 - `specs/bulk-repository-management.md`

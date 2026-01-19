@@ -2,12 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import type { Session } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { fetchAllRepos } from "@/lib/github/repos";
-import { normalizeRepositories } from "@/lib/github/normalize";
 import { ERROR_MESSAGES } from "@/lib/github/errors";
 import type { ApiResponse } from "@/types/api-errors";
 import type { Repository } from "@/types/repository";
-import { getCached, setCache } from "@/db/cache";
+import { getCachedRepos } from "@/lib/github/repos-service";
 
 export async function GET(req: NextRequest) {
   const session = (await getServerSession(authOptions)) as (Session & {
@@ -29,40 +27,14 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const selectedOrgs = searchParams.get("orgs")?.split(",").filter(Boolean) || [];
   const skipCache = searchParams.get("refresh") === "true";
-  
-  const cacheKey = `repos:${selectedOrgs.sort().join(",")}`;
-
-  if (!skipCache) {
-    const cached = await getCached<Repository[]>(userId, cacheKey);
-    if (cached && !cached.isStale) {
-      const response: ApiResponse<Repository[]> = {
-        data: cached.data,
-        meta: { fromCache: true },
-      };
-      return NextResponse.json(response);
-    }
-  }
 
   try {
-    const result = await fetchAllRepos(session.accessToken, selectedOrgs);
-
-    const normalizedRepos = normalizeRepositories(result.repos);
-
-    await setCache(userId, cacheKey, "repositories", normalizedRepos, {
-      ttlMinutes: 5,
-    });
-
-    const warnings: string[] = [...result.warnings];
-
-    if (result.errors.length > 0) {
-      for (const orgError of result.errors) {
-        warnings.push(`Failed to fetch repos from '${orgError.org}': ${orgError.error.message}`);
-      }
-    }
+    const result = await getCachedRepos(userId, session.accessToken, selectedOrgs, skipCache);
 
     const response: ApiResponse<Repository[]> = {
-      data: normalizedRepos,
-      ...(warnings.length > 0 && { warnings }),
+      data: result.data,
+      ...(result.warnings.length > 0 && { warnings: result.warnings }),
+      ...(result.fromCache && { meta: { fromCache: true } }),
     };
 
     return NextResponse.json(response);

@@ -21,19 +21,23 @@ export function OrganizationSelector() {
   const [success, setSuccess] = useState(false);
 
   useEffect(() => {
-    async function fetchOrgs() {
+    async function fetchData() {
         setLoading(true);
         try {
-            const res = await fetch("/api/github/orgs");
-            if (!res.ok) throw new Error("Failed to fetch organizations");
-            const data = await res.json();
+            const [orgsRes, prefsRes] = await Promise.all([
+                fetch("/api/github/orgs"),
+                fetch("/api/preferences")
+            ]);
 
-            // Load selection from localStorage
-            const savedSelected = localStorage.getItem("selected_orgs");
+            if (!orgsRes.ok) throw new Error("Failed to fetch organizations");
+            if (!prefsRes.ok) throw new Error("Failed to fetch preferences");
 
-            setOrganizations(data);
-            if (savedSelected) {
-                setSelectedOrgs(JSON.parse(savedSelected));
+            const orgsData = await orgsRes.json();
+            const prefsData = await prefsRes.json();
+
+            setOrganizations(orgsData);
+            if (prefsData.selectedOrgs) {
+                setSelectedOrgs(prefsData.selectedOrgs);
             }
         } catch (error) {
             console.error(error);
@@ -41,7 +45,7 @@ export function OrganizationSelector() {
             setLoading(false);
         }
     }
-    fetchOrgs();
+    fetchData();
   }, []);
 
   const toggleOrg = (login: string) => {
@@ -53,14 +57,28 @@ export function OrganizationSelector() {
     setSuccess(false);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     setSaving(true);
     setSuccess(false);
-    localStorage.setItem("selected_orgs", JSON.stringify(selectedOrgs));
-    setTimeout(() => {
-        setSaving(false);
+    try {
+        const res = await fetch("/api/preferences", {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                selectedOrgs: selectedOrgs,
+            }),
+        });
+
+        if (!res.ok) throw new Error("Failed to save preferences");
+        
         setSuccess(true);
-    }, 500);
+    } catch (error) {
+        console.error(error);
+    } finally {
+        setSaving(false);
+    }
   };
 
   const handleReconnect = () => {

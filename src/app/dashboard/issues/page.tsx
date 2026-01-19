@@ -2,41 +2,28 @@ import { Metadata } from 'next';
 import { getAuthSession } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { IssuesPageClient } from '@/components/dashboard/issues/IssuesPageClient';
+import { getCachedRepos } from '@/lib/github/repos-service';
+import { getUserPreferences } from '@/db/preferences';
 
 export const metadata: Metadata = {
   title: 'Issues - GitPilot',
   description: 'Manage issues across multiple repositories with bulk operations',
 };
 
-async function getRepositories(accessToken: string): Promise<string[]> {
-  try {
-    const response = await fetch('https://api.github.com/user/repos?per_page=100&sort=updated', {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        Accept: 'application/vnd.github.v3+json',
-      },
-      next: { revalidate: 60 },
-    });
-
-    if (!response.ok) {
-      return [];
-    }
-
-    const repos = await response.json();
-    return repos.map((repo: { full_name: string }) => repo.full_name);
-  } catch {
-    return [];
-  }
-}
-
 export default async function IssuesPage() {
   const session = await getAuthSession();
 
-  if (!session?.accessToken) {
+  if (!session?.accessToken || !session.user?.id) {
     redirect('/auth/signin');
   }
 
-  const availableRepos = await getRepositories(session.accessToken);
+  // Get user preferences for selected organizations
+  const prefs = await getUserPreferences(session.user.id);
+  const selectedOrgs = prefs.selectedOrgs || [];
+
+  // Fetch repositories from selected organizations with caching
+  const result = await getCachedRepos(session.user.id, session.accessToken, selectedOrgs);
+  const availableRepos = result.data.map(repo => repo.full_name);
 
   return (
     <div className="space-y-6">

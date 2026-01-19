@@ -25,7 +25,7 @@ describe("Token Verification API Route", () => {
           {
             status: 200,
             headers: {
-              "X-OAuth-Scopes": "repo, read:user, read:org",
+              "X-OAuth-Scopes": "repo, read:user, read:org, delete_repo, admin:org",
               "X-RateLimit-Remaining": "4999",
               "X-RateLimit-Limit": "5000",
               "X-RateLimit-Reset": "1704067200",

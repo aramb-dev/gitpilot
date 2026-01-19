@@ -13,7 +13,7 @@ export const authOptions: NextAuthOptions = {
       clientSecret: process.env.GITHUB_SECRET ?? "",
       authorization: {
         params: {
-          scope: "read:user repo read:org",
+          scope: "read:user repo read:org delete_repo admin:org",
         },
       },
     }),
@@ -26,7 +26,7 @@ export const authOptions: NextAuthOptions = {
         token.connectedAt = new Date().toISOString();
         
         // Store the requested scopes (we know what we asked for)
-        token.scopes = ["read:user", "repo", "read:org"];
+        token.scopes = ["read:user", "repo", "read:org", "delete_repo", "admin:org"];
       }
       return token;
     },

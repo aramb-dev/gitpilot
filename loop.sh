@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-# Ralph Loop Script for looped
+# Ralph Loop Script for cleanai
 # Usage:
 #   ./loop.sh              # Run building mode with Claude (unlimited iterations)
 #   ./loop.sh 20           # Run building mode with Claude (max 20 iterations)
@@ -9,13 +9,16 @@ set -euo pipefail
 #   ./loop.sh plan 5       # Run planning mode with Claude (max 5 iterations)
 #   ./loop.sh --agent codex plan    # Run planning mode with Codex
 #   RALPH_AGENT=codex ./loop.sh     # Use environment variable to select agent
+#   RALPH_CLAUDE_MODEL=sonnet ./loop.sh  # Override Claude model
+#   RALPH_CODEX_MODEL=o1 ./loop.sh --agent codex  # Override Codex model
 
 # Parse arguments
 MODE="build"
 PROMPT_FILE="PROMPT_build.md"
 MAX_ITERATIONS=0
 AGENT="${RALPH_AGENT:-claude}"  # Default to Claude, can override with env var
-CODEX_PROFILE="${CODEX_PROFILE:-default}"  # Codex profile, can override with env var
+CLAUDE_MODEL="${RALPH_CLAUDE_MODEL:-opus}"  # Default Claude model
+CODEX_MODEL="${RALPH_CODEX_MODEL:-}"  # Default: use Codex account default
 
 # Parse command-line arguments
 while [ $# -gt 0 ]; do
@@ -24,8 +27,12 @@ while [ $# -gt 0 ]; do
             AGENT="$2"
             shift 2
             ;;
-        --codex-profile)
-            CODEX_PROFILE="$2"
+        --claude-model)
+            CLAUDE_MODEL="$2"
+            shift 2
+            ;;
+        --codex-model)
+            CODEX_MODEL="$2"
             shift 2
             ;;
         plan)
@@ -86,13 +93,17 @@ run_agent() {
             -p \
             --dangerously-skip-permissions \
             --output-format=stream-json \
-            --model opus \
+            --model "$CLAUDE_MODEL" \
             --verbose
     elif [ "$AGENT" = "codex" ]; then
-        cat "$PROMPT_FILE" | codex exec \
-            --dangerously-bypass-approvals-and-sandbox \
-            --json \
-            --model opus
+        local codex_cmd="cat \"$PROMPT_FILE\" | codex exec --dangerously-bypass-approvals-and-sandbox --json --disable mcp"
+        
+        # Add model flag only if specified
+        if [ -n "$CODEX_MODEL" ]; then
+            codex_cmd="$codex_cmd --model $CODEX_MODEL"
+        fi
+        
+        eval "$codex_cmd"
     fi
 }
 

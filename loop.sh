@@ -3,24 +3,51 @@ set -euo pipefail
 
 # Ralph Loop Script for GitPilot
 # Usage:
-#   ./loop.sh              # Run building mode (unlimited iterations)
-#   ./loop.sh 20           # Run building mode (max 20 iterations)
-#   ./loop.sh plan         # Run planning mode
-#   ./loop.sh plan 5       # Run planning mode (max 5 iterations)
+#   ./loop.sh              # Run building mode with Claude (unlimited iterations)
+#   ./loop.sh 20           # Run building mode with Claude (max 20 iterations)
+#   ./loop.sh plan         # Run planning mode with Claude
+#   ./loop.sh plan 5       # Run planning mode with Claude (max 5 iterations)
+#   ./loop.sh --agent codex plan    # Run planning mode with Codex
+#   RALPH_AGENT=codex ./loop.sh     # Use environment variable to select agent
 
 # Parse arguments
 MODE="build"
 PROMPT_FILE="PROMPT_build.md"
 MAX_ITERATIONS=0
+AGENT="${RALPH_AGENT:-claude}"  # Default to Claude, can override with env var
 
-if [ $# -gt 0 ]; then
-    if [ "$1" = "plan" ]; then
-        MODE="plan"
-        PROMPT_FILE="PROMPT_plan.md"
-        MAX_ITERATIONS=${2:-0}
-    elif [[ "$1" =~ ^[0-9]+$ ]]; then
-        MAX_ITERATIONS=$1
-    fi
+# Parse command-line arguments
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --agent)
+            AGENT="$2"
+            shift 2
+            ;;
+        plan)
+            MODE="plan"
+            PROMPT_FILE="PROMPT_plan.md"
+            shift
+            # Check if next arg is a number (max iterations)
+            if [ $# -gt 0 ] && [[ "$1" =~ ^[0-9]+$ ]]; then
+                MAX_ITERATIONS=$1
+                shift
+            fi
+            ;;
+        [0-9]*)
+            MAX_ITERATIONS=$1
+            shift
+            ;;
+        *)
+            echo "Unknown argument: $1"
+            exit 1
+            ;;
+    esac
+done
+
+# Verify agent is valid
+if [ "$AGENT" != "claude" ] && [ "$AGENT" != "codex" ]; then
+    echo "Error: Invalid agent '$AGENT'. Must be 'claude' or 'codex'"
+    exit 1
 fi
 
 # Verify prompt file exists
@@ -38,7 +65,7 @@ fi
 # Initialize iteration counter
 ITERATION=0
 
-echo "Starting Ralph loop in $MODE mode..."
+echo "Starting Ralph loop in $MODE mode with $AGENT agent..."
 if [ $MAX_ITERATIONS -gt 0 ]; then
     echo "Max iterations: $MAX_ITERATIONS"
 else
@@ -46,6 +73,25 @@ else
 fi
 echo "Using prompt file: $PROMPT_FILE"
 echo ""
+
+# Function to run the agent
+run_agent() {
+    if [ "$AGENT" = "claude" ]; then
+        cat "$PROMPT_FILE" | claude \
+            -p \
+            --dangerously-skip-permissions \
+            --output-format=stream-json \
+            --model opus \
+            --verbose
+    elif [ "$AGENT" = "codex" ]; then
+        cat "$PROMPT_FILE" | codex \
+            -p \
+            --dangerously-bypass-approvals-and-sandbox \
+            --output-format=stream-json \
+            --model opus \
+            --verbose
+    fi
+}
 
 # Main loop
 while true; do
@@ -55,13 +101,8 @@ while true; do
     echo "Iteration $ITERATION - $(date '+%Y-%m-%d %H:%M:%S')"
     echo "========================================"
     
-    # Feed prompt to Claude
-    cat "$PROMPT_FILE" | claude \
-        -p \
-        --dangerously-skip-permissions \
-        --output-format=stream-json \
-        --model opus \
-        --verbose
+    # Feed prompt to agent
+    run_agent
     
     EXIT_CODE=$?
     

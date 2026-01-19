@@ -96,7 +96,7 @@ run_agent() {
             --model "$CLAUDE_MODEL" \
             --verbose
     elif [ "$AGENT" = "codex" ]; then
-        local codex_cmd="cat \"$PROMPT_FILE\" | codex exec --dangerously-bypass-approvals-and-sandbox --json --disable mcp"
+        local codex_cmd="cat \"$PROMPT_FILE\" | codex exec --dangerously-bypass-approvals-and-sandbox --json"
         
         # Add model flag only if specified
         if [ -n "$CODEX_MODEL" ]; then

@@ -52,6 +52,8 @@ export function useIssues(filters: IssueFilters): UseIssuesReturn {
         if (filters.state) params.set('state', filters.state);
         if (filters.labels?.length) params.set('labels', filters.labels.join(','));
         if (filters.assignee) params.set('assignee', filters.assignee);
+        if (filters.creator) params.set('creator', filters.creator);
+        if (filters.mentioned) params.set('mentioned', filters.mentioned);
         if (filters.since) params.set('since', filters.since);
         if (filters.sort) params.set('sort', filters.sort);
         if (filters.direction) params.set('direction', filters.direction);

@@ -9,6 +9,10 @@ import { Repository } from '@/types/dashboard'
 import type { ApiResponse } from '@/types/api-errors'
 import { toast } from 'sonner'
 import { usePreferences } from '@/hooks/usePreferences'
+import { useBulkRepoActions } from '@/hooks/useBulkRepoActions'
+import { BulkOperationModal, type BulkItemStatus } from './BulkOperationModal'
+import { FilterPresetsManager } from './FilterPresetsManager'
+import type { RepoFilters } from '@/db/filter-presets'
 
 interface RepositoriesPageProps {
     repositories?: Repository[]
@@ -18,19 +22,19 @@ export function RepositoriesPage({ repositories: initialRepositories }: Reposito
     const { preferences } = usePreferences()
     const [repositories, setRepositories] = useState<Repository[]>(initialRepositories ?? [])
     const [isLoading, setIsLoading] = useState(initialRepositories ? false : true)
-    const [isActionLoading, setIsActionLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const [selectedRepos, setSelectedRepos] = useState<number[]>([])
     const [selectAll, setSelectAll] = useState(false)
     const [searchQuery, setSearchQuery] = useState('')
     const [visibilityFilter, setVisibilityFilter] = useState(preferences?.defaultVisibility ?? 'all')
     const [languageFilter, setLanguageFilter] = useState('all')
+    const [sortValue, setSortValue] = useState('updated')
     const [currentPage, setCurrentPage] = useState(1)
-
-
 
     // Modal states
     const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false)
+    const [isUnarchiveModalOpen, setIsUnarchiveModalOpen] = useState(false)
+    const [isVisibilityModalOpen, setIsVisibilityModalOpen] = useState(false)
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
 
     const loadRepos = useCallback(async (silent = false) => {
@@ -80,6 +84,15 @@ export function RepositoriesPage({ repositories: initialRepositories }: Reposito
         }
     }, [preferences?.selectedOrgs])
 
+    const {
+        state: bulkState,
+        executeAction: executeBulkAction,
+        cancelOperation: cancelBulkOperation,
+        resetState: resetBulkState,
+    } = useBulkRepoActions(async () => {
+        await loadRepos(true)
+    })
+
     useEffect(() => {
         if (initialRepositories) return
         void loadRepos()
@@ -101,7 +114,7 @@ export function RepositoriesPage({ repositories: initialRepositories }: Reposito
     const itemsPerPage = preferences?.itemsPerPage ?? 10
     const normalizedQuery = searchQuery.toLowerCase()
     const filteredRepos = useMemo(() => {
-        return repositories.filter((repo) => {
+        let filtered = repositories.filter((repo) => {
             const matchesSearch = !normalizedQuery || (
                 repo.name.toLowerCase().includes(normalizedQuery) ||
                 repo.owner.toLowerCase().includes(normalizedQuery) ||
@@ -110,9 +123,31 @@ export function RepositoriesPage({ repositories: initialRepositories }: Reposito
             const matchesVisibility = visibilityFilter === 'all' || repo.visibility === visibilityFilter
             const matchesLanguage = languageFilter === 'all' || repo.language === languageFilter
 
-            return matchesSearch && matchesVisibility && matchesLanguage
+            // Preferences
+            const matchesArchived = preferences?.showArchived || !repo.archived
+            const matchesForks = preferences?.showForks || !repo.fork
+
+            return matchesSearch && matchesVisibility && matchesLanguage && matchesArchived && matchesForks
         })
-    }, [normalizedQuery, repositories, visibilityFilter, languageFilter])
+
+        // Sorting
+        filtered.sort((a, b) => {
+            switch (sortValue) {
+                case 'name':
+                    return a.name.localeCompare(b.name)
+                case 'stars':
+                    return b.stars - a.stars
+                case 'created':
+                    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+                case 'updated':
+                default:
+                    return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+            }
+        })
+
+        return filtered
+    }, [normalizedQuery, repositories, visibilityFilter, languageFilter, sortValue, preferences?.showArchived, preferences?.showForks])
+
     const totalPages = Math.ceil(filteredRepos.length / itemsPerPage)
     const paginatedRepos = filteredRepos.slice(
         (currentPage - 1) * itemsPerPage,
@@ -150,99 +185,84 @@ export function RepositoriesPage({ repositories: initialRepositories }: Reposito
 
     const handleToggleVisibility = async () => {
         const action = hasPublicSelected ? 'private' : 'public'
-        const repoParams = selectedRepoObjects.map(r => ({ owner: r.owner, repo: r.name }))
-
-        try {
-            setIsActionLoading(true)
-            const res = await fetch('/api/github/repos/visibility', {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ repos: repoParams, visibility: action })
-            })
-
-            const data = await res.json()
-            if (data.success?.length > 0) {
-                toast.success(`Successfully updated visibility for ${data.success.length} repositories.`)
-                await loadRepos(true)
-            }
-            if (data.errors?.length > 0) {
-                toast.error(`Failed to update ${data.errors.length} repositories.`)
-            }
-        } catch (e) {
-            toast.error('An error occurred while updating visibility.')
-        } finally {
-            setIsActionLoading(false)
-        }
+        setIsVisibilityModalOpen(false)
+        await executeBulkAction(selectedRepoObjects, 'visibility', { visibility: action })
     }
 
-    const handleArchive = async () => {
-        const repoParams = selectedRepoObjects.map(r => ({ owner: r.owner, repo: r.name }))
-
-        try {
-            setIsActionLoading(true)
-            const res = await fetch('/api/github/repos/archive', {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ repos: repoParams })
-            })
-
-            const data = await res.json()
-            if (data.success?.length > 0) {
-                toast.success(`Successfully archived ${data.success.length} repositories.`)
-                setIsArchiveModalOpen(false)
-                await loadRepos(true)
-            }
-            if (data.errors?.length > 0) {
-                toast.error(`Failed to archive ${data.errors.length} repositories.`)
-            }
-        } catch (e) {
-            toast.error('An error occurred while archiving repositories.')
-        } finally {
-            setIsActionLoading(false)
-        }
+    const handleArchive = async (archived: boolean = true) => {
+        setIsArchiveModalOpen(false)
+        setIsUnarchiveModalOpen(false)
+        await executeBulkAction(selectedRepoObjects, archived ? 'archive' : 'unarchive')
     }
 
     const handleDelete = async () => {
-        const repoParams = selectedRepoObjects.map(r => ({ owner: r.owner, repo: r.name }))
-
-        if (repoParams.length === 0) {
+        if (selectedRepoObjects.length === 0) {
             toast.error('No repositories selected.')
             setIsDeleteModalOpen(false)
             return
         }
 
-        try {
-            setIsActionLoading(true)
-            const res = await fetch('/api/github/repos', {
-                method: 'DELETE',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ repos: repoParams })
-            })
+        setIsDeleteModalOpen(false)
+        await executeBulkAction(selectedRepoObjects, 'delete')
+    }
 
-            if (!res.ok) {
-                throw new Error(`Delete failed: ${res.statusText}`)
-            }
-
-            const data = await res.json()
-
-            if (data.success?.length > 0) {
-                toast.success(`Successfully deleted ${data.success.length} repositories.`)
-                await loadRepos(true)
-            }
-
-            if (data.errors?.length > 0) {
-                toast.error(`Failed to delete ${data.errors.length} repositories.`)
-            }
-
-            setIsDeleteModalOpen(false)
-        } catch (e) {
-            toast.error('An error occurred while deleting repositories.')
-        } finally {
-            setIsActionLoading(false)
+    const handleCloseBulkModal = () => {
+        if (bulkState.isCompleted) {
+            setSelectedRepos([])
+            resetBulkState()
         }
     }
 
+    const currentFilters: RepoFilters = useMemo(() => ({
+        visibility: visibilityFilter as any,
+        language: languageFilter === 'all' ? undefined : languageFilter,
+        sortBy: sortValue as any,
+        search: searchQuery || undefined,
+    }), [visibilityFilter, languageFilter, sortValue, searchQuery])
+
+    const handleApplyPreset = (filters: any) => {
+        const repoFilters = filters as RepoFilters
+        if (repoFilters.visibility) setVisibilityFilter(repoFilters.visibility)
+        if (repoFilters.language) setLanguageFilter(repoFilters.language)
+        if (repoFilters.sortBy) setSortValue(repoFilters.sortBy)
+        if (repoFilters.search) setSearchQuery(repoFilters.search)
+    }
+
+    const bulkItems: BulkItemStatus[] = useMemo(() => {
+        return selectedRepoObjects.map(repo => {
+            const result = bulkState.results.find(r => r.repo === repo.full_name);
+            let status: BulkItemStatus['status'] = 'pending';
+            
+            if (result) {
+                status = result.success ? 'success' : 'error';
+            } else if (bulkState.isExecuting) {
+                const idx = selectedRepoObjects.indexOf(repo);
+                if (idx < bulkState.processed + 2 && idx >= bulkState.processed) {
+                    status = 'processing';
+                }
+            }
+
+            return {
+                id: repo.id,
+                label: repo.full_name,
+                status,
+                error: result?.error,
+            };
+        });
+    }, [selectedRepoObjects, bulkState]);
+
     const hasSelectedRepos = selectedRepos.length > 0
+
+    const archiveCandidates = useMemo(() => {
+        const sixMonthsAgo = new Date()
+        sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6)
+
+        return repositories.filter(repo => 
+            !repo.archived && 
+            new Date(repo.updated_at) < sixMonthsAgo
+        ).sort((a, b) => new Date(a.updated_at).getTime() - new Date(b.updated_at).getTime())
+        .slice(0, 5)
+    }, [repositories])
 
     return (
         <div className="space-y-6 font-mono">
@@ -255,8 +275,9 @@ export function RepositoriesPage({ repositories: initialRepositories }: Reposito
                 <RepositoryActions
                     hasSelectedRepos={hasSelectedRepos}
                     visibilityLabel={visibilityLabel}
-                    onToggleVisibility={handleToggleVisibility}
+                    onToggleVisibility={() => setIsVisibilityModalOpen(true)}
                     onArchive={() => setIsArchiveModalOpen(true)}
+                    onUnarchive={() => setIsUnarchiveModalOpen(true)}
                     onDelete={() => setIsDeleteModalOpen(true)}
                     onSearch={handleSearch}
                     visibilityFilter={visibilityFilter}
@@ -264,8 +285,38 @@ export function RepositoriesPage({ repositories: initialRepositories }: Reposito
                     languageFilter={languageFilter}
                     onLanguageChange={setLanguageFilter}
                     languages={languages}
+                    sortValue={sortValue}
+                    onSortChange={setSortValue}
+                    presets={
+                        <FilterPresetsManager 
+                            context="repositories" 
+                            currentFilters={currentFilters} 
+                            onApplyPreset={handleApplyPreset} 
+                        />
+                    }
                 />
             </div>
+
+            {/* Archive Suggestions */}
+            {archiveCandidates.length > 0 && (
+                <div className="bg-[#00ff00]/5 border border-[#00ff00]/20 p-4">
+                    <h2 className="text-[#00ff00] text-sm font-bold mb-3">// ARCHIVE_CANDIDATES (inactive &gt; 6 months)</h2>
+                    <div className="flex flex-wrap gap-2">
+                        {archiveCandidates.map(repo => (
+                            <button
+                                key={repo.id}
+                                onClick={() => {
+                                    setSelectedRepos([repo.id])
+                                    setIsArchiveModalOpen(true)
+                                }}
+                                className="px-2 py-1 text-[10px] bg-[#1a1a1a] border border-[#333] hover:border-[#00ff00] text-[#666] hover:text-[#00ff00] transition-all"
+                            >
+                                {repo.full_name} ({new Date(repo.updated_at).toLocaleDateString()})
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            )}
 
             {error ? (
                 <div className="bg-[#0d0d0d] border border-red-900/50 p-4 text-sm text-red-400">
@@ -296,13 +347,30 @@ export function RepositoriesPage({ repositories: initialRepositories }: Reposito
 
             {/* Modals */}
             <ConfirmationModal
+                isOpen={isVisibilityModalOpen}
+                onClose={() => setIsVisibilityModalOpen(false)}
+                onConfirm={handleToggleVisibility}
+                title="change_visibility"
+                description={`Change visibility to ${hasPublicSelected ? 'PRIVATE' : 'PUBLIC'} for ${selectedRepos.length} repositories?`}
+                confirmButtonText="confirm_change"
+            />
+
+            <ConfirmationModal
                 isOpen={isArchiveModalOpen}
                 onClose={() => setIsArchiveModalOpen(false)}
-                onConfirm={handleArchive}
+                onConfirm={() => handleArchive(true)}
                 title="archive_repos"
                 description={`Archive ${selectedRepos.length} repositories? This will make them read-only.`}
                 confirmButtonText="archive"
-                isLoading={isActionLoading}
+            />
+
+            <ConfirmationModal
+                isOpen={isUnarchiveModalOpen}
+                onClose={() => setIsUnarchiveModalOpen(false)}
+                onConfirm={() => handleArchive(false)}
+                title="unarchive_repos"
+                description={`Unarchive ${selectedRepos.length} repositories? They will become writable again.`}
+                confirmButtonText="unarchive"
             />
 
             <ConfirmationModal
@@ -310,11 +378,19 @@ export function RepositoriesPage({ repositories: initialRepositories }: Reposito
                 onClose={() => setIsDeleteModalOpen(false)}
                 onConfirm={handleDelete}
                 title="delete_repos"
-                description={`IRREVERSIBLE. Permanently delete ${selectedRepos.length} repositories?`}
-                confirmText="DELETE"
+                description={`IRREVERSIBLE. Permanently delete ${selectedRepos.length} repositories? To confirm, type the names of the repositories separated by commas or simply 'DELETE' if you are sure.`}
+                confirmText={selectedRepoObjects.length === 1 ? selectedRepoObjects[0].name : "DELETE"}
                 confirmButtonText="delete"
                 isDestructive
-                isLoading={isActionLoading}
+            />
+
+            <BulkOperationModal
+                isOpen={bulkState.isExecuting || bulkState.isCompleted}
+                onClose={handleCloseBulkModal}
+                title="EXECUTING_BULK_REPO_ACTION"
+                items={bulkItems}
+                isCompleted={bulkState.isCompleted}
+                onCancel={cancelBulkOperation}
             />
         </div>
     )

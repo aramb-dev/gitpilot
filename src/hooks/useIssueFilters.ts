@@ -13,6 +13,8 @@ export function useIssueFilters() {
     const state = searchParams.get('state');
     const labels = searchParams.get('labels');
     const assignee = searchParams.get('assignee');
+    const creator = searchParams.get('creator');
+    const mentioned = searchParams.get('mentioned');
     const repos = searchParams.get('repos');
     const since = searchParams.get('since');
     const sort = searchParams.get('sort');
@@ -23,6 +25,8 @@ export function useIssueFilters() {
       state: (state === 'closed' || state === 'all') ? state : 'open',
       labels: labels ? labels.split(',').filter(Boolean) : undefined,
       assignee: assignee || undefined,
+      creator: creator || undefined,
+      mentioned: mentioned || undefined,
       repos: repos ? repos.split(',').filter(Boolean) : undefined,
       since: since || undefined,
       sort: sort === 'updated' || sort === 'comments' ? sort : 'created',
@@ -45,6 +49,14 @@ export function useIssueFilters() {
 
       if (newFilters.assignee) {
         params.set('assignee', newFilters.assignee);
+      }
+
+      if (newFilters.creator) {
+        params.set('creator', newFilters.creator);
+      }
+
+      if (newFilters.mentioned) {
+        params.set('mentioned', newFilters.mentioned);
       }
 
       if (newFilters.repos && newFilters.repos.length > 0) {

@@ -10,6 +10,7 @@ interface RepoParams {
 
 interface RequestBody {
   repos: RepoParams[];
+  archived?: boolean;
 }
 
 export async function PATCH(req: NextRequest) {
@@ -23,7 +24,7 @@ export async function PATCH(req: NextRequest) {
 
   try {
     const body: RequestBody = await req.json();
-    const { repos } = body;
+    const { repos, archived = true } = body;
 
     if (!repos || !Array.isArray(repos) || repos.length === 0) {
       return NextResponse.json(
@@ -45,16 +46,17 @@ export async function PATCH(req: NextRequest) {
           const res = await fetch(`https://api.github.com/repos/${owner}/${repo}`, {
             method: "PATCH",
             headers,
-            body: JSON.stringify({ archived: true }),
+            body: JSON.stringify({ archived }),
             cache: "no-store",
           });
 
           if (!res.ok) {
             const errorData = await res.json();
+            const message = errorData.message || `Failed to ${archived ? 'archive' : 'unarchive'} repository`;
             return {
               repo: `${owner}/${repo}`,
               status: "error",
-              error: errorData.message || "Failed to archive repository",
+              error: message,
             };
           }
 
@@ -80,6 +82,11 @@ export async function PATCH(req: NextRequest) {
 
     const success = results.filter((r) => r.status === "success").map((r) => r.data);
     const errors = results.filter((r) => r.status === "error");
+
+    if (success.length > 0) {
+      const userId = (session.user as any)?.id ?? "anonymous";
+      await import("@/db/cache").then(m => m.invalidateCacheByPrefix(userId, "repos:"));
+    }
 
     return NextResponse.json({ success, errors });
   } catch (error) {

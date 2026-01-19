@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { AlertCircle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { IssueList } from './IssueList';
 import { IssueFilters } from './IssueFilters';
 import { IssuePreview } from './IssuePreview';
 import { BulkActionBar } from './BulkActionBar';
+import { BulkOperationModal, type BulkItemStatus } from '../BulkOperationModal';
 import { IssueListPagination } from './IssueListPagination';
 import { useIssues } from '@/hooks/useIssues';
 import { useIssueFilters } from '@/hooks/useIssueFilters';
@@ -49,9 +50,41 @@ export function IssuesPageClient({ availableRepos }: IssuesPageClientProps) {
     selectedIssues,
     setSelectedIssues,
     clearSelection,
-    isExecuting,
+    state: bulkState,
     executeAction,
+    cancelOperation,
+    resetState: resetBulkState,
   } = useBulkIssueActions(refetch);
+
+  // Map bulk results to modal items
+  const bulkItems: BulkItemStatus[] = useMemo(() => {
+    return selectedIssues.map(issue => {
+      const result = bulkState.results.find(r => 
+        r.issue.owner === issue.repository.owner && 
+        r.issue.repo === issue.repository.name && 
+        r.issue.number === issue.number
+      );
+
+      let status: BulkItemStatus['status'] = 'pending';
+      if (result) {
+        status = result.success ? 'success' : 'error';
+      } else if (bulkState.isExecuting) {
+        // Find if this issue is in the current or next batch
+        // For simplicity, if not resulted but executing, mark as processing if it's among the first 'processed + batch_size'
+        const idx = selectedIssues.indexOf(issue);
+        if (idx < bulkState.processed + 5 && idx >= bulkState.processed) {
+          status = 'processing';
+        }
+      }
+
+      return {
+        id: `${issue.repository.fullName}#${issue.number}`,
+        label: `${issue.repository.name}#${issue.number}: ${issue.title}`,
+        status,
+        error: result?.error,
+      };
+    });
+  }, [selectedIssues, bulkState]);
 
   // Extract unique labels and assignees from fetched issues
   useEffect(() => {
@@ -95,6 +128,13 @@ export function IssuesPageClient({ availableRepos }: IssuesPageClientProps) {
     },
     [filters, setFilters]
   );
+
+  const handleCloseBulkModal = () => {
+    if (bulkState.isCompleted) {
+      clearSelection();
+      resetBulkState();
+    }
+  };
 
   // Show repo selection prompt if no repos selected
   if (!filters.repos || filters.repos.length === 0) {
@@ -189,9 +229,19 @@ export function IssuesPageClient({ availableRepos }: IssuesPageClientProps) {
         selectedIssues={selectedIssues}
         onClearSelection={clearSelection}
         onExecuteAction={executeAction}
-        isExecuting={isExecuting}
+        isExecuting={bulkState.isExecuting}
         availableLabels={availableLabels}
         availableAssignees={availableAssignees}
+      />
+
+      {/* Bulk operation progress modal */}
+      <BulkOperationModal
+        isOpen={bulkState.isExecuting || bulkState.isCompleted}
+        onClose={handleCloseBulkModal}
+        title="EXECUTING_BULK_ISSUE_ACTION"
+        items={bulkItems}
+        isCompleted={bulkState.isCompleted}
+        onCancel={cancelOperation}
       />
     </div>
   );

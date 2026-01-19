@@ -1,17 +1,15 @@
 'use client';
 
 import { useState } from 'react';
-import { Search, X, Save, GitPullRequest, GitMerge, CheckCircle2, Circle } from 'lucide-react';
+import { Search, X, GitPullRequest, GitMerge, CheckCircle2 } from 'lucide-react';
 import { StateFilter } from '../issues/filters/StateFilter';
 import { RepoFilter } from '../issues/filters/RepoFilter';
 import { LabelFilter } from '../issues/filters/LabelFilter';
 import { AssigneeFilter } from '../issues/filters/AssigneeFilter';
 import type { PRFilters as PRFiltersType } from '@/types/pull-request';
 import type { IssueLabel, IssueUser } from '@/types/issue';
-import { useFilterPresets } from '@/hooks/useFilterPresets';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+
+import { FilterPresetsManager } from '../FilterPresetsManager';
 
 interface PRFiltersProps {
   filters: PRFiltersType;
@@ -33,9 +31,6 @@ export function PRFilters({
   isLoadingAssignees = false,
 }: PRFiltersProps) {
   const [searchValue, setSearchValue] = useState(filters.search || '');
-  const { presets, savePreset } = useFilterPresets();
-  const [presetName, setPresetName] = useState('');
-  const [isSaveDialogOpen, setIsSaveDialogOpen] = useState(false);
 
   const updateFilter = <K extends keyof PRFiltersType>(
     key: K,
@@ -44,15 +39,12 @@ export function PRFilters({
     onFiltersChange({ ...filters, [key]: value });
   };
 
-  const handleSavePreset = async () => {
-    if (!presetName) return;
-    await savePreset(presetName, filters as any);
-    setPresetName('');
-    setIsSaveDialogOpen(false);
-  };
-
   const applyPreset = (presetFilters: any) => {
-    onFiltersChange({ ...filters, ...presetFilters });
+    const newFilters = { ...filters, ...presetFilters };
+    if (!presetFilters.repos && filters.repos) {
+      newFilters.repos = filters.repos;
+    }
+    onFiltersChange(newFilters);
     if (presetFilters.search) setSearchValue(presetFilters.search);
   };
 
@@ -155,59 +147,13 @@ export function PRFilters({
           <option value="ready">ready_to_merge</option>
         </select>
 
-        {/* Preset Selector */}
-        {presets.length > 0 && (
-          <div className="flex items-center gap-2 border-l border-[#333] pl-3">
-            <span className="text-xs text-[#666] font-mono">[presets]:</span>
-            <div className="flex gap-2">
-              {presets.map((preset) => (
-                <button
-                  key={preset.id}
-                  onClick={() => applyPreset(preset.filters)}
-                  className="px-2 py-1 text-[10px] bg-[#0d0d0d] border border-[#333] hover:border-[#00ff00] text-[#888] hover:text-[#00ff00] font-mono transition-all"
-                >
-                  {preset.name.toLowerCase()}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        <Dialog open={isSaveDialogOpen} onOpenChange={setIsSaveDialogOpen}>
-          <DialogTrigger asChild>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="h-9 px-3 bg-[#1a1a1a] border-[#333] text-[#888] hover:text-[#00ff00] hover:border-[#00ff00] font-mono"
-            >
-              <Save className="w-4 h-4 mr-2" />
-              SAVE_PRESET
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="bg-[#0d0d0d] border border-[#333] text-white font-mono rounded-none">
-            <DialogHeader>
-              <DialogTitle className="text-lg font-bold">// SAVE_PR_FILTER_PRESET</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <label className="text-xs text-[#666] uppercase tracking-widest">Preset Name</label>
-                <Input
-                  value={presetName}
-                  onChange={(e) => setPresetName(e.target.value)}
-                  placeholder="e.g. open_drafts"
-                  className="bg-[#1a1a1a] border border-[#333] text-white font-mono focus:ring-[#00ff00]"
-                />
-              </div>
-              <Button 
-                onClick={handleSavePreset}
-                disabled={!presetName}
-                className="w-full bg-[#00ff00] hover:bg-[#00cc00] text-black font-bold"
-              >
-                CONFIRM_SAVE
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
+        <div className="flex items-center gap-2 border-l border-[#333] pl-3">
+          <FilterPresetsManager 
+            context="pull_requests" 
+            currentFilters={filters} 
+            onApplyPreset={applyPreset} 
+          />
+        </div>
 
         {activeFilterCount > 0 && (
           <button

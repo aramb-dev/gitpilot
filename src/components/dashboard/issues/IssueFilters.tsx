@@ -1,16 +1,15 @@
 'use client';
 
 import { useState } from 'react';
-import { Search, X, Save, Bookmark } from 'lucide-react';
+import { Search, X } from 'lucide-react';
 import { StateFilter } from './filters/StateFilter';
 import { RepoFilter } from './filters/RepoFilter';
 import { LabelFilter } from './filters/LabelFilter';
 import { AssigneeFilter } from './filters/AssigneeFilter';
+import { UserFilter } from './filters/UserFilter';
 import type { IssueFilters as IssueFiltersType, IssueLabel, IssueUser } from '@/types/issue';
-import { useFilterPresets } from '@/hooks/useFilterPresets';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+
+import { FilterPresetsManager } from '../FilterPresetsManager';
 
 interface IssueFiltersProps {
   filters: IssueFiltersType;
@@ -32,9 +31,6 @@ export function IssueFilters({
   isLoadingAssignees = false,
 }: IssueFiltersProps) {
   const [searchValue, setSearchValue] = useState(filters.search || '');
-  const { presets, savePreset, isLoading: isLoadingPresets } = useFilterPresets();
-  const [presetName, setPresetName] = useState('');
-  const [isSaveDialogOpen, setIsSaveDialogOpen] = useState(false);
 
   const updateFilter = <K extends keyof IssueFiltersType>(
     key: K,
@@ -43,15 +39,13 @@ export function IssueFilters({
     onFiltersChange({ ...filters, [key]: value });
   };
 
-  const handleSavePreset = async () => {
-    if (!presetName) return;
-    await savePreset(presetName, filters as any);
-    setPresetName('');
-    setIsSaveDialogOpen(false);
-  };
-
   const applyPreset = (presetFilters: any) => {
-    onFiltersChange({ ...filters, ...presetFilters });
+    // Merge preset filters with current repos if preset doesn't have repos
+    const newFilters = { ...filters, ...presetFilters };
+    if (!presetFilters.repos && filters.repos) {
+      newFilters.repos = filters.repos;
+    }
+    onFiltersChange(newFilters);
     if (presetFilters.search) setSearchValue(presetFilters.search);
   };
 
@@ -72,6 +66,8 @@ export function IssueFilters({
       repos: filters.repos, // Keep repos selected
       labels: undefined,
       assignee: undefined,
+      creator: undefined,
+      mentioned: undefined,
       search: undefined,
     });
   };
@@ -80,6 +76,8 @@ export function IssueFilters({
     filters.state !== 'open' ? 1 : 0,
     filters.labels?.length || 0,
     filters.assignee ? 1 : 0,
+    filters.creator ? 1 : 0,
+    filters.mentioned ? 1 : 0,
     filters.search ? 1 : 0,
   ].reduce((a, b) => a + b, 0);
 
@@ -133,60 +131,33 @@ export function IssueFilters({
           isLoading={isLoadingAssignees}
         />
 
-        {/* Preset Selector */}
-        {presets.length > 0 && (
-          <div className="flex items-center gap-2 border-l border-[#333] pl-3">
-            <span className="text-xs text-[#666] font-mono">[presets]:</span>
-            <div className="flex gap-2">
-              {presets.map((preset) => (
-                <button
-                  key={preset.id}
-                  onClick={() => applyPreset(preset.filters)}
-                  className="px-2 py-1 text-[10px] bg-[#0d0d0d] border border-[#333] hover:border-[#00ff00] text-[#888] hover:text-[#00ff00] font-mono transition-all"
-                >
-                  {preset.name.toLowerCase()}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
+        <UserFilter
+          label="AUTHOR"
+          availableUsers={availableAssignees}
+          selectedUser={filters.creator || null}
+          onChange={(creator) => updateFilter('creator', creator || undefined)}
+          isLoading={isLoadingAssignees}
+          placeholder="filter_authors..."
+          anyLabel="ANY_AUTHOR"
+        />
 
-        {/* Save Preset Dialog */}
-        <Dialog open={isSaveDialogOpen} onOpenChange={setIsSaveDialogOpen}>
-          <DialogTrigger asChild>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="h-9 px-3 bg-[#1a1a1a] border-[#333] text-[#888] hover:text-[#00ff00] hover:border-[#00ff00] font-mono"
-            >
-              <Save className="w-4 h-4 mr-2" />
-              SAVE_PRESET
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="bg-[#0d0d0d] border border-[#333] text-white font-mono rounded-none">
-            <DialogHeader>
-              <DialogTitle className="text-lg font-bold">// SAVE_FILTER_PRESET</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <label className="text-xs text-[#666] uppercase tracking-widest">Preset Name</label>
-                <Input
-                  value={presetName}
-                  onChange={(e) => setPresetName(e.target.value)}
-                  placeholder="e.g. status_bugs"
-                  className="bg-[#1a1a1a] border-[#333] text-white font-mono focus:ring-[#00ff00]"
-                />
-              </div>
-              <Button 
-                onClick={handleSavePreset}
-                disabled={!presetName}
-                className="w-full bg-[#00ff00] hover:bg-[#00cc00] text-black font-bold"
-              >
-                CONFIRM_SAVE
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
+        <UserFilter
+          label="MENTIONED"
+          availableUsers={availableAssignees}
+          selectedUser={filters.mentioned || null}
+          onChange={(mentioned) => updateFilter('mentioned', mentioned || undefined)}
+          isLoading={isLoadingAssignees}
+          placeholder="filter_mentions..."
+          anyLabel="ANY_MENTION"
+        />
+
+        <div className="flex items-center gap-2 border-l border-[#333] pl-3">
+          <FilterPresetsManager 
+            context="issues" 
+            currentFilters={filters} 
+            onApplyPreset={applyPreset} 
+          />
+        </div>
 
         {activeFilterCount > 0 && (
           <button

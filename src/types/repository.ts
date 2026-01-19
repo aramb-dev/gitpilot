@@ -27,6 +27,7 @@ export interface Repository {
   visibility: RepositoryVisibility;
   archived: boolean;
   disabled: boolean;
+  fork: boolean;
 
   // Metadata
   description: string | null;

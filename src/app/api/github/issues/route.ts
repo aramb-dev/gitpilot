@@ -54,6 +54,11 @@ export async function GET(request: Request) {
       filters.creator = creator;
     }
 
+    const mentioned = searchParams.get('mentioned');
+    if (mentioned) {
+      filters.mentioned = mentioned;
+    }
+
     const since = searchParams.get('since');
     if (since) {
       filters.since = since;

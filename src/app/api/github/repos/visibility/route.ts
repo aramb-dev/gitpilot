@@ -91,6 +91,11 @@ export async function PATCH(req: NextRequest) {
     const success = results.filter((r) => r.status === "success").map((r) => r.data);
     const errors = results.filter((r) => r.status === "error");
 
+    if (success.length > 0) {
+      const userId = (session.user as any)?.id ?? "anonymous";
+      await import("@/db/cache").then(m => m.invalidateCacheByPrefix(userId, "repos:"));
+    }
+
     return NextResponse.json({ success, errors });
   } catch (error) {
      // Likely JSON parse error or other unexpected issues

@@ -43,6 +43,7 @@ export function normalizeRepository(raw: GitHubRepository): Repository {
     visibility,
     archived: raw.archived,
     disabled: raw.disabled,
+    fork: raw.fork,
 
     // Metadata
     description: raw.description,

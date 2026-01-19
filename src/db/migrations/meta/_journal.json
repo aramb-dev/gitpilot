@@ -8,6 +8,13 @@
       "when": 1768157446398,
       "tag": "0000_short_zombie",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1768855645633,
+      "tag": "0001_skinny_zarek",
+      "breakpoints": true
     }
   ]
 }

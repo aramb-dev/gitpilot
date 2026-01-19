@@ -43,6 +43,7 @@ export const filterPresets = pgTable(
     id: text("id").primaryKey(),
     userId: text("user_id").notNull(),
     name: text("name").notNull(),
+    context: text("context").notNull().default("repositories"), // repositories, issues, pull_requests
     filters: jsonb("filters").notNull(), // { visibility, language, topics, etc. }
     isDefault: boolean("is_default").notNull().default(false),
     createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -50,6 +51,7 @@ export const filterPresets = pgTable(
   },
   (table) => [
     index("idx_filter_presets_user_id").on(table.userId),
+    index("idx_filter_presets_context").on(table.context),
     index("idx_filter_presets_is_default").on(table.isDefault),
   ],
 );

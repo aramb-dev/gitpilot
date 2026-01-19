@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getAuthSession } from '@/lib/auth';
 import { executeBulkAction } from '@/lib/github/issue-operations';
 import type { BulkIssueAction, IssueIdentifier } from '@/types/issue';
+import { invalidateCacheByPrefix } from '@/db/cache';
 
 interface BulkRequestBody {
   issues: IssueIdentifier[];
@@ -54,6 +55,7 @@ export async function POST(request: Request) {
       );
     }
 
+    const userId = (session.user as any)?.id ?? "anonymous";
     const body: BulkRequestBody = await request.json();
 
     // Validate request body
@@ -91,6 +93,11 @@ export async function POST(request: Request) {
       body.issues,
       body.action
     );
+
+    // Invalidate issues cache for this user
+    if (result.succeeded > 0) {
+      await invalidateCacheByPrefix(userId, 'issues:');
+    }
 
     return NextResponse.json({ data: result });
   } catch (error) {

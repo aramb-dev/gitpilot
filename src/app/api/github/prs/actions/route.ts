@@ -66,6 +66,11 @@ export async function POST(request: NextRequest) {
 
     await Promise.all(actionPromises);
 
+    if (results.success.length > 0) {
+      const userId = (session.user as any)?.id ?? "anonymous";
+      await import("@/db/cache").then(m => m.invalidateCacheByPrefix(userId, "pulls:"));
+    }
+
     return NextResponse.json(results, { status: 200 });
   } catch (error) {
     console.error('Error processing PR actions:', error);

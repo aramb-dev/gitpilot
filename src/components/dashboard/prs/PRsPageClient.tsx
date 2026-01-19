@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { AlertCircle, RefreshCw, LayoutGrid, List } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PRCardGrid } from './PRCardGrid';
@@ -8,8 +8,10 @@ import { PRList } from './PRList';
 import { PRFilters } from './PRFilters';
 import { PRMergeModal } from './PRMergeModal';
 import { PRPreview } from './PRPreview';
+import { BulkOperationModal, type BulkItemStatus } from '../BulkOperationModal';
 import { usePullRequests } from '@/hooks/usePullRequests';
 import { usePreferences } from '@/hooks/usePreferences';
+import { useBulkPRActions } from '@/hooks/useBulkPRActions';
 import { toast } from 'sonner';
 import type { PRFilters as PRFiltersType, PullRequest } from '@/types/pull-request';
 import type { IssueLabel, IssueUser } from '@/types/issue';
@@ -29,13 +31,10 @@ export function PRsPageClient({ availableRepos }: PRsPageClientProps) {
   const [selectedPRs, setSelectedPRs] = useState<number[]>([]);
   const [selectAll, setSelectAll] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [isActionLoading, setIsActionLoading] = useState(false);
   const [previewPR, setPreviewPR] = useState<PullRequest | null>(null);
   
   // Modal states
   const [isMergeModalOpen, setIsMergeModalOpen] = useState(false);
-  const [isCloseModalOpen, setIsCloseModalOpen] = useState(false);
-  const [isReopenModalOpen, setIsReopenModalOpen] = useState(false);
 
   // Initialize repos filter if empty
   useEffect(() => {
@@ -53,6 +52,13 @@ export function PRsPageClient({ availableRepos }: PRsPageClientProps) {
     refetch,
     loadPage,
   } = usePullRequests(filters);
+
+  const {
+    state: bulkState,
+    executeAction: executeBulkAction,
+    cancelOperation: cancelBulkOperation,
+    resetState: resetBulkState,
+  } = useBulkPRActions(refetch);
 
   const itemsPerPage = preferences?.itemsPerPage || 10;
   const selectedPRObjects = pullRequests.filter(pr => selectedPRs.includes(pr.id));
@@ -77,49 +83,45 @@ export function PRsPageClient({ availableRepos }: PRsPageClientProps) {
   };
 
   const handleAction = async (action: 'merge' | 'close' | 'reopen', params: any = {}) => {
-    try {
-      setIsActionLoading(true);
-      const prParams = selectedPRObjects.map(pr => ({
-        owner: pr.repository.owner,
-        repo: pr.repository.name,
-        prNumber: pr.number,
-      }));
-
-      const res = await fetch('/api/github/prs/actions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          prs: prParams,
-          action,
-          ...params,
-        }),
-      });
-
-      if (!res.ok) throw new Error('Action failed');
-      
-      const data = await res.json();
-      if (data.success?.length > 0) {
-        toast.success(`Successfully ${action}ed ${data.success.length} PRs.`);
-        setSelectedPRs([]);
-        setSelectAll(false);
-        refetch();
-      }
-      if (data.errors?.length > 0) {
-        toast.error(`Failed to ${action} ${data.errors.length} PRs.`);
-      }
-    } catch (e) {
-      toast.error(`An error occurred while ${action}ing PRs.`);
-    } finally {
-      setIsActionLoading(false);
-      setIsMergeModalOpen(false);
-      setIsCloseModalOpen(false);
-      setIsReopenModalOpen(false);
-    }
+    setIsMergeModalOpen(false);
+    await executeBulkAction(selectedPRObjects, action, params);
   };
 
   const handleMergeConfirm = (method: 'merge' | 'squash' | 'rebase', message: string) => {
     handleAction('merge', { mergeMethod: method, commitMessage: message });
   };
+
+  const handleCloseBulkModal = () => {
+    if (bulkState.isCompleted) {
+      setSelectedPRs([]);
+      setSelectAll(false);
+      resetBulkState();
+    }
+  };
+
+  const bulkItems: BulkItemStatus[] = useMemo(() => {
+    return selectedPRObjects.map(pr => {
+      const prKey = `${pr.repository.fullName}#${pr.number}`;
+      const result = bulkState.results.find(r => r.pr === prKey);
+      let status: BulkItemStatus['status'] = 'pending';
+      
+      if (result) {
+        status = result.success ? 'success' : 'error';
+      } else if (bulkState.isExecuting) {
+        const idx = selectedPRObjects.indexOf(pr);
+        if (idx < bulkState.processed + 5 && idx >= bulkState.processed) {
+          status = 'processing';
+        }
+      }
+
+      return {
+        id: pr.id,
+        label: prKey,
+        status,
+        error: result?.error,
+      };
+    });
+  }, [selectedPRObjects, bulkState]);
 
   const hasSelectedPRs = selectedPRs.length > 0;
 
@@ -241,7 +243,7 @@ export function PRsPageClient({ availableRepos }: PRsPageClientProps) {
               <Button
                 size="sm"
                 onClick={() => setIsMergeModalOpen(true)}
-                disabled={isActionLoading}
+                disabled={bulkState.isExecuting}
                 className="bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs h-8"
               >
                 BULK_MERGE
@@ -250,7 +252,7 @@ export function PRsPageClient({ availableRepos }: PRsPageClientProps) {
                 size="sm"
                 variant="outline"
                 onClick={() => handleAction('close')}
-                disabled={isActionLoading}
+                disabled={bulkState.isExecuting}
                 className="border-[#333] text-[#888] hover:text-red-500 hover:border-red-500 font-bold text-xs h-8"
               >
                 CLOSE
@@ -274,12 +276,21 @@ export function PRsPageClient({ availableRepos }: PRsPageClientProps) {
         onClose={() => setIsMergeModalOpen(false)}
         onConfirm={handleMergeConfirm}
         count={selectedPRs.length}
-        isLoading={isActionLoading}
+        isLoading={bulkState.isExecuting}
       />
 
       <PRPreview
         pr={previewPR}
         onClose={() => setPreviewPR(null)}
+      />
+
+      <BulkOperationModal
+        isOpen={bulkState.isExecuting || bulkState.isCompleted}
+        onClose={handleCloseBulkModal}
+        title="EXECUTING_BULK_PR_ACTION"
+        items={bulkItems}
+        isCompleted={bulkState.isCompleted}
+        onCancel={cancelBulkOperation}
       />
     </div>
   );

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { X, XCircle, RotateCcw, Tag, UserPlus, Lock, MoreHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { CloseIssueModal } from './CloseIssueModal';
 import type { Issue, IssueLabel, IssueUser, BulkIssueAction } from '@/types/issue';
 
 interface BulkActionBarProps {
@@ -25,14 +26,16 @@ export function BulkActionBar({
   const [showLabelPicker, setShowLabelPicker] = useState(false);
   const [showAssigneePicker, setShowAssigneePicker] = useState(false);
   const [showMoreActions, setShowMoreActions] = useState(false);
+  const [showCloseModal, setShowCloseModal] = useState(false);
 
   if (selectedIssues.length === 0) return null;
 
   const openCount = selectedIssues.filter((i) => i.state === 'open').length;
   const closedCount = selectedIssues.filter((i) => i.state === 'closed').length;
 
-  const handleClose = async () => {
-    await onExecuteAction({ type: 'close' });
+  const handleClose = async (comment?: string) => {
+    setShowCloseModal(false);
+    await onExecuteAction({ type: 'close', comment });
   };
 
   const handleReopen = async () => {
@@ -49,9 +52,19 @@ export function BulkActionBar({
     await onExecuteAction({ type: 'remove_labels', labels: [label] });
   };
 
+  const handleSetLabel = async (label: string) => {
+    setShowLabelPicker(false);
+    await onExecuteAction({ type: 'set_labels', labels: [label] });
+  };
+
   const handleAssign = async (assignee: string) => {
     setShowAssigneePicker(false);
     await onExecuteAction({ type: 'assign', assignees: [assignee] });
+  };
+
+  const handleUnassign = async (assignee: string) => {
+    setShowAssigneePicker(false);
+    await onExecuteAction({ type: 'unassign', assignees: [assignee] });
   };
 
   const handleLock = async () => {
@@ -89,7 +102,7 @@ export function BulkActionBar({
               <Button
                 variant="outline"
                 size="sm"
-                onClick={handleClose}
+                onClick={() => setShowCloseModal(true)}
                 disabled={isExecuting}
                 className="text-red-500 border-red-900 bg-red-900/5 hover:bg-red-900/20"
               >
@@ -111,6 +124,14 @@ export function BulkActionBar({
                 REOPEN {closedCount > 1 ? `(${closedCount})` : ''}
               </Button>
             )}
+
+            <CloseIssueModal
+              isOpen={showCloseModal}
+              onClose={() => setShowCloseModal(false)}
+              onConfirm={handleClose}
+              count={openCount}
+              isLoading={isExecuting}
+            />
 
             {/* Label picker */}
             <div className="relative">
@@ -156,14 +177,23 @@ export function BulkActionBar({
                             <button
                               onClick={() => handleAddLabel(label.name)}
                               className="px-2 py-0.5 text-[10px] text-[#00ff00] hover:bg-[#00ff00]/10 border border-[#00ff00]/30"
+                              title="Add label"
                             >
                               ADD
                             </button>
                             <button
                               onClick={() => handleRemoveLabel(label.name)}
                               className="px-2 py-0.5 text-[10px] text-red-500 hover:bg-red-500/10 border border-red-500/30"
+                              title="Remove label"
                             >
                               REM
+                            </button>
+                            <button
+                              onClick={() => handleSetLabel(label.name)}
+                              className="px-2 py-0.5 text-[10px] text-blue-500 hover:bg-blue-500/10 border border-blue-500/30"
+                              title="Set as only label"
+                            >
+                              SET
                             </button>
                           </div>
                         </div>
@@ -192,9 +222,9 @@ export function BulkActionBar({
               </Button>
 
               {showAssigneePicker && (
-                <div className="absolute bottom-full mb-2 right-0 w-56 bg-[#0d0d0d] border border-[#333] shadow-2xl">
+                <div className="absolute bottom-full mb-2 right-0 w-64 bg-[#0d0d0d] border border-[#333] shadow-2xl">
                   <div className="p-2 border-b border-[#333] text-[10px] text-[#666] uppercase">
-                    // set_assignee
+                    // edit_assignees
                   </div>
                   <div className="max-h-48 overflow-y-auto">
                     {availableAssignees.length === 0 ? (
@@ -203,18 +233,33 @@ export function BulkActionBar({
                       </div>
                     ) : (
                       availableAssignees.map((user) => (
-                        <button
+                        <div
                           key={user.id}
-                          onClick={() => handleAssign(user.login)}
-                          className="w-full flex items-center gap-2 px-3 py-2 text-xs text-left text-[#888] hover:text-white hover:bg-[#1a1a1a] transition-colors"
+                          className="flex items-center justify-between px-3 py-2 hover:bg-[#1a1a1a]"
                         >
-                          <img
-                            src={user.avatarUrl}
-                            alt={user.login}
-                            className="w-5 h-5 border border-[#333]"
-                          />
-                          <span>{user.login}</span>
-                        </button>
+                          <div className="flex items-center gap-2">
+                            <img
+                              src={user.avatarUrl}
+                              alt={user.login}
+                              className="w-5 h-5 border border-[#333]"
+                            />
+                            <span className="text-xs text-[#888]">{user.login}</span>
+                          </div>
+                          <div className="flex gap-1">
+                            <button
+                              onClick={() => handleAssign(user.login)}
+                              className="px-2 py-0.5 text-[10px] text-[#00ff00] hover:bg-[#00ff00]/10 border border-[#00ff00]/30"
+                            >
+                              ADD
+                            </button>
+                            <button
+                              onClick={() => handleUnassign(user.login)}
+                              className="px-2 py-0.5 text-[10px] text-red-500 hover:bg-red-500/10 border border-red-500/30"
+                            >
+                              REM
+                            </button>
+                          </div>
+                        </div>
                       ))
                     )}
                   </div>

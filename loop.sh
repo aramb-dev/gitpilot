@@ -4,13 +4,15 @@ set -euo pipefail
 # Ralph Loop Script for cleanai
 # Usage:
 #   ./loop.sh              # Run building mode with Claude (unlimited iterations)
-#   ./loop.sh 20           # Run building mode with Claude (max 20 iterations)
+#   ./loop.sh 20           # Run building mode with Claude (max 20 iterations) ← LIMIT ITERATIONS
 #   ./loop.sh plan         # Run planning mode with Claude
-#   ./loop.sh plan 5       # Run planning mode with Claude (max 5 iterations)
+#   ./loop.sh plan 5       # Run planning mode with Claude (max 5 iterations) ← LIMIT ITERATIONS
 #   ./loop.sh --agent codex plan    # Run planning mode with Codex
+#   ./loop.sh --agent gemini 10     # Run building mode with Gemini (max 10 iterations) ← LIMIT ITERATIONS
 #   RALPH_AGENT=codex ./loop.sh     # Use environment variable to select agent
 #   RALPH_CLAUDE_MODEL=sonnet ./loop.sh  # Override Claude model
 #   RALPH_CODEX_MODEL=o1 ./loop.sh --agent codex  # Override Codex model
+#   RALPH_GEMINI_MODEL=gemini-2.0-flash-exp ./loop.sh --agent gemini  # Override Gemini model
 
 # Parse arguments
 MODE="build"
@@ -19,6 +21,7 @@ MAX_ITERATIONS=0
 AGENT="${RALPH_AGENT:-claude}"  # Default to Claude, can override with env var
 CLAUDE_MODEL="${RALPH_CLAUDE_MODEL:-opus}"  # Default Claude model
 CODEX_MODEL="${RALPH_CODEX_MODEL:-}"  # Default: use Codex account default
+GEMINI_MODEL="${RALPH_GEMINI_MODEL:-}"  # Default: use Gemini account default
 
 # Parse command-line arguments
 while [ $# -gt 0 ]; do
@@ -33,6 +36,10 @@ while [ $# -gt 0 ]; do
             ;;
         --codex-model)
             CODEX_MODEL="$2"
+            shift 2
+            ;;
+        --gemini-model)
+            GEMINI_MODEL="$2"
             shift 2
             ;;
         plan)
@@ -57,8 +64,8 @@ while [ $# -gt 0 ]; do
 done
 
 # Verify agent is valid
-if [ "$AGENT" != "claude" ] && [ "$AGENT" != "codex" ]; then
-    echo "Error: Invalid agent '$AGENT'. Must be 'claude' or 'codex'"
+if [ "$AGENT" != "claude" ] && [ "$AGENT" != "codex" ] && [ "$AGENT" != "gemini" ]; then
+    echo "Error: Invalid agent '$AGENT'. Must be 'claude', 'codex', or 'gemini'"
     exit 1
 fi
 
@@ -104,6 +111,15 @@ run_agent() {
         fi
         
         eval "$codex_cmd"
+    elif [ "$AGENT" = "gemini" ]; then
+        local gemini_cmd="cat \"$PROMPT_FILE\" | gemini"
+        
+        # Add model flag only if specified
+        if [ -n "$GEMINI_MODEL" ]; then
+            gemini_cmd="$gemini_cmd --model $GEMINI_MODEL"
+        fi
+        
+        eval "$gemini_cmd"
     fi
 }
 

@@ -54,6 +54,7 @@ export function IssuesPageClient({ availableRepos }: IssuesPageClientProps) {
     executeAction,
     cancelOperation,
     resetState: resetBulkState,
+    retryFailed,
   } = useBulkIssueActions(refetch);
 
   // Map bulk results to modal items
@@ -242,6 +243,7 @@ export function IssuesPageClient({ availableRepos }: IssuesPageClientProps) {
         items={bulkItems}
         isCompleted={bulkState.isCompleted}
         onCancel={cancelOperation}
+        onRetry={retryFailed}
       />
     </div>
   );

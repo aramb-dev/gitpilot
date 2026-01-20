@@ -19,6 +19,7 @@ interface BulkOperationModalProps {
   items: BulkItemStatus[];
   isCompleted: boolean;
   onCancel?: () => void;
+  onRetry?: () => void;
 }
 
 export function BulkOperationModal({
@@ -28,6 +29,7 @@ export function BulkOperationModal({
   items,
   isCompleted,
   onCancel,
+  onRetry,
 }: BulkOperationModalProps) {
   const total = items.length;
   const processed = items.filter(i => i.status === 'success' || i.status === 'error').length;
@@ -100,6 +102,15 @@ export function BulkOperationModal({
             >
               CANCEL_OPERATION
             </Button>
+          )}
+          {isCompleted && failed > 0 && onRetry && (
+             <Button
+               variant="outline"
+               onClick={onRetry}
+               className="bg-[#0d0d0d] border-red-500 text-red-500 hover:bg-red-500/10 font-mono rounded-none h-9"
+             >
+               RETRY_FAILED
+             </Button>
           )}
           {isCompleted && (
             <Button

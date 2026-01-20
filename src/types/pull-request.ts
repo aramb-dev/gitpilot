@@ -97,7 +97,14 @@ export interface PRsListResponse {
   hasNextPage: boolean;
 }
 
-export interface PRAction {
-  type: 'merge' | 'close' | 'reopen' | 'draft' | 'ready' | 'assignee' | 'label' | 'reviewer';
-  value?: string | string[];
-}
+export type BulkPRAction =
+  | { type: 'merge'; mergeMethod?: 'merge' | 'squash' | 'rebase'; commitMessage?: string }
+  | { type: 'close' }
+  | { type: 'reopen' }
+  | { type: 'add_labels'; labels: string[] }
+  | { type: 'remove_labels'; labels: string[] }
+  | { type: 'set_labels'; labels: string[] }
+  | { type: 'assign'; assignees: string[] }
+  | { type: 'unassign'; assignees: string[] }
+  | { type: 'request_reviewers'; reviewers: string[] }
+  | { type: 'remove_reviewers'; reviewers: string[] };

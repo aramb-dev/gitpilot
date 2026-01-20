@@ -55,3 +55,19 @@ export const filterPresets = pgTable(
     index("idx_filter_presets_is_default").on(table.isDefault),
   ],
 );
+
+export const auditLogs = pgTable(
+  "audit_logs",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id").notNull(),
+    action: text("action").notNull(), // e.g. "bulk_merge_pr", "bulk_close_issue"
+    resourceType: text("resource_type").notNull(), // "pull_request", "issue", "repository", "member"
+    details: jsonb("details").notNull(), // { count: 5, success: 3, failed: 2, targets: [...] }
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("idx_audit_logs_user_id").on(table.userId),
+    index("idx_audit_logs_created_at").on(table.createdAt),
+  ],
+);

@@ -1,8 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { User, CreditCard, Bell, Github, Shield } from 'lucide-react'
-import { Card, CardContent } from '@/components/ui/card'
+import { User, CreditCard, Bell, Github, Shield, AlertTriangle } from 'lucide-react'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { OrganizationSelector } from '@/components/dashboard/OrganizationSelector'
 import { AccountProfile } from '@/components/dashboard/AccountProfile'
 import { ConnectionStatus } from '@/components/dashboard/ConnectionStatus'
@@ -10,6 +10,7 @@ import { PermissionsDisplay } from '@/components/dashboard/PermissionsDisplay'
 import { OrganizationAccessList } from '@/components/dashboard/OrganizationAccessList'
 import { AccountDangerZone } from '@/components/dashboard/AccountDangerZone'
 import { UserPreferences } from '@/components/dashboard/UserPreferences'
+import { AuditLogTable } from '@/components/dashboard/AuditLogTable'
 
 type Tab = 'account' | 'github' | 'billing' | 'notifications' | 'security'
 
@@ -72,10 +73,52 @@ export default function SettingsPage() {
 
                     {activeTab === 'github' && <OrganizationSelector />}
 
-                    {activeTab !== 'account' && activeTab !== 'github' && (
+                    {activeTab === 'security' && <AuditLogTable />}
+
+                    {activeTab === 'billing' && (
                         <Card className="bg-[#0d0d0d] border-[#333]">
-                            <CardContent className="pt-6">
-                                <p className="text-[#666] italic">[wip] {tabs.find(t => t.id === activeTab)?.name} not implemented</p>
+                            <CardHeader>
+                                <CardTitle className="text-lg font-mono text-white">[billing_status]</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="p-4 border border-[#333] bg-[#111]">
+                                    <div className="flex justify-between items-center mb-4">
+                                        <span className="text-[#888] text-sm">CURRENT_PLAN</span>
+                                        <span className="text-[#00ff00] font-bold border border-[#00ff00] px-2 py-1 text-xs">HACKER_FREE</span>
+                                    </div>
+                                    <p className="text-[#666] text-sm">
+                                        You are currently on the free tier. Upgrade for unlimited history and advanced automation.
+                                    </p>
+                                    <button className="mt-4 w-full py-2 bg-[#333] text-[#888] cursor-not-allowed text-xs font-mono uppercase">
+                                        Upgrade (Coming Soon)
+                                    </button>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    )}
+
+                    {activeTab === 'notifications' && (
+                         <Card className="bg-[#0d0d0d] border-[#333]">
+                            <CardHeader>
+                                <CardTitle className="text-lg font-mono text-white">[notification_channels]</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="space-y-4">
+                                    <div className="flex items-center justify-between p-3 border border-[#333] bg-[#111]">
+                                        <div className="flex items-center gap-3">
+                                            <Bell className="w-4 h-4 text-[#888]" />
+                                            <span className="text-sm text-[#ccc]">Email Notifications</span>
+                                        </div>
+                                        <span className="text-[#00ff00] text-xs">ENABLED</span>
+                                    </div>
+                                    <div className="flex items-center justify-between p-3 border border-[#333] bg-[#111]">
+                                        <div className="flex items-center gap-3">
+                                            <AlertTriangle className="w-4 h-4 text-[#888]" />
+                                            <span className="text-sm text-[#ccc]">Critical Alerts</span>
+                                        </div>
+                                        <span className="text-[#00ff00] text-xs">ENABLED</span>
+                                    </div>
+                                </div>
                             </CardContent>
                         </Card>
                     )}

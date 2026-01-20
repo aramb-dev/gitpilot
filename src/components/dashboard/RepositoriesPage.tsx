@@ -89,6 +89,7 @@ export function RepositoriesPage({ repositories: initialRepositories }: Reposito
         executeAction: executeBulkAction,
         cancelOperation: cancelBulkOperation,
         resetState: resetBulkState,
+        retryFailed,
     } = useBulkRepoActions(async () => {
         await loadRepos(true)
     })
@@ -391,6 +392,7 @@ export function RepositoriesPage({ repositories: initialRepositories }: Reposito
                 items={bulkItems}
                 isCompleted={bulkState.isCompleted}
                 onCancel={cancelBulkOperation}
+                onRetry={retryFailed}
             />
         </div>
     )

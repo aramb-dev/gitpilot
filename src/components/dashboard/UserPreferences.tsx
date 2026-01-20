@@ -13,6 +13,7 @@ export function UserPreferences() {
     defaultBranch: 'main',
     defaultVisibility: 'all',
     itemsPerPage: 30,
+    theme: 'dark',
     showArchived: false,
     showForks: true,
   });
@@ -23,6 +24,7 @@ export function UserPreferences() {
         defaultBranch: preferences.defaultBranch,
         defaultVisibility: preferences.defaultVisibility,
         itemsPerPage: preferences.itemsPerPage,
+        theme: preferences.theme || 'dark',
         showArchived: preferences.showArchived,
         showForks: preferences.showForks,
       });
@@ -102,6 +104,19 @@ export function UserPreferences() {
                 <option value="public">public</option>
                 <option value="private">private</option>
                 <option value="forks">forks</option>
+              </select>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs text-[#888] uppercase tracking-wider">Theme</label>
+              <select
+                name="theme"
+                value={formData.theme}
+                onChange={handleSelectChange}
+                className="w-full h-10 px-3 bg-[#111] border border-[#333] text-white font-mono text-sm focus:outline-none focus:ring-1 focus:ring-[#00ff00]"
+              >
+                <option value="dark">dark_terminal</option>
+                <option value="light">light_lab</option>
               </select>
             </div>
           </div>

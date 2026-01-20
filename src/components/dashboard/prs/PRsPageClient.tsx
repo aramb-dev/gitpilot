@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { AlertCircle, RefreshCw, LayoutGrid, List } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PRCardGrid } from './PRCardGrid';
@@ -8,12 +8,12 @@ import { PRList } from './PRList';
 import { PRFilters } from './PRFilters';
 import { PRMergeModal } from './PRMergeModal';
 import { PRPreview } from './PRPreview';
+import { PRBulkActionBar } from './PRBulkActionBar';
 import { BulkOperationModal, type BulkItemStatus } from '../BulkOperationModal';
 import { usePullRequests } from '@/hooks/usePullRequests';
 import { usePreferences } from '@/hooks/usePreferences';
 import { useBulkPRActions } from '@/hooks/useBulkPRActions';
-import { toast } from 'sonner';
-import type { PRFilters as PRFiltersType, PullRequest } from '@/types/pull-request';
+import type { PRFilters as PRFiltersType, PullRequest, BulkPRAction } from '@/types/pull-request';
 import type { IssueLabel, IssueUser } from '@/types/issue';
 
 interface PRsPageClientProps {
@@ -48,9 +48,7 @@ export function PRsPageClient({ availableRepos }: PRsPageClientProps) {
     isLoading,
     error,
     totalCount,
-    hasNextPage,
     refetch,
-    loadPage,
   } = usePullRequests(filters);
 
   const {
@@ -58,9 +56,9 @@ export function PRsPageClient({ availableRepos }: PRsPageClientProps) {
     executeAction: executeBulkAction,
     cancelOperation: cancelBulkOperation,
     resetState: resetBulkState,
+    retryFailed,
   } = useBulkPRActions(refetch);
 
-  const itemsPerPage = preferences?.itemsPerPage || 10;
   const selectedPRObjects = pullRequests.filter(pr => selectedPRs.includes(pr.id));
 
   const handleSelectAll = (checked: boolean) => {
@@ -82,13 +80,13 @@ export function PRsPageClient({ availableRepos }: PRsPageClientProps) {
     }
   };
 
-  const handleAction = async (action: 'merge' | 'close' | 'reopen', params: any = {}) => {
+  const handleAction = async (action: BulkPRAction) => {
     setIsMergeModalOpen(false);
-    await executeBulkAction(selectedPRObjects, action, params);
+    await executeBulkAction(selectedPRObjects, action);
   };
 
   const handleMergeConfirm = (method: 'merge' | 'squash' | 'rebase', message: string) => {
-    handleAction('merge', { mergeMethod: method, commitMessage: message });
+    handleAction({ type: 'merge', mergeMethod: method, commitMessage: message });
   };
 
   const handleCloseBulkModal = () => {
@@ -125,11 +123,12 @@ export function PRsPageClient({ availableRepos }: PRsPageClientProps) {
 
   const hasSelectedPRs = selectedPRs.length > 0;
 
-  // Extract labels and assignees for filters
-  const availableLabels: IssueLabel[] = Array.from(
+  // Extract labels and assignees for filters and bulk actions
+  const availableLabels = Array.from(
     new Map(pullRequests.flatMap(pr => pr.labels).map(l => [l.id, l])).values()
   );
-  const availableAssignees: IssueUser[] = Array.from(
+  // We use Assignees as "available users" for both assignment and review
+  const availableAssignees = Array.from(
     new Map(pullRequests.flatMap(pr => pr.assignees).map(a => [a.id, a])).values()
   );
 
@@ -228,48 +227,18 @@ export function PRsPageClient({ availableRepos }: PRsPageClientProps) {
         />
       )}
 
-      {/* Bulk Action Bar */}
-      {hasSelectedPRs && (
-        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 w-full max-w-2xl px-4 z-40">
-          <div className="bg-[#0d0d0d] border border-[#00ff00]/30 shadow-[0_0_20px_rgba(0,255,0,0.1)] p-4 flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="bg-[#00ff00] text-black px-2 py-0.5 text-xs font-bold">
-                {selectedPRs.length}
-              </div>
-              <span className="text-xs text-[#00ff00] font-bold uppercase tracking-widest">selected</span>
-            </div>
-            
-            <div className="flex items-center gap-2">
-              <Button
-                size="sm"
-                onClick={() => setIsMergeModalOpen(true)}
-                disabled={bulkState.isExecuting}
-                className="bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs h-8"
-              >
-                BULK_MERGE
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => handleAction('close')}
-                disabled={bulkState.isExecuting}
-                className="border-[#333] text-[#888] hover:text-red-500 hover:border-red-500 font-bold text-xs h-8"
-              >
-                CLOSE
-              </Button>
-              <div className="w-px h-4 bg-[#333] mx-1" />
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => setSelectedPRs([])}
-                className="text-[#666] hover:text-white text-xs h-8"
-              >
-                CANCEL
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+      <PRBulkActionBar 
+        selectedPRs={selectedPRObjects}
+        onClearSelection={() => {
+          setSelectedPRs([]);
+          setSelectAll(false);
+        }}
+        onExecuteAction={handleAction}
+        onOpenMergeModal={() => setIsMergeModalOpen(true)}
+        isExecuting={bulkState.isExecuting}
+        availableLabels={availableLabels}
+        availableAssignees={availableAssignees}
+      />
 
       <PRMergeModal
         isOpen={isMergeModalOpen}
@@ -291,6 +260,7 @@ export function PRsPageClient({ availableRepos }: PRsPageClientProps) {
         items={bulkItems}
         isCompleted={bulkState.isCompleted}
         onCancel={cancelBulkOperation}
+        onRetry={retryFailed}
       />
     </div>
   );

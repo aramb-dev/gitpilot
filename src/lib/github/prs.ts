@@ -14,7 +14,8 @@ import type {
   PRRepository, 
   PRFilters,
   PRsListResponse,
-  PRReviewer
+  PRReviewer,
+  BulkPRAction
 } from "@/types/pull-request";
 import type { ApiError } from "@/types/api-errors";
 
@@ -106,7 +107,6 @@ export async function fetchPRsAcrossRepos(
   const headers = createGitHubHeaders(accessToken);
 
   // Fetch from each repo
-  // Note: For many repos, this should be optimized with GraphQL or better parallelism
   await Promise.all(repos.map(async (repoFull: string) => {
     try {
       const [owner, name] = repoFull.split('/');
@@ -114,7 +114,7 @@ export async function fetchPRsAcrossRepos(
         state: state === 'merged' ? 'closed' : state,
         sort,
         direction,
-        per_page: '100', // Fetch max allowed to minimize pagination needs for the unified list
+        per_page: '100', // Fetch max allowed
       });
 
       const res = await fetch(`${GITHUB_API_BASE}/repos/${owner}/${name}/pulls?${query}`, {
@@ -136,8 +136,6 @@ export async function fetchPRsAcrossRepos(
         filtered = rawPRs.filter(pr => !pr.merged_at);
       }
 
-      // If details are requested, we'd need to fetch each PR individually.
-      // For now, we normalize what we have.
       allPRs.push(...filtered.map(normalizePullRequest));
     } catch (error) {
       warnings.push(`Error fetching PRs for ${repoFull}: ${error instanceof Error ? error.message : String(error)}`);
@@ -171,49 +169,145 @@ export async function fetchPRsAcrossRepos(
 export async function executePRAction(
   accessToken: string,
   pr: { owner: string; repo: string; number: number },
-  action: 'merge' | 'close' | 'reopen' | 'draft' | 'ready',
-  params: { commitMessage?: string; mergeMethod?: 'merge' | 'squash' | 'rebase' } = {}
+  action: BulkPRAction
 ): Promise<{ success: boolean; error?: string }> {
   const headers = createGitHubHeaders(accessToken);
-  const url = `${GITHUB_API_BASE}/repos/${pr.owner}/${pr.repo}/pulls/${pr.number}`;
+  const repoUrl = `${GITHUB_API_BASE}/repos/${pr.owner}/${pr.repo}`;
+  const prUrl = `${repoUrl}/pulls/${pr.number}`;
+  const issueUrl = `${repoUrl}/issues/${pr.number}`; // PRs are also issues
 
   try {
-    if (action === 'merge') {
-      const res = await fetch(`${url}/merge`, {
-        method: 'PUT',
-        headers,
-        body: JSON.stringify({
-          commit_message: params.commitMessage,
-          merge_method: params.mergeMethod || 'merge',
-        }),
-      });
-
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        return { success: false, error: data.message || `Failed to merge: ${res.statusText}` };
+    switch (action.type) {
+      case 'merge': {
+        const res = await fetch(`${prUrl}/merge`, {
+          method: 'PUT',
+          headers,
+          body: JSON.stringify({
+            commit_message: action.commitMessage,
+            merge_method: action.mergeMethod || 'merge',
+          }),
+        });
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          return { success: false, error: data.message || `Failed to merge: ${res.statusText}` };
+        }
+        return { success: true };
       }
-      return { success: true };
+
+      case 'close':
+      case 'reopen': {
+        const res = await fetch(prUrl, {
+          method: 'PATCH',
+          headers,
+          body: JSON.stringify({ state: action.type === 'close' ? 'closed' : 'open' }),
+        });
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          return { success: false, error: data.message || `Failed to ${action.type}: ${res.statusText}` };
+        }
+        return { success: true };
+      }
+
+      case 'add_labels': {
+        const res = await fetch(`${issueUrl}/labels`, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({ labels: action.labels }),
+        });
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          return { success: false, error: data.message || `Failed to add labels: ${res.statusText}` };
+        }
+        return { success: true };
+      }
+
+      case 'set_labels': {
+        const res = await fetch(`${issueUrl}/labels`, {
+          method: 'PUT',
+          headers,
+          body: JSON.stringify({ labels: action.labels }),
+        });
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          return { success: false, error: data.message || `Failed to set labels: ${res.statusText}` };
+        }
+        return { success: true };
+      }
+
+      case 'remove_labels': {
+        // GitHub API only allows removing one label at a time via DELETE /labels/{name}
+        // or setting all labels via PUT /labels.
+        // We'll iterate for removal.
+        for (const label of action.labels) {
+          const res = await fetch(`${issueUrl}/labels/${encodeURIComponent(label)}`, {
+            method: 'DELETE',
+            headers,
+          });
+          if (!res.ok && res.status !== 404) { // Ignore 404 if label not present
+             const data = await res.json().catch(() => ({}));
+             return { success: false, error: data.message || `Failed to remove label ${label}: ${res.statusText}` };
+          }
+        }
+        return { success: true };
+      }
+
+      case 'assign': {
+        const res = await fetch(`${issueUrl}/assignees`, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({ assignees: action.assignees }),
+        });
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          return { success: false, error: data.message || `Failed to assign: ${res.statusText}` };
+        }
+        return { success: true };
+      }
+
+      case 'unassign': {
+        const res = await fetch(`${issueUrl}/assignees`, {
+          method: 'DELETE',
+          headers,
+          body: JSON.stringify({ assignees: action.assignees }),
+        });
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          return { success: false, error: data.message || `Failed to unassign: ${res.statusText}` };
+        }
+        return { success: true };
+      }
+
+      case 'request_reviewers': {
+        // GitHub API distinguishes between 'reviewers' (users) and 'team_reviewers'
+        // For now we assume they are user logins.
+        const res = await fetch(`${prUrl}/requested_reviewers`, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({ reviewers: action.reviewers }),
+        });
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          return { success: false, error: data.message || `Failed to request reviewers: ${res.statusText}` };
+        }
+        return { success: true };
+      }
+
+      case 'remove_reviewers': {
+        const res = await fetch(`${prUrl}/requested_reviewers`, {
+          method: 'DELETE',
+          headers,
+          body: JSON.stringify({ reviewers: action.reviewers }),
+        });
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          return { success: false, error: data.message || `Failed to remove reviewers: ${res.statusText}` };
+        }
+        return { success: true };
+      }
+
+      default:
+        return { success: false, error: `Unsupported action type` };
     }
-
-    // PATCH actions
-    let body: any = {};
-    if (action === 'close') body.state = 'closed';
-    else if (action === 'reopen') body.state = 'open';
-    else if (action === 'draft') body.draft = true;
-    else if (action === 'ready') body.draft = false;
-
-    const res = await fetch(url, {
-      method: 'PATCH',
-      headers,
-      body: JSON.stringify(body),
-    });
-
-    if (!res.ok) {
-      const data = await res.json().catch(() => ({}));
-      return { success: false, error: data.message || `Failed to ${action}: ${res.statusText}` };
-    }
-
-    return { success: true };
   } catch (error) {
     return { 
       success: false, 

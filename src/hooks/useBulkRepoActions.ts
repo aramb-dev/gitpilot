@@ -18,6 +18,7 @@ interface UseBulkRepoActionsReturn {
   executeAction: (repos: Repository[], type: 'archive' | 'unarchive' | 'delete' | 'visibility', options?: any) => Promise<void>;
   cancelOperation: () => void;
   resetState: () => void;
+  retryFailed: () => void;
 }
 
 const INITIAL_STATE: BulkRepoOperationState = {
@@ -33,6 +34,11 @@ const INITIAL_STATE: BulkRepoOperationState = {
 export function useBulkRepoActions(onSuccess?: () => void): UseBulkRepoActionsReturn {
   const [state, setState] = useState<BulkRepoOperationState>(INITIAL_STATE);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const lastParamsRef = useRef<{
+    repos: Repository[];
+    type: 'archive' | 'unarchive' | 'delete' | 'visibility';
+    options?: any;
+  } | null>(null);
 
   const resetState = useCallback(() => {
     setState(INITIAL_STATE);
@@ -49,6 +55,9 @@ export function useBulkRepoActions(onSuccess?: () => void): UseBulkRepoActionsRe
     async (repos: Repository[], type: 'archive' | 'unarchive' | 'delete' | 'visibility', options?: any): Promise<void> => {
       const total = repos.length;
       setState({ ...INITIAL_STATE, isExecuting: true, total });
+      
+      lastParamsRef.current = { repos, type, options };
+      
       abortControllerRef.current = new AbortController();
 
       const BATCH_SIZE = 2; // Repos operations are heavier, use smaller batch
@@ -140,10 +149,32 @@ export function useBulkRepoActions(onSuccess?: () => void): UseBulkRepoActionsRe
     [onSuccess]
   );
 
+  const retryFailed = useCallback(() => {
+    if (!lastParamsRef.current) return;
+    
+    const { repos, type, options } = lastParamsRef.current;
+    
+    // Identify failed repos
+    const failedFullNames = new Set(
+      state.results
+        .filter(r => !r.success)
+        .map(r => r.repo)
+    );
+
+    if (failedFullNames.size === 0) return;
+
+    const failedRepos = repos.filter(r => failedFullNames.has(r.full_name));
+
+    if (failedRepos.length > 0) {
+      executeAction(failedRepos, type, options);
+    }
+  }, [state.results, executeAction]);
+
   return {
     state,
     executeAction,
     cancelOperation,
     resetState,
+    retryFailed,
   };
 }

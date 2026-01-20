@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback, useRef } from 'react';
-import type { PullRequest } from '@/types/pull-request';
+import type { PullRequest, BulkPRAction } from '@/types/pull-request';
 
 export interface BulkPROperationState {
   isExecuting: boolean;
@@ -15,9 +15,10 @@ export interface BulkPROperationState {
 
 interface UseBulkPRActionsReturn {
   state: BulkPROperationState;
-  executeAction: (prs: PullRequest[], action: 'merge' | 'close' | 'reopen', options?: any) => Promise<void>;
+  executeAction: (prs: PullRequest[], action: BulkPRAction) => Promise<void>;
   cancelOperation: () => void;
   resetState: () => void;
+  retryFailed: () => void;
 }
 
 const INITIAL_STATE: BulkPROperationState = {
@@ -33,6 +34,10 @@ const INITIAL_STATE: BulkPROperationState = {
 export function useBulkPRActions(onSuccess?: () => void): UseBulkPRActionsReturn {
   const [state, setState] = useState<BulkPROperationState>(INITIAL_STATE);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const lastParamsRef = useRef<{
+    prs: PullRequest[];
+    action: BulkPRAction;
+  } | null>(null);
 
   const resetState = useCallback(() => {
     setState(INITIAL_STATE);
@@ -46,9 +51,12 @@ export function useBulkPRActions(onSuccess?: () => void): UseBulkPRActionsReturn
   }, []);
 
   const executeAction = useCallback(
-    async (prs: PullRequest[], action: 'merge' | 'close' | 'reopen', options?: any): Promise<void> => {
+    async (prs: PullRequest[], action: BulkPRAction): Promise<void> => {
       const total = prs.length;
       setState({ ...INITIAL_STATE, isExecuting: true, total });
+      
+      lastParamsRef.current = { prs, action };
+
       abortControllerRef.current = new AbortController();
 
       const BATCH_SIZE = 5;
@@ -73,7 +81,6 @@ export function useBulkPRActions(onSuccess?: () => void): UseBulkPRActionsReturn
             body: JSON.stringify({
               prs: prParams,
               action,
-              ...options,
             }),
             signal: abortControllerRef.current.signal,
           });
@@ -124,10 +131,36 @@ export function useBulkPRActions(onSuccess?: () => void): UseBulkPRActionsReturn
     [onSuccess]
   );
 
+  const retryFailed = useCallback(() => {
+    if (!lastParamsRef.current) return;
+    
+    const { prs, action } = lastParamsRef.current;
+    
+    // Identify failed PRs
+    const failedIds = new Set(
+      state.results
+        .filter(r => !r.success)
+        .map(r => r.pr)
+    );
+
+    if (failedIds.size === 0) return;
+
+    // Filter original PRs
+    const failedPRs = prs.filter(pr => 
+      failedIds.has(`${pr.repository.fullName}#${pr.number}`) ||
+      failedIds.has(`${pr.repository.owner}/${pr.repository.name}#${pr.number}`)
+    );
+
+    if (failedPRs.length > 0) {
+      executeAction(failedPRs, action);
+    }
+  }, [state.results, executeAction]);
+
   return {
     state,
     executeAction,
     cancelOperation,
     resetState,
+    retryFailed,
   };
 }

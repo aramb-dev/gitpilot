@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAuthSession } from '@/lib/auth';
 import { executePRAction } from "@/lib/github/prs";
+import { logAudit } from "@/lib/audit";
+import type { BulkPRAction } from '@/types/pull-request';
 
 interface BulkPRActionRequest {
   prs: { owner: string; repo: string; prNumber: number }[];
-  action: 'merge' | 'close' | 'reopen' | 'draft' | 'ready';
-  commitMessage?: string;
-  mergeMethod?: 'merge' | 'squash' | 'rebase';
+  action: BulkPRAction;
 }
 
 export async function POST(request: NextRequest) {
@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body: BulkPRActionRequest = await request.json();
-    const { prs, action, commitMessage, mergeMethod = 'merge' } = body;
+    const { prs, action } = body;
 
     if (!prs.length || !action) {
       return NextResponse.json(
@@ -31,10 +31,6 @@ export async function POST(request: NextRequest) {
     }
 
     const accessToken = session.accessToken;
-    if (!accessToken) {
-      return NextResponse.json({ error: { message: 'Unauthorized' } }, { status: 401 });
-    }
-
     const results = { success: [] as any[], errors: [] as any[] };
 
     const actionPromises = prs.map(async (pr) => {
@@ -42,32 +38,40 @@ export async function POST(request: NextRequest) {
         owner: pr.owner,
         repo: pr.repo,
         number: pr.prNumber
-      }, action, {
-        commitMessage,
-        mergeMethod
-      });
+      }, action);
 
       if (result.success) {
         results.success.push({
           owner: pr.owner,
           repo: pr.repo,
           prNumber: pr.prNumber,
-          action,
+          action: action.type,
         });
       } else {
         results.errors.push({
           owner: pr.owner,
           repo: pr.repo,
           prNumber: pr.prNumber,
-          message: result.error || `Failed to ${action} PR`,
+          message: result.error || `Failed to ${action.type} PR`,
         });
       }
     });
 
     await Promise.all(actionPromises);
 
+    const userId = (session.user as any)?.id ?? "anonymous";
+
+    // Audit Log
+    if (results.success.length > 0 || results.errors.length > 0) {
+      await logAudit(userId, `bulk_pr_${action.type}`, "pull_request", {
+        successCount: results.success.length,
+        failureCount: results.errors.length,
+        targets: prs.map(p => `${p.owner}/${p.repo}#${p.prNumber}`),
+        actionDetails: action
+      });
+    }
+
     if (results.success.length > 0) {
-      const userId = (session.user as any)?.id ?? "anonymous";
       await import("@/db/cache").then(m => m.invalidateCacheByPrefix(userId, "pulls:"));
     }
 

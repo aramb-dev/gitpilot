@@ -3,7 +3,7 @@
  * Handles Link header parsing and paginated fetching.
  */
 
-import { isRateLimited, parseRateLimitHeaders } from './client';
+import { isRateLimited, parseRateLimitHeaders, fetchWithBackoff } from './client';
 
 export interface LinkHeaderUrls {
   next?: string;
@@ -80,7 +80,7 @@ export async function fetchAllPages<T>(
   let rateLimited = false;
 
   while (currentUrl && pagesFetched < maxPages) {
-    const response = await fetch(currentUrl, {
+    const response = await fetchWithBackoff(currentUrl, {
       headers,
       cache: 'no-store',
     });

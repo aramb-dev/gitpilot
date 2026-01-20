@@ -8,8 +8,8 @@ import type {
   BulkOperationSummary,
   IssueIdentifier,
 } from '@/types/issue';
+import { GITHUB_API_BASE, fetchWithBackoff } from './client';
 
-const GITHUB_API_BASE = 'https://api.github.com';
 
 /**
  * Closes an issue with an optional comment.
@@ -23,7 +23,7 @@ export async function closeIssue(
 ): Promise<void> {
   // Add comment if provided
   if (comment) {
-    await fetch(
+    await fetchWithBackoff(
       `${GITHUB_API_BASE}/repos/${owner}/${repo}/issues/${issueNumber}/comments`,
       {
         method: 'POST',
@@ -38,7 +38,7 @@ export async function closeIssue(
   }
 
   // Close the issue
-  const response = await fetch(
+  const response = await fetchWithBackoff(
     `${GITHUB_API_BASE}/repos/${owner}/${repo}/issues/${issueNumber}`,
     {
       method: 'PATCH',
@@ -66,7 +66,7 @@ export async function reopenIssue(
   repo: string,
   issueNumber: number
 ): Promise<void> {
-  const response = await fetch(
+  const response = await fetchWithBackoff(
     `${GITHUB_API_BASE}/repos/${owner}/${repo}/issues/${issueNumber}`,
     {
       method: 'PATCH',
@@ -95,7 +95,7 @@ export async function addLabels(
   issueNumber: number,
   labels: string[]
 ): Promise<void> {
-  const response = await fetch(
+  const response = await fetchWithBackoff(
     `${GITHUB_API_BASE}/repos/${owner}/${repo}/issues/${issueNumber}/labels`,
     {
       method: 'POST',
@@ -124,7 +124,7 @@ export async function removeLabel(
   issueNumber: number,
   label: string
 ): Promise<void> {
-  const response = await fetch(
+  const response = await fetchWithBackoff(
     `${GITHUB_API_BASE}/repos/${owner}/${repo}/issues/${issueNumber}/labels/${encodeURIComponent(label)}`,
     {
       method: 'DELETE',
@@ -152,7 +152,7 @@ export async function setLabels(
   issueNumber: number,
   labels: string[]
 ): Promise<void> {
-  const response = await fetch(
+  const response = await fetchWithBackoff(
     `${GITHUB_API_BASE}/repos/${owner}/${repo}/issues/${issueNumber}/labels`,
     {
       method: 'PUT',
@@ -181,7 +181,7 @@ export async function addAssignees(
   issueNumber: number,
   assignees: string[]
 ): Promise<void> {
-  const response = await fetch(
+  const response = await fetchWithBackoff(
     `${GITHUB_API_BASE}/repos/${owner}/${repo}/issues/${issueNumber}/assignees`,
     {
       method: 'POST',
@@ -210,7 +210,7 @@ export async function removeAssignees(
   issueNumber: number,
   assignees: string[]
 ): Promise<void> {
-  const response = await fetch(
+  const response = await fetchWithBackoff(
     `${GITHUB_API_BASE}/repos/${owner}/${repo}/issues/${issueNumber}/assignees`,
     {
       method: 'DELETE',
@@ -239,7 +239,7 @@ export async function lockIssue(
   issueNumber: number,
   reason?: 'off-topic' | 'too heated' | 'resolved' | 'spam'
 ): Promise<void> {
-  const response = await fetch(
+  const response = await fetchWithBackoff(
     `${GITHUB_API_BASE}/repos/${owner}/${repo}/issues/${issueNumber}/lock`,
     {
       method: 'PUT',
@@ -267,7 +267,7 @@ export async function unlockIssue(
   repo: string,
   issueNumber: number
 ): Promise<void> {
-  const response = await fetch(
+  const response = await fetchWithBackoff(
     `${GITHUB_API_BASE}/repos/${owner}/${repo}/issues/${issueNumber}/lock`,
     {
       method: 'DELETE',

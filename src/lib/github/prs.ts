@@ -3,7 +3,7 @@
  * Handles fetching, normalization, and bulk operations.
  */
 
-import { GITHUB_API_BASE, createGitHubHeaders } from "./client";
+import { GITHUB_API_BASE, createGitHubHeaders, fetchWithBackoff } from "./client";
 import { classifyGitHubError } from "./errors";
 import type { GitHubPullRequest, GitHubUser } from "@/types/github";
 import type { 
@@ -117,7 +117,7 @@ export async function fetchPRsAcrossRepos(
         per_page: '100', // Fetch max allowed
       });
 
-      const res = await fetch(`${GITHUB_API_BASE}/repos/${owner}/${name}/pulls?${query}`, {
+      const res = await fetchWithBackoff(`${GITHUB_API_BASE}/repos/${owner}/${name}/pulls?${query}`, {
         headers,
         next: { revalidate: 60 }
       });
@@ -179,7 +179,7 @@ export async function executePRAction(
   try {
     switch (action.type) {
       case 'merge': {
-        const res = await fetch(`${prUrl}/merge`, {
+        const res = await fetchWithBackoff(`${prUrl}/merge`, {
           method: 'PUT',
           headers,
           body: JSON.stringify({
@@ -196,7 +196,7 @@ export async function executePRAction(
 
       case 'close':
       case 'reopen': {
-        const res = await fetch(prUrl, {
+        const res = await fetchWithBackoff(prUrl, {
           method: 'PATCH',
           headers,
           body: JSON.stringify({ state: action.type === 'close' ? 'closed' : 'open' }),
@@ -209,7 +209,7 @@ export async function executePRAction(
       }
 
       case 'add_labels': {
-        const res = await fetch(`${issueUrl}/labels`, {
+        const res = await fetchWithBackoff(`${issueUrl}/labels`, {
           method: 'POST',
           headers,
           body: JSON.stringify({ labels: action.labels }),
@@ -222,7 +222,7 @@ export async function executePRAction(
       }
 
       case 'set_labels': {
-        const res = await fetch(`${issueUrl}/labels`, {
+        const res = await fetchWithBackoff(`${issueUrl}/labels`, {
           method: 'PUT',
           headers,
           body: JSON.stringify({ labels: action.labels }),
@@ -239,7 +239,7 @@ export async function executePRAction(
         // or setting all labels via PUT /labels.
         // We'll iterate for removal.
         for (const label of action.labels) {
-          const res = await fetch(`${issueUrl}/labels/${encodeURIComponent(label)}`, {
+          const res = await fetchWithBackoff(`${issueUrl}/labels/${encodeURIComponent(label)}`, {
             method: 'DELETE',
             headers,
           });
@@ -252,7 +252,7 @@ export async function executePRAction(
       }
 
       case 'assign': {
-        const res = await fetch(`${issueUrl}/assignees`, {
+        const res = await fetchWithBackoff(`${issueUrl}/assignees`, {
           method: 'POST',
           headers,
           body: JSON.stringify({ assignees: action.assignees }),
@@ -265,7 +265,7 @@ export async function executePRAction(
       }
 
       case 'unassign': {
-        const res = await fetch(`${issueUrl}/assignees`, {
+        const res = await fetchWithBackoff(`${issueUrl}/assignees`, {
           method: 'DELETE',
           headers,
           body: JSON.stringify({ assignees: action.assignees }),
@@ -280,7 +280,7 @@ export async function executePRAction(
       case 'request_reviewers': {
         // GitHub API distinguishes between 'reviewers' (users) and 'team_reviewers'
         // For now we assume they are user logins.
-        const res = await fetch(`${prUrl}/requested_reviewers`, {
+        const res = await fetchWithBackoff(`${prUrl}/requested_reviewers`, {
           method: 'POST',
           headers,
           body: JSON.stringify({ reviewers: action.reviewers }),
@@ -293,7 +293,7 @@ export async function executePRAction(
       }
 
       case 'remove_reviewers': {
-        const res = await fetch(`${prUrl}/requested_reviewers`, {
+        const res = await fetchWithBackoff(`${prUrl}/requested_reviewers`, {
           method: 'DELETE',
           headers,
           body: JSON.stringify({ reviewers: action.reviewers }),

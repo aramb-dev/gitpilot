@@ -2,7 +2,7 @@
  * GitHub Organization Member utilities.
  */
 
-import { GITHUB_API_BASE, createGitHubHeaders } from "./client";
+import { GITHUB_API_BASE, createGitHubHeaders, fetchWithBackoff } from "./client";
 import { fetchAllPages } from "./pagination";
 import type { GitHubUser } from "@/types/github";
 import type { OrganizationMember, MemberInvitation } from "@/types/member";
@@ -83,7 +83,7 @@ export async function removeOrgMember(
   const url = `${GITHUB_API_BASE}/orgs/${org}/members/${username}`;
 
   try {
-    const res = await fetch(url, {
+    const res = await fetchWithBackoff(url, {
       method: 'DELETE',
       headers,
     });
@@ -112,7 +112,7 @@ export async function updateOrgMemberRole(
   const url = `${GITHUB_API_BASE}/orgs/${org}/memberships/${username}`;
 
   try {
-    const res = await fetch(url, {
+    const res = await fetchWithBackoff(url, {
       method: 'PUT',
       headers,
       body: JSON.stringify({ role }),

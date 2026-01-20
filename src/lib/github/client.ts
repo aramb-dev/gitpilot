@@ -7,6 +7,9 @@ import type { RateLimitInfo } from '@/types/api-errors';
 
 const GITHUB_API_VERSION = '2022-11-28';
 const GITHUB_API_BASE = 'https://api.github.com';
+const BACKOFF_BASE_MS = 1000;
+const BACKOFF_JITTER_MS = 1000;
+const MAX_BACKOFF_MS = 60000;
 
 /**
  * Creates standard headers for GitHub API requests.
@@ -71,6 +74,43 @@ export function getSecondsUntilReset(resetTimestamp: number): number {
 }
 
 /**
+ * Checks if a response status is a retryable server error.
+ * @param status - HTTP status code
+ * @returns true if retryable
+ */
+export function isRetryableStatus(status: number): boolean {
+  return status === 500 || status === 502 || status === 503 || status === 504;
+}
+
+function applyJitter(waitTimeMs: number): number {
+  return waitTimeMs + Math.floor(Math.random() * BACKOFF_JITTER_MS);
+}
+
+function capWaitTime(waitTimeMs: number): { waitTimeMs: number; capped: boolean } {
+  if (waitTimeMs > MAX_BACKOFF_MS) {
+    return { waitTimeMs: MAX_BACKOFF_MS, capped: true };
+  }
+
+  return { waitTimeMs, capped: false };
+}
+
+function getRequestUrl(input: RequestInfo | URL): string {
+  if (typeof input === 'string') {
+    return input;
+  }
+
+  if (input instanceof URL) {
+    return input.toString();
+  }
+
+  if (input instanceof Request) {
+    return input.url;
+  }
+
+  return 'unknown';
+}
+
+/**
  * Fetches a URL with intelligent backoff for rate limiting.
  * Respects X-RateLimit-Reset and Retry-After headers.
  * Uses exponential backoff for other retryable errors if configured.
@@ -86,6 +126,7 @@ export async function fetchWithBackoff(
   maxRetries: number = 3
 ): Promise<Response> {
   let attempt = 0;
+  const requestUrl = getRequestUrl(input);
   
   while (attempt <= maxRetries) {
     const response = await fetch(input, init);
@@ -95,13 +136,15 @@ export async function fetchWithBackoff(
         return response;
       }
 
-      let waitTimeMs = 1000 * Math.pow(2, attempt); // Default exponential backoff
+      let waitTimeMs = BACKOFF_BASE_MS * Math.pow(2, attempt);
+      let backoffSource: 'exponential' | 'rate_limit_reset' | 'retry_after' = 'exponential';
 
       // Check X-RateLimit-Reset
       const rateLimitInfo = parseRateLimitHeaders(response);
       if (rateLimitInfo && rateLimitInfo.remaining === 0) {
         const secondsUntilReset = getSecondsUntilReset(rateLimitInfo.reset);
         waitTimeMs = (secondsUntilReset + 1) * 1000;
+        backoffSource = 'rate_limit_reset';
       }
 
       // Check Retry-After (seconds)
@@ -110,14 +153,46 @@ export async function fetchWithBackoff(
         const seconds = parseInt(retryAfter, 10);
         if (!isNaN(seconds)) {
           waitTimeMs = (seconds + 1) * 1000;
+          backoffSource = 'retry_after';
         }
       }
 
-      // Cap wait time to avoid hanging too long (e.g., 60 seconds) unless it's a primary rate limit reset?
-      // For now, log the wait
-      console.warn(`Rate limited. Waiting ${Math.round(waitTimeMs / 1000)}s before retry ${attempt + 1}/${maxRetries}`);
+      if (backoffSource === 'exponential') {
+        waitTimeMs = applyJitter(waitTimeMs);
+      }
+
+      const cappedWait = capWaitTime(waitTimeMs);
+      if (cappedWait.capped) {
+        console.warn(`Rate limit backoff capped to ${Math.round(MAX_BACKOFF_MS / 1000)}s for ${requestUrl}.`);
+      }
+
+      console.warn(
+        `Rate limited. Waiting ${Math.round(cappedWait.waitTimeMs / 1000)}s before retry ${attempt + 1}/${maxRetries} ` +
+          `(${backoffSource}) for ${requestUrl}.`
+      );
       
-      await new Promise(resolve => setTimeout(resolve, waitTimeMs));
+      await new Promise(resolve => setTimeout(resolve, cappedWait.waitTimeMs));
+      attempt++;
+      continue;
+    }
+
+    if (isRetryableStatus(response.status)) {
+      if (attempt >= maxRetries) {
+        return response;
+      }
+
+      let waitTimeMs = applyJitter(BACKOFF_BASE_MS * Math.pow(2, attempt));
+      const cappedWait = capWaitTime(waitTimeMs);
+      if (cappedWait.capped) {
+        console.warn(`Server error backoff capped to ${Math.round(MAX_BACKOFF_MS / 1000)}s for ${requestUrl}.`);
+      }
+
+      console.warn(
+        `Server error ${response.status}. Waiting ${Math.round(cappedWait.waitTimeMs / 1000)}s before retry ${attempt + 1}/${maxRetries} ` +
+          `for ${requestUrl}.`
+      );
+
+      await new Promise(resolve => setTimeout(resolve, cappedWait.waitTimeMs));
       attempt++;
       continue;
     }

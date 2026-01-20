@@ -24,53 +24,41 @@
   - **Status**: COMPLETED - 25 tests covering all member operations
   - **Impact**: Member management operations are completely untested - HIGH RISK → RESOLVED
 
-- [ ] **PR Bulk Actions Hook Tests** (`src/hooks/useBulkPRActions.test.tsx`):
+- [x] **PR Bulk Actions Hook Tests** (`src/hooks/useBulkPRActions.test.tsx`):
   - Test `executeAction()` with batch processing (BATCH_SIZE=5)
   - Test `cancelOperation()` aborts correctly
   - Test `retryFailed()` filters and retries only failed items
   - Test state transitions (isExecuting, processed, succeeded, failed)
-  - **Impact**: Complex stateful hook - HIGH RISK
+  - **Status**: COMPLETED - 38 tests covering all hook functionality
+  - **Impact**: Complex stateful hook - HIGH RISK → RESOLVED
 
-- [ ] **Audit Logging Tests** (`src/lib/audit.test.ts`):
+- [x] **Audit Logging Tests** (`src/lib/audit.test.ts`):
   - Test successful log writes to database
   - Test error handling (should not throw)
   - Test all required fields are captured
-  - **Impact**: Compliance and security feature - MEDIUM RISK
+  - **Status**: COMPLETED - 27 tests covering audit logging
+  - **Impact**: Compliance and security feature - MEDIUM RISK → RESOLVED
 
 ### P1: Component Test Coverage
-- [ ] **Members UI Components**:
-  - `InviteModal.test.tsx` - Test role selection, form validation, API calls
-  - `MembersPageClient.test.tsx` - Test member/invitation tabs, bulk actions
-  - Test loading states, error handling, empty states
+- [x] **Members UI Components**:
+  - `src/components/dashboard/members/InviteModal.test.tsx` - role selection, validation, cancel handling
+  - `src/components/dashboard/members/MembersPageClient.test.tsx` - fetch render, search filter, bulk actions, invite trigger, loading/error/empty states
+  - **Status**: COMPLETED - 7 tests covering members UI flows
 
 - [ ] **Enhanced Component Tests**:
-  - `OrganizationSelector.test.tsx` - Expand beyond localStorage (test fetching, error handling)
-  - `RepositoriesPage.test.tsx` - Add comprehensive integration tests
+  - [x] `OrganizationSelector.test.tsx` - Added fetch/preferences rendering, empty state, save flow, reconnect coverage
+  - [x] `RepositoriesPage.integration.test.tsx` - Added fetch, search/filter, sorting, pagination, preference filtering, and bulk action coverage
 
 ---
 
 ## Priority 2: API Resilience Enhancements
 
 ### P2: Backoff Implementation Improvements
-**Current Status**: Basic implementation exists but has gaps
-
-- [ ] **Add Jitter to Backoff** (`src/lib/github/client.ts:98`):
-  - Add random jitter to exponential backoff: `1000 * Math.pow(2, attempt) + random(0, 1000)`
-  - Prevents thundering herd when multiple requests hit rate limit simultaneously
-  - Test jitter doesn't violate minimum wait times
-
-- [ ] **Add Max Wait Cap** (`src/lib/github/client.ts:98-114`):
-  - Cap wait time to 60 seconds maximum
-  - Prevents indefinite hangs when X-RateLimit-Reset is far in future
-  - Log when capping occurs
-
-- [ ] **Retry 5xx Errors** (`src/lib/github/client.ts:83-129`):
-  - Add retry logic for 500, 502, 503, 504 status codes
-  - Use exponential backoff for server errors (different from rate limit handling)
-  - Add `isRetryableError()` helper function
+**Current Status**: Jitter, max cap, and 5xx retries implemented and tested; metrics exposure still pending
+**Why**: Reduces thundering-herd retries, avoids long hangs on rate-limit resets, and improves resilience against transient GitHub 5xx responses; tests cover jittered backoff, capping, and retry behavior in `src/lib/github/client.test.ts`.
 
 - [ ] **Add Monitoring Metrics**:
-  - Log rate limit events with context (endpoint, attempt count, wait time)
+  - Log rate limit events with context (endpoint, attempt count, wait time) - DONE
   - Expose metrics for dashboard (rate limit hits per hour, avg wait time)
 
 ---
@@ -174,7 +162,7 @@
   - Retry-After header respect
   - Exponential backoff (1000 * 2^attempt)
   - Max 3 retries
-  - **Gaps**: No jitter, no max wait cap, no 5xx retry
+  - **Enhancements**: Jittered backoff, max wait cap, 5xx retries, rate limit logging
 
 ### Well-Tested Areas (8-9/10 quality)
 - `src/lib/github/client.test.ts` - Header creation, rate limit parsing, backoff detection
@@ -184,9 +172,11 @@
 - `src/lib/github/issue-operations.test.ts` - Issue bulk operations
 - `src/lib/github/repos.test.ts` - Repository operations
 - `src/lib/github/pagination.test.ts` - Pagination utilities
-- `src/lib/github/prs.test.ts` - PR operations (NEW - 47 tests)
-- `src/lib/github/members.test.ts` - Member operations (NEW - 25 tests)
+- `src/lib/github/prs.test.ts` - PR operations (47 tests)
+- `src/lib/github/members.test.ts` - Member operations (25 tests)
 - `src/hooks/useBulkRepoActions.test.tsx` - Repository bulk actions hook
+- `src/hooks/useBulkPRActions.test.tsx` - PR bulk actions hook (38 tests) - NEW
+- `src/lib/audit.test.ts` - Audit logging functionality (27 tests) - NEW
 
 ---
 

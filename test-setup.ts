@@ -57,3 +57,55 @@ const localStorageMock = (() => {
 })();
 
 global.localStorage = localStorageMock as any;
+
+// Mock database for tests that need it
+// This mock supports the drizzle ORM chaining pattern
+const createMockQuery = () => {
+  const query = {
+    from: mock(() => query),
+    where: mock(() => query),
+    values: mock(() => query),
+    returning: mock(() => query),
+    execute: mock(() => Promise.resolve([])),
+    orderBy: mock(() => query),
+    limit: mock(() => query),
+    offset: mock(() => query),
+    leftJoin: mock(() => query),
+    innerJoin: mock(() => query),
+    rightJoin: mock(() => query),
+    fullJoin: mock(() => query),
+    // Make it awaitable - resolves to empty array
+    then: mock((resolve: any) => resolve([])),
+    // Also support array methods directly
+    filter: mock(() => []),
+    map: mock(() => []),
+    forEach: mock(() => {}),
+    [Symbol.iterator]: function* () {},
+  };
+  return query;
+};
+
+const createMockDelete = () => {
+  const del = {
+    where: mock(() => del),
+    returning: mock(() => del),
+    execute: mock(() => Promise.resolve()),
+    then: mock((resolve: any) => resolve()),
+  };
+  return del;
+};
+
+mock.module("./src/db/index.ts", () => ({
+  db: {
+    insert: mock(() => ({
+      values: mock(() => ({
+        returning: mock(() => createMockQuery()),
+        onConflictDoNothing: mock(() => createMockQuery()),
+        execute: mock(() => Promise.resolve()),
+      })),
+    })),
+    select: mock(() => createMockQuery()),
+    update: mock(() => createMockQuery()),
+    delete: mock(() => createMockDelete()),
+  },
+}));

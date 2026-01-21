@@ -15,6 +15,7 @@ export async function GET(request: NextRequest) {
 
     const searchParams = request.nextUrl.searchParams;
     const org = searchParams.get('org');
+    const userId = (session.user as any)?.id ?? "anonymous";
 
     if (!org) {
       return NextResponse.json(
@@ -24,8 +25,8 @@ export async function GET(request: NextRequest) {
     }
 
     const [members, invitations] = await Promise.all([
-      fetchOrgMembers(session.accessToken, org),
-      fetchOrgInvitations(session.accessToken, org).catch(() => []), // Might fail if user is not an admin
+      fetchOrgMembers(session.accessToken, org, { userId }),
+      fetchOrgInvitations(session.accessToken, org, userId).catch(() => []), // Might fail if user is not an admin
     ]);
 
     return NextResponse.json({

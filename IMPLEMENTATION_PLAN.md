@@ -57,9 +57,10 @@
 **Current Status**: Jitter, max cap, and 5xx retries implemented and tested; metrics exposure still pending
 **Why**: Reduces thundering-herd retries, avoids long hangs on rate-limit resets, and improves resilience against transient GitHub 5xx responses; tests cover jittered backoff, capping, and retry behavior in `src/lib/github/client.test.ts`.
 
-- [ ] **Add Monitoring Metrics**:
+- [x] **Add Monitoring Metrics**:
   - Log rate limit events with context (endpoint, attempt count, wait time) - DONE
-  - Expose metrics for dashboard (rate limit hits per hour, avg wait time)
+  - Expose metrics for dashboard (rate limit hits per hour, avg wait time) - DONE
+  - UI component `ApiResilienceMetrics` added to Settings > Security - DONE
 
 ---
 

@@ -192,7 +192,6 @@ describe('buildIssueQueryParams', () => {
 
 describe('fetchRepoIssues', () => {
   beforeEach(() => {
-    mock.restore();
   });
 
   it('fetches and normalizes issues', async () => {
@@ -268,7 +267,6 @@ describe('fetchRepoIssues', () => {
 
 describe('fetchMultiRepoIssues', () => {
   beforeEach(() => {
-    mock.restore();
   });
 
   it('returns empty array for no repos', async () => {

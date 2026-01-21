@@ -89,6 +89,8 @@ export interface PRFilters {
   sort?: 'created' | 'updated' | 'popularity' | 'long-running';
   direction?: 'asc' | 'desc';
   search?: string;
+  page?: number;
+  perPage?: number;
 }
 
 export interface PRsListResponse {

@@ -4,6 +4,7 @@
  */
 
 import type { RateLimitInfo } from '@/types/api-errors';
+import { logApiMetric } from '../metrics';
 
 const GITHUB_API_VERSION = '2022-11-28';
 const GITHUB_API_BASE = 'https://api.github.com';
@@ -118,12 +119,14 @@ function getRequestUrl(input: RequestInfo | URL): string {
  * @param input - URL or Request object
  * @param init - Fetch options
  * @param maxRetries - Maximum number of retries (default: 3)
+ * @param userId - Optional user ID for metrics logging
  * @returns Response object
  */
 export async function fetchWithBackoff(
   input: RequestInfo | URL,
   init?: RequestInit,
-  maxRetries: number = 3
+  maxRetries: number = 3,
+  userId?: string
 ): Promise<Response> {
   let attempt = 0;
   const requestUrl = getRequestUrl(input);
@@ -132,10 +135,6 @@ export async function fetchWithBackoff(
     const response = await fetch(input, init);
     
     if (isRateLimited(response)) {
-      if (attempt >= maxRetries) {
-        return response;
-      }
-
       let waitTimeMs = BACKOFF_BASE_MS * Math.pow(2, attempt);
       let backoffSource: 'exponential' | 'rate_limit_reset' | 'retry_after' = 'exponential';
 
@@ -162,6 +161,23 @@ export async function fetchWithBackoff(
       }
 
       const cappedWait = capWaitTime(waitTimeMs);
+      
+      // Log metric if userId is provided
+      if (userId) {
+        await logApiMetric(
+          userId,
+          requestUrl,
+          response.status,
+          attempt,
+          cappedWait.waitTimeMs,
+          'rate_limit'
+        );
+      }
+
+      if (attempt >= maxRetries) {
+        return response;
+      }
+
       if (cappedWait.capped) {
         console.warn(`Rate limit backoff capped to ${Math.round(MAX_BACKOFF_MS / 1000)}s for ${requestUrl}.`);
       }
@@ -177,12 +193,25 @@ export async function fetchWithBackoff(
     }
 
     if (isRetryableStatus(response.status)) {
+      let waitTimeMs = applyJitter(BACKOFF_BASE_MS * Math.pow(2, attempt));
+      const cappedWait = capWaitTime(waitTimeMs);
+
+      // Log metric if userId is provided
+      if (userId) {
+        await logApiMetric(
+          userId,
+          requestUrl,
+          response.status,
+          attempt,
+          cappedWait.waitTimeMs,
+          'server_error'
+        );
+      }
+
       if (attempt >= maxRetries) {
         return response;
       }
 
-      let waitTimeMs = applyJitter(BACKOFF_BASE_MS * Math.pow(2, attempt));
-      const cappedWait = capWaitTime(waitTimeMs);
       if (cappedWait.capped) {
         console.warn(`Server error backoff capped to ${Math.round(MAX_BACKOFF_MS / 1000)}s for ${requestUrl}.`);
       }
@@ -195,6 +224,18 @@ export async function fetchWithBackoff(
       await new Promise(resolve => setTimeout(resolve, cappedWait.waitTimeMs));
       attempt++;
       continue;
+    }
+
+    // Success - log if userId provided and it wasn't the first attempt (meaning we recovered)
+    if (userId && attempt > 0) {
+      await logApiMetric(
+        userId,
+        requestUrl,
+        response.status,
+        attempt,
+        0,
+        'success'
+      );
     }
 
     return response;

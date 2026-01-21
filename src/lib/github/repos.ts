@@ -15,6 +15,7 @@ const DEFAULT_MAX_PAGES = 10;
 export interface FetchReposOptions {
   maxPages?: number;
   onProgress?: (message: string) => void;
+  userId?: string;
 }
 
 export interface OrgFetchError {
@@ -48,6 +49,7 @@ export async function fetchUserRepos(
 
   return fetchAllPages<GitHubRepository>(url, headers, {
     maxPages,
+    userId: options.userId,
     onPage: (page, count) => {
       if (onProgress) {
         onProgress(`Fetched page ${page} (${count} repos)`);
@@ -79,6 +81,7 @@ export async function fetchOrgRepos(
   try {
     const result = await fetchAllPages<GitHubRepository>(url, headers, {
       maxPages,
+      userId: options.userId,
       onPage: (page, count) => {
         if (onProgress) {
           onProgress(`${orgName}: Fetched page ${page} (${count} repos)`);

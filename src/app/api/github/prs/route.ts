@@ -63,7 +63,11 @@ export async function GET(request: NextRequest) {
     };
 
     // Cast filters to any to allow extra properties like page/perPage which are used in fetchPRsAcrossRepos
-    const { data, warnings } = await fetchPRsAcrossRepos(session.accessToken, { ...filters, page, perPage } as any);
+    const { data, warnings } = await fetchPRsAcrossRepos(
+      session.accessToken, 
+      { ...filters, page, perPage } as any,
+      { userId }
+    );
 
     // Set cache
     await setCache(userId, cacheKey, "pulls", data, {

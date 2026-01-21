@@ -102,7 +102,8 @@ export async function GET(request: Request) {
       repos,
       filters,
       page,
-      Math.min(perPage, 100)
+      Math.min(perPage, 100),
+      userId
     );
 
     await setCache(userId, cacheKey, "issues", result, {

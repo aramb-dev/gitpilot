@@ -98,9 +98,10 @@ export function normalizePullRequest(raw: GitHubPullRequest): PullRequest {
 export async function fetchPRsAcrossRepos(
   accessToken: string,
   filters: PRFilters,
-  options: { fetchDetails?: boolean } = {}
+  options: { fetchDetails?: boolean; userId?: string } = {}
 ): Promise<{ data: PRsListResponse; warnings: string[] }> {
   const { repos = [], state = 'open', sort = 'updated', direction = 'desc', page = 1, perPage = 30 } = filters as any;
+  const { userId } = options;
   const allPRs: PullRequest[] = [];
   const warnings: string[] = [];
 
@@ -120,7 +121,7 @@ export async function fetchPRsAcrossRepos(
       const res = await fetchWithBackoff(`${GITHUB_API_BASE}/repos/${owner}/${name}/pulls?${query}`, {
         headers,
         next: { revalidate: 60 }
-      });
+      }, 3, userId);
 
       if (!res.ok) {
         warnings.push(`Failed to fetch PRs for ${repoFull}: ${res.statusText}`);
@@ -169,7 +170,8 @@ export async function fetchPRsAcrossRepos(
 export async function executePRAction(
   accessToken: string,
   pr: { owner: string; repo: string; number: number },
-  action: BulkPRAction
+  action: BulkPRAction,
+  userId?: string
 ): Promise<{ success: boolean; error?: string }> {
   const headers = createGitHubHeaders(accessToken);
   const repoUrl = `${GITHUB_API_BASE}/repos/${pr.owner}/${pr.repo}`;
@@ -186,7 +188,7 @@ export async function executePRAction(
             commit_message: action.commitMessage,
             merge_method: action.mergeMethod || 'merge',
           }),
-        });
+        }, 3, userId);
         if (!res.ok) {
           const data = await res.json().catch(() => ({}));
           return { success: false, error: data.message || `Failed to merge: ${res.statusText}` };
@@ -200,7 +202,7 @@ export async function executePRAction(
           method: 'PATCH',
           headers,
           body: JSON.stringify({ state: action.type === 'close' ? 'closed' : 'open' }),
-        });
+        }, 3, userId);
         if (!res.ok) {
           const data = await res.json().catch(() => ({}));
           return { success: false, error: data.message || `Failed to ${action.type}: ${res.statusText}` };
@@ -213,7 +215,7 @@ export async function executePRAction(
           method: 'POST',
           headers,
           body: JSON.stringify({ labels: action.labels }),
-        });
+        }, 3, userId);
         if (!res.ok) {
           const data = await res.json().catch(() => ({}));
           return { success: false, error: data.message || `Failed to add labels: ${res.statusText}` };
@@ -226,7 +228,7 @@ export async function executePRAction(
           method: 'PUT',
           headers,
           body: JSON.stringify({ labels: action.labels }),
-        });
+        }, 3, userId);
         if (!res.ok) {
           const data = await res.json().catch(() => ({}));
           return { success: false, error: data.message || `Failed to set labels: ${res.statusText}` };
@@ -242,7 +244,7 @@ export async function executePRAction(
           const res = await fetchWithBackoff(`${issueUrl}/labels/${encodeURIComponent(label)}`, {
             method: 'DELETE',
             headers,
-          });
+          }, 3, userId);
           if (!res.ok && res.status !== 404) { // Ignore 404 if label not present
              const data = await res.json().catch(() => ({}));
              return { success: false, error: data.message || `Failed to remove label ${label}: ${res.statusText}` };
@@ -256,7 +258,7 @@ export async function executePRAction(
           method: 'POST',
           headers,
           body: JSON.stringify({ assignees: action.assignees }),
-        });
+        }, 3, userId);
         if (!res.ok) {
           const data = await res.json().catch(() => ({}));
           return { success: false, error: data.message || `Failed to assign: ${res.statusText}` };
@@ -269,7 +271,7 @@ export async function executePRAction(
           method: 'DELETE',
           headers,
           body: JSON.stringify({ assignees: action.assignees }),
-        });
+        }, 3, userId);
         if (!res.ok) {
           const data = await res.json().catch(() => ({}));
           return { success: false, error: data.message || `Failed to unassign: ${res.statusText}` };
@@ -284,7 +286,7 @@ export async function executePRAction(
           method: 'POST',
           headers,
           body: JSON.stringify({ reviewers: action.reviewers }),
-        });
+        }, 3, userId);
         if (!res.ok) {
           const data = await res.json().catch(() => ({}));
           return { success: false, error: data.message || `Failed to request reviewers: ${res.statusText}` };
@@ -297,7 +299,7 @@ export async function executePRAction(
           method: 'DELETE',
           headers,
           body: JSON.stringify({ reviewers: action.reviewers }),
-        });
+        }, 3, userId);
         if (!res.ok) {
           const data = await res.json().catch(() => ({}));
           return { success: false, error: data.message || `Failed to remove reviewers: ${res.statusText}` };

@@ -266,7 +266,6 @@ describe('normalizePullRequest', () => {
 
   it('falls back to head repo when base repo is missing', () => {
     const raw = createMockPullRequest();
-    // @ts-expect-error - Testing fallback behavior
     raw.base.repo = null;
     const result = normalizePullRequest(raw);
 
@@ -281,9 +280,7 @@ describe('normalizePullRequest', () => {
 
   it('handles missing repository gracefully', () => {
     const raw = createMockPullRequest();
-    // @ts-expect-error - Testing edge case
     raw.base.repo = null;
-    // @ts-expect-error - Testing edge case
     raw.head.repo = null;
     const result = normalizePullRequest(raw);
 
@@ -411,8 +408,7 @@ describe('normalizePullRequest', () => {
 
   it('handles null html_url in user', () => {
     const raw = createMockPullRequest();
-    // @ts-expect-error - Testing edge case
-    raw.user.html_url = null;
+    raw.user.html_url = null as any;
     const result = normalizePullRequest(raw);
 
     expect(result.user.htmlUrl).toBe('https://github.com/testuser');
@@ -532,7 +528,6 @@ describe('fetchPRsAcrossRepos', () => {
   });
 
   beforeEach(() => {
-    mock.restore();
   });
 
   it('fetches PRs from multiple repositories', async () => {
@@ -687,7 +682,6 @@ describe('fetchPRsAcrossRepos', () => {
 
 describe('executePRAction', () => {
   beforeEach(() => {
-    mock.restore();
   });
 
   it('executes merge action successfully', async () => {

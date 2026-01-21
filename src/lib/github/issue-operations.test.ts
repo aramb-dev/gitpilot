@@ -14,7 +14,6 @@ import {
 
 describe('closeIssue', () => {
   beforeEach(() => {
-    mock.restore();
   });
 
   it('closes an issue without comment', async () => {
@@ -50,6 +49,7 @@ describe('closeIssue', () => {
         ok: false,
         status: 403,
         json: () => Promise.resolve({ message: 'Forbidden' }),
+        headers: { get: () => null },
       })
     ) as any;
     global.fetch = mockFetch as any;
@@ -60,7 +60,6 @@ describe('closeIssue', () => {
 
 describe('reopenIssue', () => {
   beforeEach(() => {
-    mock.restore();
   });
 
   it('reopens an issue', async () => {
@@ -79,7 +78,6 @@ describe('reopenIssue', () => {
 
 describe('addLabels', () => {
   beforeEach(() => {
-    mock.restore();
   });
 
   it('adds labels to an issue', async () => {
@@ -98,7 +96,6 @@ describe('addLabels', () => {
 
 describe('removeLabel', () => {
   beforeEach(() => {
-    mock.restore();
   });
 
   it('removes a label from an issue', async () => {
@@ -126,7 +123,6 @@ describe('removeLabel', () => {
 
 describe('setLabels', () => {
   beforeEach(() => {
-    mock.restore();
   });
 
   it('replaces all labels on an issue', async () => {
@@ -144,7 +140,6 @@ describe('setLabels', () => {
 
 describe('addAssignees', () => {
   beforeEach(() => {
-    mock.restore();
   });
 
   it('adds assignees to an issue', async () => {
@@ -163,7 +158,6 @@ describe('addAssignees', () => {
 
 describe('removeAssignees', () => {
   beforeEach(() => {
-    mock.restore();
   });
 
   it('removes assignees from an issue', async () => {
@@ -181,7 +175,6 @@ describe('removeAssignees', () => {
 
 describe('lockIssue', () => {
   beforeEach(() => {
-    mock.restore();
   });
 
   it('locks an issue without reason', async () => {
@@ -211,7 +204,6 @@ describe('lockIssue', () => {
 
 describe('unlockIssue', () => {
   beforeEach(() => {
-    mock.restore();
   });
 
   it('unlocks an issue', async () => {
@@ -230,7 +222,6 @@ describe('unlockIssue', () => {
 
 describe('executeBulkAction', () => {
   beforeEach(() => {
-    mock.restore();
   });
 
   it('executes action on multiple issues', async () => {
@@ -262,6 +253,7 @@ describe('executeBulkAction', () => {
         ok: false,
         status: 403,
         json: () => Promise.resolve({ message: 'Forbidden' }),
+        headers: { get: () => null },
       });
     }) as any;
     global.fetch = mockFetch as any;

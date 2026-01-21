@@ -24,7 +24,6 @@ describe('fetchOrgMembers', () => {
   });
 
   beforeEach(() => {
-    mock.restore();
   });
 
   it('fetches and normalizes organization members', async () => {
@@ -256,7 +255,6 @@ describe('fetchOrgMembers', () => {
 
 describe('fetchOrgInvitations', () => {
   beforeEach(() => {
-    mock.restore();
   });
 
   it('fetches and normalizes pending invitations', async () => {
@@ -465,7 +463,6 @@ describe('fetchOrgInvitations', () => {
 
 describe('removeOrgMember', () => {
   beforeEach(() => {
-    mock.restore();
   });
 
   it('removes a member successfully', async () => {
@@ -538,7 +535,6 @@ describe('removeOrgMember', () => {
 
 describe('updateOrgMemberRole', () => {
   beforeEach(() => {
-    mock.restore();
   });
 
   it('updates member role to admin successfully', async () => {

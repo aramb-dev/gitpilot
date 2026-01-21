@@ -1,7 +1,7 @@
 // @ts-nocheck
 // @bun-test-dom
 import { describe, expect, it, mock } from "bun:test";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, cleanup } from "@testing-library/react";
 import React from "react";
 import { InviteModal } from "./InviteModal";
 
@@ -11,15 +11,25 @@ mock.module("@/components/ui/dialog", () => ({
   DialogContent: ({ children }: any) => <div>{children}</div>,
   DialogHeader: ({ children }: any) => <div>{children}</div>,
   DialogTitle: ({ children }: any) => <h2>{children}</h2>,
+  DialogDescription: ({ children }: any) => <p>{children}</p>,
+  DialogFooter: ({ children }: any) => <footer>{children}</footer>,
+  DialogTrigger: ({ children }: any) => <div>{children}</div>,
+  DialogPortal: ({ children }: any) => <div>{children}</div>,
+  DialogOverlay: () => null,
 }));
+
+import { afterEach } from "bun:test";
+afterEach(() => {
+  cleanup();
+});
 
 describe("InviteModal", () => {
   it("disables send without a target and sends with default role", () => {
-    const onInvite = mock(() => {});
+    const onInvite = mock(() => { });
     render(
       <InviteModal
         isOpen={true}
-        onClose={mock(() => {})}
+        onClose={mock(() => { })}
         onInvite={onInvite}
       />
     );
@@ -37,11 +47,11 @@ describe("InviteModal", () => {
   });
 
   it("sends with admin role when selected", () => {
-    const onInvite = mock(() => {});
+    const onInvite = mock(() => { });
     render(
       <InviteModal
         isOpen={true}
-        onClose={mock(() => {})}
+        onClose={mock(() => { })}
         onInvite={onInvite}
       />
     );
@@ -57,12 +67,12 @@ describe("InviteModal", () => {
   });
 
   it("calls onClose when cancel is clicked", () => {
-    const onClose = mock(() => {});
+    const onClose = mock(() => { });
     render(
       <InviteModal
         isOpen={true}
         onClose={onClose}
-        onInvite={mock(() => {})}
+        onInvite={mock(() => { })}
       />
     );
 

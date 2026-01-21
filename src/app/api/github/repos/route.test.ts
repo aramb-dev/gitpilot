@@ -114,16 +114,16 @@ describe("Repositories API Route", () => {
     });
 
     it("should include error in warnings when personal repos fetch fails", async () => {
-       global.fetch = mock(() => Promise.reject(new Error("Network error"))) as any;
-       const req = { url: "http://localhost/api/github/repos" } as any;
-       const response = await GET(req);
-       const json = await response.json();
+      global.fetch = mock(() => Promise.reject(new Error("Network error"))) as any;
+      const req = { url: "http://localhost/api/github/repos" } as any;
+      const response = await GET(req);
+      const json = await response.json();
 
-       // Partial failure returns 200 with warnings
-       expect(response.status).toBe(200);
-       expect(json.data).toEqual([]);
-       expect(json.warnings).toBeDefined();
-       expect(json.warnings.some((w: string) => w.includes("personal"))).toBe(true);
+      // Partial failure returns 200 with warnings
+      expect(response.status).toBe(200);
+      expect(json.data).toEqual([]);
+      expect(json.warnings).toBeDefined();
+      expect(json.warnings.some((w: string) => w.includes("personal"))).toBe(true);
     });
 
     it("should handle pagination with Link headers", async () => {
@@ -195,7 +195,7 @@ describe("Repositories API Route", () => {
             headers: {
               "X-RateLimit-Remaining": "0",
               "X-RateLimit-Limit": "5000",
-              "X-RateLimit-Reset": String(Math.floor(Date.now() / 1000) + 3600),
+              "X-RateLimit-Reset": String(Math.floor(Date.now() / 1000) - 1),
             },
           }));
         }

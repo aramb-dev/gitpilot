@@ -2,6 +2,7 @@
  * GitHub Issues fetching utilities.
  */
 
+import { fetchWithBackoff, createGitHubHeaders } from './client';
 import type {
   Issue,
   IssueFilters,
@@ -148,17 +149,17 @@ export async function fetchRepoIssues(
   repo: string,
   filters: IssueFilters = {},
   page: number = 1,
-  perPage: number = 30
+  perPage: number = 30,
+  userId?: string
 ): Promise<IssuesListResponse> {
   const queryString = buildIssueQueryParams(filters, page, perPage);
   const url = `${GITHUB_API_BASE}/repos/${owner}/${repo}/issues?${queryString}`;
+  const headers = createGitHubHeaders(accessToken);
 
-  const response = await fetch(url, {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      Accept: 'application/vnd.github.v3+json',
-    },
-  });
+  const response = await fetchWithBackoff(url, {
+    headers,
+    cache: 'no-store',
+  }, 3, userId);
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));
@@ -203,7 +204,8 @@ export async function fetchMultiRepoIssues(
   repos: string[],
   filters: IssueFilters = {},
   page: number = 1,
-  perPage: number = 30
+  perPage: number = 30,
+  userId?: string
 ): Promise<IssuesListResponse> {
   if (repos.length === 0) {
     return { issues: [], totalCount: 0, hasNextPage: false };
@@ -233,7 +235,8 @@ export async function fetchMultiRepoIssues(
             repo,
             filtersForState,
             page,
-            perPage
+            perPage,
+            userId
           );
         } catch (error) {
           console.error(`Failed to fetch issues from ${repoFullName}:`, error);
@@ -316,16 +319,16 @@ export async function fetchIssue(
   accessToken: string,
   owner: string,
   repo: string,
-  issueNumber: number
+  issueNumber: number,
+  userId?: string
 ): Promise<Issue> {
   const url = `${GITHUB_API_BASE}/repos/${owner}/${repo}/issues/${issueNumber}`;
+  const headers = createGitHubHeaders(accessToken);
 
-  const response = await fetch(url, {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      Accept: 'application/vnd.github.v3+json',
-    },
-  });
+  const response = await fetchWithBackoff(url, {
+    headers,
+    cache: 'no-store',
+  }, 3, userId);
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));

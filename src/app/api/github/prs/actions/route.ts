@@ -31,6 +31,7 @@ export async function POST(request: NextRequest) {
     }
 
     const accessToken = session.accessToken;
+    const userId = (session.user as any)?.id ?? "anonymous";
     const results = { success: [] as any[], errors: [] as any[] };
 
     const actionPromises = prs.map(async (pr) => {
@@ -38,7 +39,7 @@ export async function POST(request: NextRequest) {
         owner: pr.owner,
         repo: pr.repo,
         number: pr.prNumber
-      }, action);
+      }, action, userId);
 
       if (result.success) {
         results.success.push({
@@ -58,8 +59,6 @@ export async function POST(request: NextRequest) {
     });
 
     await Promise.all(actionPromises);
-
-    const userId = (session.user as any)?.id ?? "anonymous";
 
     // Audit Log
     if (results.success.length > 0 || results.errors.length > 0) {

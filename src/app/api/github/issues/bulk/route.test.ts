@@ -26,7 +26,6 @@ mock.module('@/lib/github/issue-operations', () => ({
 
 describe('Bulk Issues API Route', () => {
   beforeEach(() => {
-    mock.restore();
   });
 
   it('should execute bulk close action', async () => {

@@ -28,7 +28,7 @@ export async function getCachedRepos(
     }
   }
 
-  const result = await fetchAllRepos(accessToken, selectedOrgs);
+  const result = await fetchAllRepos(accessToken, selectedOrgs, { userId });
   const normalizedRepos = normalizeRepositories(result.repos);
 
   await setCache(userId, cacheKey, "repositories", normalizedRepos, {

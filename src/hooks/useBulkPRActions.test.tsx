@@ -8,7 +8,7 @@ const originalFetch = global.fetch;
 
 describe("useBulkPRActions", () => {
   beforeEach(() => {
-    global.fetch = mock();
+    global.fetch = mock() as any;
   });
 
   afterEach(() => {

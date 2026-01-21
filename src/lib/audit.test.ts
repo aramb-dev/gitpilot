@@ -1,4 +1,4 @@
-import { describe, expect, it, mock, beforeEach } from "bun:test";
+import { describe, expect, it, mock, beforeEach, afterEach } from "bun:test";
 
 // Import the db module to access its mocks
 import { db } from "../db/index.js";
@@ -9,16 +9,32 @@ import { logAudit } from "./audit";
 describe("logAudit", () => {
   // Get reference to the mock values function
   let mockValues: ReturnType<typeof mock>;
+  const originalConsoleError = console.error;
 
   beforeEach(() => {
     // Clear all previous mock calls
     (db.insert as any).mockClear();
+    console.error = mock(() => { });
 
     // Create fresh mocks for each test
     mockValues = mock(() => Promise.resolve(undefined));
 
-    // Reset the db.insert mock to return our new mockValues
-    (db.insert as any).mockReturnValue({ values: mockValues });
+    // Reset the db.insert mock to return an object that matches Drizzle's chained API
+    (db.insert as any).mockImplementation(() => {
+      const query = {
+        values: mockValues,
+        onConflictDoNothing: mock(() => query),
+        onConflictDoUpdate: mock(() => query),
+        returning: mock(() => Promise.resolve([{}])),
+        execute: mock(() => Promise.resolve()),
+        then: mock((resolve: any) => resolve([{}])),
+      };
+      return query;
+    });
+  });
+
+  afterEach(() => {
+    console.error = originalConsoleError;
   });
 
   const baseParams = {
@@ -176,34 +192,22 @@ describe("logAudit", () => {
     });
 
     it("should log error to console when insert fails", async () => {
-      const consoleErrorSpy = mock(() => {});
-      const originalConsoleError = console.error;
-      console.error = consoleErrorSpy;
-
       mockValues.mockRejectedValueOnce(new Error("Connection error"));
 
       await logAudit(baseParams.userId, baseParams.action, baseParams.resourceType, { count: 1 });
 
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
+      expect(console.error).toHaveBeenCalledWith(
         "Failed to log audit event:",
         expect.any(Error)
       );
-
-      console.error = originalConsoleError;
     });
 
     it("should handle rejection with specific error messages", async () => {
-      const consoleErrorSpy = mock(() => {});
-      const originalConsoleError = console.error;
-      console.error = consoleErrorSpy;
-
       mockValues.mockRejectedValueOnce(new Error("Constraint violation: user_id not found"));
 
       await logAudit("invalid-user", baseParams.action, baseParams.resourceType, {});
 
-      expect(consoleErrorSpy).toHaveBeenCalled();
-
-      console.error = originalConsoleError;
+      expect(console.error).toHaveBeenCalled();
     });
 
     it("should handle malformed data gracefully", async () => {
@@ -262,7 +266,6 @@ describe("logAudit", () => {
       );
 
       mockValues.mockClear();
-      (db.insert as any).mockReturnValue({ values: mockValues });
 
       await logAudit(baseParams.userId, baseParams.action, baseParams.resourceType, undefined as any);
 
@@ -388,7 +391,7 @@ describe("logAudit", () => {
     it("should generate UUID using crypto.randomUUID", async () => {
       const originalRandomUUID = crypto.randomUUID;
       const mockRandomUUID = mock(() => "test-uuid-12345");
-      crypto.randomUUID = mockRandomUUID;
+      crypto.randomUUID = mockRandomUUID as any;
 
       await logAudit(baseParams.userId, baseParams.action, baseParams.resourceType, {});
 

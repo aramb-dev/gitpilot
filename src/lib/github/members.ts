@@ -13,14 +13,15 @@ import type { OrganizationMember, MemberInvitation } from "@/types/member";
 export async function fetchOrgMembers(
   accessToken: string,
   org: string,
-  params: { role?: 'all' | 'admin' | 'member' } = {}
+  params: { role?: 'all' | 'admin' | 'member'; userId?: string } = {}
 ): Promise<OrganizationMember[]> {
   const headers = createGitHubHeaders(accessToken);
+  const { userId } = params;
   const role = params.role === 'all' ? undefined : params.role;
   const query = role ? `?role=${role}&per_page=100` : `?per_page=100`;
   const url = `${GITHUB_API_BASE}/orgs/${org}/members${query}`;
 
-  const rawMembersResult = await fetchAllPages<GitHubUser & { role?: string }>(url, headers);
+  const rawMembersResult = await fetchAllPages<GitHubUser & { role?: string }>(url, headers, { userId });
   const rawMembers = rawMembersResult.data;
 
   // Note: /orgs/{org}/members does NOT return the role in the list.
@@ -29,7 +30,7 @@ export async function fetchOrgMembers(
   // Actually, we can fetch admins separately to mark them.
 
   const adminsUrl = `${GITHUB_API_BASE}/orgs/${org}/members?role=admin&per_page=100`;
-  const rawAdminsResult = await fetchAllPages<GitHubUser>(adminsUrl, headers);
+  const rawAdminsResult = await fetchAllPages<GitHubUser>(adminsUrl, headers, { userId });
   const rawAdmins = rawAdminsResult.data;
   const adminLogins = new Set(rawAdmins.map((a: GitHubUser) => a.login));
 
@@ -48,12 +49,13 @@ export async function fetchOrgMembers(
  */
 export async function fetchOrgInvitations(
   accessToken: string,
-  org: string
+  org: string,
+  userId?: string
 ): Promise<MemberInvitation[]> {
   const headers = createGitHubHeaders(accessToken);
   const url = `${GITHUB_API_BASE}/orgs/${org}/invitations?per_page=100`;
 
-  const rawInvitesResult = await fetchAllPages<any>(url, headers);
+  const rawInvitesResult = await fetchAllPages<any>(url, headers, { userId });
   const rawInvites = rawInvitesResult.data;
 
   return rawInvites.map((i: any) => ({
@@ -77,7 +79,8 @@ export async function fetchOrgInvitations(
 export async function removeOrgMember(
   accessToken: string,
   org: string,
-  username: string
+  username: string,
+  userId?: string
 ): Promise<{ success: boolean; error?: string }> {
   const headers = createGitHubHeaders(accessToken);
   const url = `${GITHUB_API_BASE}/orgs/${org}/members/${username}`;
@@ -86,7 +89,7 @@ export async function removeOrgMember(
     const res = await fetchWithBackoff(url, {
       method: 'DELETE',
       headers,
-    });
+    }, 3, userId);
 
     if (!res.ok && res.status !== 204) {
       const data = await res.json().catch(() => ({}));
@@ -106,7 +109,8 @@ export async function updateOrgMemberRole(
   accessToken: string,
   org: string,
   username: string,
-  role: 'admin' | 'member'
+  role: 'admin' | 'member',
+  userId?: string
 ): Promise<{ success: boolean; error?: string }> {
   const headers = createGitHubHeaders(accessToken);
   const url = `${GITHUB_API_BASE}/orgs/${org}/memberships/${username}`;
@@ -116,7 +120,7 @@ export async function updateOrgMemberRole(
       method: 'PUT',
       headers,
       body: JSON.stringify({ role }),
-    });
+    }, 3, userId);
 
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));

@@ -11,6 +11,7 @@ import { OrganizationAccessList } from '@/components/dashboard/OrganizationAcces
 import { AccountDangerZone } from '@/components/dashboard/AccountDangerZone'
 import { UserPreferences } from '@/components/dashboard/UserPreferences'
 import { AuditLogTable } from '@/components/dashboard/AuditLogTable'
+import { ApiResilienceMetrics } from '@/components/dashboard/ApiResilienceMetrics'
 
 type Tab = 'account' | 'github' | 'billing' | 'notifications' | 'security'
 
@@ -73,7 +74,12 @@ export default function SettingsPage() {
 
                     {activeTab === 'github' && <OrganizationSelector />}
 
-                    {activeTab === 'security' && <AuditLogTable />}
+                    {activeTab === 'security' && (
+                        <div className="space-y-6">
+                            <ApiResilienceMetrics />
+                            <AuditLogTable />
+                        </div>
+                    )}
 
                     {activeTab === 'billing' && (
                         <Card className="bg-[#0d0d0d] border-[#333]">

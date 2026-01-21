@@ -45,7 +45,6 @@ mock.module('@/lib/github/issues', () => ({
 
 describe('Issues API Route', () => {
   beforeEach(() => {
-    mock.restore();
   });
 
   it('should return issues for specified repos', async () => {

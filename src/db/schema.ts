@@ -71,3 +71,21 @@ export const auditLogs = pgTable(
     index("idx_audit_logs_created_at").on(table.createdAt),
   ],
 );
+
+export const apiMetrics = pgTable(
+  "api_metrics",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id").notNull(),
+    endpoint: text("endpoint").notNull(),
+    status: integer("status").notNull(),
+    attempt: integer("attempt").notNull(),
+    waitTimeMs: integer("wait_time_ms").notNull(),
+    source: text("source").notNull(), // 'rate_limit', 'server_error', 'success'
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("idx_api_metrics_user_id").on(table.userId),
+    index("idx_api_metrics_created_at").on(table.createdAt),
+  ],
+);

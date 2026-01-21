@@ -8,6 +8,7 @@ export interface GitHubOwner {
   id: number;
   type: 'User' | 'Organization';
   avatar_url: string;
+  html_url?: string;
 }
 
 export interface GitHubPermissions {

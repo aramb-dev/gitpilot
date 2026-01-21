@@ -162,7 +162,8 @@ describe('fetchWithBackoff', () => {
     global.fetch = fetchMock as any;
 
     Math.random = () => 0.5;
-    const timeoutMock = mock((callback: TimerHandler) => {
+    Math.random = () => 0.5;
+    const timeoutMock = mock((callback: TimerHandler, ms?: number) => {
       if (typeof callback === 'function') {
         callback();
       }
@@ -203,7 +204,8 @@ describe('fetchWithBackoff', () => {
     const warnMock = mock(() => {});
     console.warn = warnMock as any;
 
-    const timeoutMock = mock((callback: TimerHandler) => {
+    Math.random = () => 0.5;
+    const timeoutMock = mock((callback: TimerHandler, ms?: number) => {
       if (typeof callback === 'function') {
         callback();
       }

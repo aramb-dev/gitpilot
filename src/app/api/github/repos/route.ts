@@ -6,6 +6,7 @@ import { ERROR_MESSAGES } from "@/lib/github/errors";
 import type { ApiResponse } from "@/types/api-errors";
 import type { Repository } from "@/types/repository";
 import { getCachedRepos } from "@/lib/github/repos-service";
+import { fetchWithBackoff, createGitHubHeaders } from "@/lib/github/client";
 
 export async function GET(req: NextRequest) {
   const session = (await getServerSession(authOptions)) as (Session & {
@@ -70,20 +71,17 @@ export async function DELETE(req: NextRequest) {
       );
     }
 
-    const headers = {
-      Accept: "application/vnd.github+json",
-      Authorization: `Bearer ${session.accessToken}`,
-      "X-GitHub-Api-Version": "2022-11-28",
-    };
+    const userId = (session.user as any)?.id ?? "anonymous";
+    const headers = createGitHubHeaders(session.accessToken);
 
     const results = await Promise.all(
       repos.map(async ({ owner, repo }: { owner: string; repo: string }) => {
         try {
-          const res = await fetch(`https://api.github.com/repos/${owner}/${repo}`, {
+          const res = await fetchWithBackoff(`https://api.github.com/repos/${owner}/${repo}`, {
             method: "DELETE",
             headers,
             cache: "no-store",
-          });
+          }, 3, userId);
 
           if (!res.ok) {
             const errorData = await res.json().catch(() => ({ message: "Failed to delete" }));
@@ -113,7 +111,6 @@ export async function DELETE(req: NextRequest) {
     const errors = results.filter((r) => r.status === "error");
 
     if (success.length > 0) {
-      const userId = (session.user as any)?.id ?? "anonymous";
       await import("@/db/cache").then(m => m.invalidateCacheByPrefix(userId, "repos:"));
     }
 

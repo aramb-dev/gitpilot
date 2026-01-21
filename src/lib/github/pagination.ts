@@ -15,6 +15,7 @@ export interface LinkHeaderUrls {
 export interface PaginatedFetchOptions {
   maxPages?: number;
   onPage?: (pageNumber: number, itemCount: number) => void;
+  userId?: string;
 }
 
 export interface PaginatedFetchResult<T> {
@@ -71,7 +72,7 @@ export async function fetchAllPages<T>(
   headers: HeadersInit,
   options: PaginatedFetchOptions = {}
 ): Promise<PaginatedFetchResult<T>> {
-  const { maxPages = 10, onPage } = options;
+  const { maxPages = 10, onPage, userId } = options;
   
   const allData: T[] = [];
   let currentUrl: string | undefined = initialUrl;
@@ -83,7 +84,7 @@ export async function fetchAllPages<T>(
     const response = await fetchWithBackoff(currentUrl, {
       headers,
       cache: 'no-store',
-    });
+    }, 3, userId);
 
     if (!response.ok) {
       if (isRateLimited(response)) {

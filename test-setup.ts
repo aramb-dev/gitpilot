@@ -61,51 +61,60 @@ global.localStorage = localStorageMock as any;
 // Mock database for tests that need it
 // This mock supports the drizzle ORM chaining pattern
 const createMockQuery = () => {
-  const query = {
-    from: mock(() => query),
-    where: mock(() => query),
-    values: mock(() => query),
-    returning: mock(() => query),
-    execute: mock(() => Promise.resolve([])),
-    orderBy: mock(() => query),
-    limit: mock(() => query),
-    offset: mock(() => query),
-    leftJoin: mock(() => query),
-    innerJoin: mock(() => query),
-    rightJoin: mock(() => query),
-    fullJoin: mock(() => query),
-    // Make it awaitable - resolves to empty array
-    then: mock((resolve: any) => resolve([])),
-    // Also support array methods directly
-    filter: mock(() => []),
-    map: mock(() => []),
-    forEach: mock(() => {}),
-    [Symbol.iterator]: function* () {},
-  };
+  const query: any = {};
+  
+  const methods = [
+    'from', 'where', 'values', 'returning', 'onConflictDoNothing', 
+    'onConflictDoUpdate', 'limit', 'offset', 'orderBy', 'set', 
+    'leftJoin', 'innerJoin', 'rightJoin', 'fullJoin'
+  ];
+  
+  methods.forEach(method => {
+    query[method] = mock(() => query);
+  });
+  
+  query.execute = mock(() => Promise.resolve([]));
+  query.then = mock((resolve: any) => {
+    if (typeof resolve === 'function') {
+      return Promise.resolve([]).then(resolve);
+    }
+    return Promise.resolve([]);
+  });
+  query.catch = mock((reject: any) => {
+    if (typeof reject === 'function') {
+      return Promise.resolve([]).catch(reject);
+    }
+    return Promise.resolve([]);
+  });
+  
+  // Also support array methods directly if awaited
+  query.filter = mock(() => []);
+  query.map = mock(() => []);
+  query.forEach = mock(() => { });
+  
   return query;
 };
 
-const createMockDelete = () => {
-  const del = {
-    where: mock(() => del),
-    returning: mock(() => del),
-    execute: mock(() => Promise.resolve()),
-    then: mock((resolve: any) => resolve()),
-  };
-  return del;
+const mockDb = {
+  select: mock(() => createMockQuery()),
+  insert: mock(() => createMockQuery()),
+  update: mock(() => createMockQuery()),
+  delete: mock(() => createMockQuery()),
+  query: {
+    findFirst: mock(() => Promise.resolve(null)),
+    findMany: mock(() => Promise.resolve([])),
+  },
 };
 
-mock.module("./src/db/index.ts", () => ({
-  db: {
-    insert: mock(() => ({
-      values: mock(() => ({
-        returning: mock(() => createMockQuery()),
-        onConflictDoNothing: mock(() => createMockQuery()),
-        execute: mock(() => Promise.resolve()),
-      })),
-    })),
-    select: mock(() => createMockQuery()),
-    update: mock(() => createMockQuery()),
-    delete: mock(() => createMockDelete()),
-  },
-}));
+// Apply mock to multiple possible import paths
+const dbPaths = [
+  "@/db",
+  "@/db/index",
+  "/Volumes/T5 EVOexFAT/GitHub/gitpilot/src/db/index.ts",
+];
+
+dbPaths.forEach(path => {
+  mock.module(path, () => ({
+    db: mockDb,
+  }));
+});

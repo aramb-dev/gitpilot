@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'bun:test';
-import { normalizeAccount } from './account';
 import type { GitHubUserProfile } from '@/types/account';
+import { normalizeAccount } from './account';
 
-const createMockGitHubProfile = (overrides: Partial<GitHubUserProfile> = {}): GitHubUserProfile => ({
+const createMockGitHubProfile = (
+  overrides: Partial<GitHubUserProfile> = {},
+): GitHubUserProfile => ({
   id: 12345,
   login: 'testuser',
   name: 'Test User',

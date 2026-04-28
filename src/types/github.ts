@@ -172,7 +172,7 @@ export interface GitHubPullRequest {
   author_association: string;
   auto_merge: any | null;
   draft: boolean;
-  
+
   // These are only available in single PR response or via separate fetch
   merged?: boolean;
   mergeable?: boolean;

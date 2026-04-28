@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
-import { ChevronDown, X, Check, Tag } from 'lucide-react';
+import { Check, ChevronDown, Tag, X } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 import type { IssueLabel } from '@/types/issue';
 
 interface LabelFilterProps {
@@ -32,7 +32,7 @@ export function LabelFilter({
   }, []);
 
   const filteredLabels = availableLabels.filter((label) =>
-    label.name.toLowerCase().includes(search.toLowerCase())
+    label.name.toLowerCase().includes(search.toLowerCase()),
   );
 
   const toggleLabel = (labelName: string) => {
@@ -55,9 +55,7 @@ export function LabelFilter({
       >
         <Tag className="w-3 h-3" />
         <span>
-          {selectedLabels.length === 0
-            ? 'LABELS'
-            : `[${selectedLabels.length}_LABELS_SELECTED]`}
+          {selectedLabels.length === 0 ? 'LABELS' : `[${selectedLabels.length}_LABELS_SELECTED]`}
         </span>
         <ChevronDown className={`w-3 h-3 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>
@@ -95,9 +93,7 @@ export function LabelFilter({
                   >
                     <div
                       className={`w-3.5 h-3.5 border flex items-center justify-center ${
-                        isSelected
-                          ? 'bg-[#00ff00] border-[#00ff00]'
-                          : 'border-[#333]'
+                        isSelected ? 'bg-[#00ff00] border-[#00ff00]' : 'border-[#333]'
                       }`}
                     >
                       {isSelected && <Check className="w-2.5 h-2.5 text-black font-black" />}

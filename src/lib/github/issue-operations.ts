@@ -8,8 +8,7 @@ import type {
   BulkOperationSummary,
   IssueIdentifier,
 } from '@/types/issue';
-import { GITHUB_API_BASE, fetchWithBackoff } from './client';
-
+import { fetchWithBackoff, GITHUB_API_BASE } from './client';
 
 /**
  * Closes an issue with an optional comment.
@@ -19,7 +18,7 @@ export async function closeIssue(
   owner: string,
   repo: string,
   issueNumber: number,
-  comment?: string
+  comment?: string,
 ): Promise<void> {
   // Add comment if provided
   if (comment) {
@@ -33,7 +32,7 @@ export async function closeIssue(
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ body: comment }),
-      }
+      },
     );
   }
 
@@ -48,7 +47,7 @@ export async function closeIssue(
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ state: 'closed' }),
-    }
+    },
   );
 
   if (!response.ok) {
@@ -64,7 +63,7 @@ export async function reopenIssue(
   accessToken: string,
   owner: string,
   repo: string,
-  issueNumber: number
+  issueNumber: number,
 ): Promise<void> {
   const response = await fetchWithBackoff(
     `${GITHUB_API_BASE}/repos/${owner}/${repo}/issues/${issueNumber}`,
@@ -76,7 +75,7 @@ export async function reopenIssue(
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ state: 'open' }),
-    }
+    },
   );
 
   if (!response.ok) {
@@ -93,7 +92,7 @@ export async function addLabels(
   owner: string,
   repo: string,
   issueNumber: number,
-  labels: string[]
+  labels: string[],
 ): Promise<void> {
   const response = await fetchWithBackoff(
     `${GITHUB_API_BASE}/repos/${owner}/${repo}/issues/${issueNumber}/labels`,
@@ -105,7 +104,7 @@ export async function addLabels(
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ labels }),
-    }
+    },
   );
 
   if (!response.ok) {
@@ -122,7 +121,7 @@ export async function removeLabel(
   owner: string,
   repo: string,
   issueNumber: number,
-  label: string
+  label: string,
 ): Promise<void> {
   const response = await fetchWithBackoff(
     `${GITHUB_API_BASE}/repos/${owner}/${repo}/issues/${issueNumber}/labels/${encodeURIComponent(label)}`,
@@ -132,7 +131,7 @@ export async function removeLabel(
         Authorization: `Bearer ${accessToken}`,
         Accept: 'application/vnd.github.v3+json',
       },
-    }
+    },
   );
 
   // 404 is acceptable - label might not exist on issue
@@ -150,7 +149,7 @@ export async function setLabels(
   owner: string,
   repo: string,
   issueNumber: number,
-  labels: string[]
+  labels: string[],
 ): Promise<void> {
   const response = await fetchWithBackoff(
     `${GITHUB_API_BASE}/repos/${owner}/${repo}/issues/${issueNumber}/labels`,
@@ -162,7 +161,7 @@ export async function setLabels(
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ labels }),
-    }
+    },
   );
 
   if (!response.ok) {
@@ -179,7 +178,7 @@ export async function addAssignees(
   owner: string,
   repo: string,
   issueNumber: number,
-  assignees: string[]
+  assignees: string[],
 ): Promise<void> {
   const response = await fetchWithBackoff(
     `${GITHUB_API_BASE}/repos/${owner}/${repo}/issues/${issueNumber}/assignees`,
@@ -191,7 +190,7 @@ export async function addAssignees(
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ assignees }),
-    }
+    },
   );
 
   if (!response.ok) {
@@ -208,7 +207,7 @@ export async function removeAssignees(
   owner: string,
   repo: string,
   issueNumber: number,
-  assignees: string[]
+  assignees: string[],
 ): Promise<void> {
   const response = await fetchWithBackoff(
     `${GITHUB_API_BASE}/repos/${owner}/${repo}/issues/${issueNumber}/assignees`,
@@ -220,7 +219,7 @@ export async function removeAssignees(
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ assignees }),
-    }
+    },
   );
 
   if (!response.ok) {
@@ -237,7 +236,7 @@ export async function lockIssue(
   owner: string,
   repo: string,
   issueNumber: number,
-  reason?: 'off-topic' | 'too heated' | 'resolved' | 'spam'
+  reason?: 'off-topic' | 'too heated' | 'resolved' | 'spam',
 ): Promise<void> {
   const response = await fetchWithBackoff(
     `${GITHUB_API_BASE}/repos/${owner}/${repo}/issues/${issueNumber}/lock`,
@@ -249,7 +248,7 @@ export async function lockIssue(
         'Content-Type': 'application/json',
       },
       body: reason ? JSON.stringify({ lock_reason: reason }) : undefined,
-    }
+    },
   );
 
   if (!response.ok) {
@@ -265,7 +264,7 @@ export async function unlockIssue(
   accessToken: string,
   owner: string,
   repo: string,
-  issueNumber: number
+  issueNumber: number,
 ): Promise<void> {
   const response = await fetchWithBackoff(
     `${GITHUB_API_BASE}/repos/${owner}/${repo}/issues/${issueNumber}/lock`,
@@ -275,7 +274,7 @@ export async function unlockIssue(
         Authorization: `Bearer ${accessToken}`,
         Accept: 'application/vnd.github.v3+json',
       },
-    }
+    },
   );
 
   if (!response.ok) {
@@ -290,7 +289,7 @@ export async function unlockIssue(
 async function executeAction(
   accessToken: string,
   issue: IssueIdentifier,
-  action: BulkIssueAction
+  action: BulkIssueAction,
 ): Promise<void> {
   const { owner, repo, number } = issue;
 
@@ -334,7 +333,7 @@ export async function executeBulkAction(
   accessToken: string,
   issues: IssueIdentifier[],
   action: BulkIssueAction,
-  concurrencyLimit: number = 5
+  concurrencyLimit: number = 5,
 ): Promise<BulkOperationSummary> {
   const results: BulkOperationResult[] = [];
 
@@ -353,7 +352,7 @@ export async function executeBulkAction(
             error: error instanceof Error ? error.message : 'Unknown error',
           };
         }
-      })
+      }),
     );
     results.push(...batchResults);
   }

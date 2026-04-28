@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import type { PullRequest, PRFilters, PRsListResponse } from '@/types/pull-request';
+import { useCallback, useEffect, useState } from 'react';
+import type { PRFilters, PRsListResponse, PullRequest } from '@/types/pull-request';
 import { usePreferences } from './usePreferences';
 
 interface UsePullRequestsReturn {
@@ -40,11 +40,11 @@ export function usePullRequests(filters: PRFilters): UsePullRequestsReturn {
         const params = new URLSearchParams();
         params.set('repos', filters.repos.join(','));
         params.set('page', String(page));
-        
+
         if (refresh) {
           params.set('refresh', 'true');
         }
-        
+
         if (preferences?.itemsPerPage) {
           params.set('per_page', String(preferences.itemsPerPage));
         }
@@ -77,7 +77,7 @@ export function usePullRequests(filters: PRFilters): UsePullRequestsReturn {
         setIsLoading(false);
       }
     },
-    [filters, preferences]
+    [filters, preferences],
   );
 
   useEffect(() => {
@@ -92,7 +92,7 @@ export function usePullRequests(filters: PRFilters): UsePullRequestsReturn {
     (page: number) => {
       fetchPullRequests(page);
     },
-    [fetchPullRequests]
+    [fetchPullRequests],
   );
 
   return {

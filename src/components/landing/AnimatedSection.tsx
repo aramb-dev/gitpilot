@@ -1,16 +1,16 @@
-'use client'
+'use client';
 
-import { ReactNode } from 'react'
-import { useScrollReveal } from '@/hooks/useScrollReveal'
+import type { ReactNode } from 'react';
+import { useScrollReveal } from '@/hooks/useScrollReveal';
 
-type AnimationType = 'fade-up' | 'fade-in' | 'slide-left' | 'slide-right' | 'terminal-glitch'
+type AnimationType = 'fade-up' | 'fade-in' | 'slide-left' | 'slide-right' | 'terminal-glitch';
 
 interface AnimatedSectionProps {
-  children: ReactNode
-  animation?: AnimationType
-  delay?: number
-  className?: string
-  threshold?: number
+  children: ReactNode;
+  animation?: AnimationType;
+  delay?: number;
+  className?: string;
+  threshold?: number;
 }
 
 const animationClasses: Record<AnimationType, { hidden: string; visible: string }> = {
@@ -34,7 +34,7 @@ const animationClasses: Record<AnimationType, { hidden: string; visible: string 
     hidden: 'opacity-0 blur-sm',
     visible: 'opacity-100 blur-0',
   },
-}
+};
 
 export function AnimatedSection({
   children,
@@ -43,8 +43,8 @@ export function AnimatedSection({
   className = '',
   threshold = 0.1,
 }: AnimatedSectionProps) {
-  const [ref, isVisible] = useScrollReveal<HTMLDivElement>({ threshold })
-  const { hidden, visible } = animationClasses[animation]
+  const [ref, isVisible] = useScrollReveal<HTMLDivElement>({ threshold });
+  const { hidden, visible } = animationClasses[animation];
 
   return (
     <div
@@ -56,17 +56,17 @@ export function AnimatedSection({
     >
       {children}
     </div>
-  )
+  );
 }
 
 interface AnimatedTextProps {
-  children: ReactNode
-  delay?: number
-  className?: string
+  children: ReactNode;
+  delay?: number;
+  className?: string;
 }
 
 export function AnimatedText({ children, delay = 0, className = '' }: AnimatedTextProps) {
-  const [ref, isVisible] = useScrollReveal<HTMLSpanElement>()
+  const [ref, isVisible] = useScrollReveal<HTMLSpanElement>();
 
   return (
     <span
@@ -78,5 +78,5 @@ export function AnimatedText({ children, delay = 0, className = '' }: AnimatedTe
     >
       {children}
     </span>
-  )
+  );
 }

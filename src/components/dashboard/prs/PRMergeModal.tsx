@@ -1,10 +1,10 @@
 'use client';
 
+import { GitCommit, GitMerge, GitPullRequest } from 'lucide-react';
 import { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { GitPullRequest, GitMerge, GitCommit } from 'lucide-react';
 
 interface PRMergeModalProps {
   isOpen: boolean;
@@ -34,23 +34,27 @@ export function PRMergeModal({
         <DialogHeader>
           <DialogTitle className="text-xl font-bold flex items-center gap-2">
             <GitPullRequest className="w-5 h-5 text-purple-500" />
-            // BULK_MERGE
+            {/* BULK_MERGE */}
           </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-6 py-4">
           <div className="p-3 bg-purple-500/5 border border-purple-500/20 text-sm text-purple-200">
-            &gt; merging <span className="text-white font-bold">{count}</span> pull request{count !== 1 ? 's' : ''}.
+            &gt; merging <span className="text-white font-bold">{count}</span> pull request
+            {count !== 1 ? 's' : ''}.
           </div>
 
           <div className="space-y-3">
-            <label className="text-xs text-[#666] uppercase tracking-widest block">Merge Method</label>
+            <label className="text-xs text-[#666] uppercase tracking-widest block">
+              Merge Method
+            </label>
             <div className="grid grid-cols-3 gap-2">
               <button
+                type="button"
                 onClick={() => setMergeMethod('merge')}
                 className={`px-3 py-2 text-xs border transition-all flex flex-col items-center gap-2 ${
-                  mergeMethod === 'merge' 
-                    ? 'bg-[#00ff00]/10 border-[#00ff00] text-[#00ff00]' 
+                  mergeMethod === 'merge'
+                    ? 'bg-[#00ff00]/10 border-[#00ff00] text-[#00ff00]'
                     : 'bg-[#1a1a1a] border-[#333] text-[#666] hover:border-[#444]'
                 }`}
               >
@@ -58,10 +62,11 @@ export function PRMergeModal({
                 merge
               </button>
               <button
+                type="button"
                 onClick={() => setMergeMethod('squash')}
                 className={`px-3 py-2 text-xs border transition-all flex flex-col items-center gap-2 ${
-                  mergeMethod === 'squash' 
-                    ? 'bg-[#00ff00]/10 border-[#00ff00] text-[#00ff00]' 
+                  mergeMethod === 'squash'
+                    ? 'bg-[#00ff00]/10 border-[#00ff00] text-[#00ff00]'
                     : 'bg-[#1a1a1a] border-[#333] text-[#666] hover:border-[#444]'
                 }`}
               >
@@ -69,10 +74,11 @@ export function PRMergeModal({
                 squash
               </button>
               <button
+                type="button"
                 onClick={() => setMergeMethod('rebase')}
                 className={`px-3 py-2 text-xs border transition-all flex flex-col items-center gap-2 ${
-                  mergeMethod === 'rebase' 
-                    ? 'bg-[#00ff00]/10 border-[#00ff00] text-[#00ff00]' 
+                  mergeMethod === 'rebase'
+                    ? 'bg-[#00ff00]/10 border-[#00ff00] text-[#00ff00]'
                     : 'bg-[#1a1a1a] border-[#333] text-[#666] hover:border-[#444]'
                 }`}
               >
@@ -84,8 +90,14 @@ export function PRMergeModal({
 
           {mergeMethod !== 'rebase' && (
             <div className="space-y-3">
-              <label className="text-xs text-[#666] uppercase tracking-widest block">Custom Commit Message (Optional)</label>
+              <label 
+                htmlFor="bulk-merge-message"
+                className="text-xs text-[#666] uppercase tracking-widest block"
+              >
+                Custom Commit Message (Optional)
+              </label>
               <Input
+                id="bulk-merge-message"
                 value={commitMessage}
                 onChange={(e) => setCommitMessage(e.target.value)}
                 placeholder="e.g. bulk merged by gitpilot"

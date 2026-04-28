@@ -2,7 +2,7 @@
  * Organization access status detection utilities.
  */
 
-import type { OrganizationAccess, OrgAccessStatus } from '@/types/account';
+import type { OrgAccessStatus, OrganizationAccess } from '@/types/account';
 import { createGitHubHeaders } from './client';
 
 const MAX_CONCURRENT_STATUS_CHECKS = 5;
@@ -22,7 +22,7 @@ interface GitHubOrg {
  */
 export async function detectOrgAccessStatus(
   accessToken: string,
-  org: GitHubOrg
+  org: GitHubOrg,
 ): Promise<OrganizationAccess> {
   const headers = createGitHubHeaders(accessToken);
   const baseAccess: Omit<OrganizationAccess, 'status' | 'statusMessage'> = {
@@ -36,14 +36,14 @@ export async function detectOrgAccessStatus(
     // Try to fetch org repos to verify full access
     const response = await fetch(
       `https://api.github.com/orgs/${encodeURIComponent(org.login)}/repos?per_page=1`,
-      { headers, cache: 'no-store' }
+      { headers, cache: 'no-store' },
     );
 
     if (response.ok) {
       // Try to get membership info for role
       const membershipRes = await fetch(
         `https://api.github.com/user/memberships/orgs/${encodeURIComponent(org.login)}`,
-        { headers, cache: 'no-store' }
+        { headers, cache: 'no-store' },
       );
 
       let role: OrganizationAccess['role'];
@@ -68,7 +68,8 @@ export async function detectOrgAccessStatus(
       return {
         ...baseAccess,
         status: 'sso_required',
-        statusMessage: 'SSO authorization required. Please authorize GitPilot for this organization.',
+        statusMessage:
+          'SSO authorization required. Please authorize GitPilot for this organization.',
       };
     }
 
@@ -103,7 +104,7 @@ export async function detectOrgAccessStatus(
  */
 export async function detectAllOrgStatuses(
   accessToken: string,
-  orgs: GitHubOrg[]
+  orgs: GitHubOrg[],
 ): Promise<OrganizationAccess[]> {
   const results: OrganizationAccess[] = [];
 
@@ -111,7 +112,7 @@ export async function detectAllOrgStatuses(
   for (let i = 0; i < orgs.length; i += MAX_CONCURRENT_STATUS_CHECKS) {
     const batch = orgs.slice(i, i + MAX_CONCURRENT_STATUS_CHECKS);
     const batchResults = await Promise.all(
-      batch.map((org) => detectOrgAccessStatus(accessToken, org))
+      batch.map((org) => detectOrgAccessStatus(accessToken, org)),
     );
     results.push(...batchResults);
   }

@@ -48,6 +48,8 @@
 - [ ] **Enhanced Component Tests**:
   - [x] `OrganizationSelector.test.tsx` - Added fetch/preferences rendering, empty state, save flow, reconnect coverage
   - [x] `RepositoriesPage.integration.test.tsx` - Added fetch, search/filter, sorting, pagination, preference filtering, and bulk action coverage
+  - [x] `src/components/dashboard/issues/IssuesPageClient.test.tsx` - fetch render, search filter, bulk actions, loading/error/empty states
+  - [x] `src/components/dashboard/prs/PRsPageClient.test.tsx` - fetch render, search filter, bulk actions, merge modal trigger, loading/error/empty states
 
 ---
 

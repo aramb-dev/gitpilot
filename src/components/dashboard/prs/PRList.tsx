@@ -9,13 +9,7 @@ interface PRListProps {
   onViewPR: (pr: PullRequest) => void;
 }
 
-export function PRList({
-  prs,
-  selectedPRs,
-  onSelectPR,
-  onSelectAll,
-  onViewPR,
-}: PRListProps) {
+export function PRList({ prs, selectedPRs, onSelectPR, onSelectAll, onViewPR }: PRListProps) {
   const allSelected = prs.length > 0 && prs.every((pr) => selectedPRs.has(String(pr.id)));
 
   return (

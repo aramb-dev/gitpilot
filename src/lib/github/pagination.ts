@@ -3,7 +3,7 @@
  * Handles Link header parsing and paginated fetching.
  */
 
-import { isRateLimited, parseRateLimitHeaders, fetchWithBackoff } from './client';
+import { fetchWithBackoff, isRateLimited, parseRateLimitHeaders } from './client';
 
 export interface LinkHeaderUrls {
   next?: string;
@@ -29,7 +29,7 @@ export interface PaginatedFetchResult<T> {
  * Parses GitHub's Link header into individual URLs.
  * @param linkHeader - The Link header value from a GitHub API response
  * @returns Object with URLs for next, prev, first, last (if present)
- * 
+ *
  * @example
  * // Input: '<https://api.github.com/user/repos?page=2>; rel="next", <https://api.github.com/user/repos?page=5>; rel="last"'
  * // Output: { next: 'https://api.github.com/user/repos?page=2', last: 'https://api.github.com/user/repos?page=5' }
@@ -53,9 +53,7 @@ export function parseLinkHeader(linkHeader: string | null): LinkHeaderUrls {
         }
       }
     }
-  } catch {
-    console.warn('Failed to parse Link header:', linkHeader);
-  }
+  } catch {}
 
   return result;
 }
@@ -70,10 +68,10 @@ export function parseLinkHeader(linkHeader: string | null): LinkHeaderUrls {
 export async function fetchAllPages<T>(
   initialUrl: string,
   headers: HeadersInit,
-  options: PaginatedFetchOptions = {}
+  options: PaginatedFetchOptions = {},
 ): Promise<PaginatedFetchResult<T>> {
   const { maxPages = 10, onPage, userId } = options;
-  
+
   const allData: T[] = [];
   let currentUrl: string | undefined = initialUrl;
   let pagesFetched = 0;
@@ -81,25 +79,27 @@ export async function fetchAllPages<T>(
   let rateLimited = false;
 
   while (currentUrl && pagesFetched < maxPages) {
-    const response = await fetchWithBackoff(currentUrl, {
-      headers,
-      cache: 'no-store',
-    }, 3, userId);
+    const response = await fetchWithBackoff(
+      currentUrl,
+      {
+        headers,
+        cache: 'no-store',
+      },
+      3,
+      userId,
+    );
 
     if (!response.ok) {
       if (isRateLimited(response)) {
         rateLimited = true;
-        const rateLimitInfo = parseRateLimitHeaders(response);
-        console.warn(
-          `Rate limited during pagination. Reset at: ${rateLimitInfo?.reset}`
-        );
+        const _rateLimitInfo = parseRateLimitHeaders(response);
         break;
       }
       throw new Error(`GitHub API error: ${response.status} ${response.statusText}`);
     }
 
     const data = await response.json();
-    
+
     if (Array.isArray(data)) {
       allData.push(...data);
       pagesFetched++;
@@ -113,7 +113,7 @@ export async function fetchAllPages<T>(
 
     const linkHeader = response.headers.get('Link');
     const links = parseLinkHeader(linkHeader);
-    
+
     if (links.next) {
       currentUrl = links.next;
       hasMore = true;

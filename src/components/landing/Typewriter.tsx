@@ -1,14 +1,14 @@
-'use client'
+'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 interface TypewriterProps {
-  text: string
-  delay?: number
-  onComplete?: () => void
-  className?: string
-  cursor?: boolean
-  startDelay?: number
+  text: string;
+  delay?: number;
+  onComplete?: () => void;
+  className?: string;
+  cursor?: boolean;
+  startDelay?: number;
 }
 
 export function Typewriter({
@@ -19,38 +19,38 @@ export function Typewriter({
   cursor = true,
   startDelay = 0,
 }: TypewriterProps) {
-  const [displayText, setDisplayText] = useState('')
-  const [started, setStarted] = useState(false)
-  const [complete, setComplete] = useState(false)
-  const onCompleteRef = useRef(onComplete)
-  
+  const [displayText, setDisplayText] = useState('');
+  const [started, setStarted] = useState(false);
+  const [complete, setComplete] = useState(false);
+  const onCompleteRef = useRef(onComplete);
+
   useEffect(() => {
-    onCompleteRef.current = onComplete
-  }, [onComplete])
+    onCompleteRef.current = onComplete;
+  }, [onComplete]);
 
   useEffect(() => {
     const startTimeout = setTimeout(() => {
-      setStarted(true)
-    }, startDelay)
+      setStarted(true);
+    }, startDelay);
 
-    return () => clearTimeout(startTimeout)
-  }, [startDelay])
+    return () => clearTimeout(startTimeout);
+  }, [startDelay]);
 
   useEffect(() => {
-    if (!started || complete) return
+    if (!started || complete) return;
 
     if (displayText.length < text.length) {
       const timeout = setTimeout(() => {
-        setDisplayText(text.slice(0, displayText.length + 1))
-      }, delay)
-      return () => clearTimeout(timeout)
+        setDisplayText(text.slice(0, displayText.length + 1));
+      }, delay);
+      return () => clearTimeout(timeout);
     } else if (!complete) {
-      setComplete(true)
-      onCompleteRef.current?.()
+      setComplete(true);
+      onCompleteRef.current?.();
     }
-  }, [displayText, text, delay, started, complete])
+  }, [displayText, text, delay, started, complete]);
 
-  if (!started) return null
+  if (!started) return null;
 
   return (
     <span className={className}>
@@ -63,17 +63,17 @@ export function Typewriter({
         />
       )}
     </span>
-  )
+  );
 }
 
 interface TypewriterLinesProps {
-  lines: string[]
-  lineDelay?: number
-  typeDelay?: number
-  onComplete?: () => void
-  className?: string
-  lineClassName?: string
-  startDelay?: number
+  lines: string[];
+  lineDelay?: number;
+  typeDelay?: number;
+  onComplete?: () => void;
+  className?: string;
+  lineClassName?: string;
+  startDelay?: number;
 }
 
 export function TypewriterLines({
@@ -85,43 +85,43 @@ export function TypewriterLines({
   lineClassName = '',
   startDelay = 0,
 }: TypewriterLinesProps) {
-  const [currentLineIndex, setCurrentLineIndex] = useState(-1)
-  const [completedLines, setCompletedLines] = useState<string[]>([])
-  const [isTyping, setIsTyping] = useState(false)
-  const hasStarted = useRef(false)
-  const onCompleteRef = useRef(onComplete)
+  const [currentLineIndex, setCurrentLineIndex] = useState(-1);
+  const [completedLines, setCompletedLines] = useState<string[]>([]);
+  const [isTyping, setIsTyping] = useState(false);
+  const hasStarted = useRef(false);
+  const onCompleteRef = useRef(onComplete);
 
   useEffect(() => {
-    onCompleteRef.current = onComplete
-  }, [onComplete])
+    onCompleteRef.current = onComplete;
+  }, [onComplete]);
 
   useEffect(() => {
-    if (hasStarted.current) return
-    hasStarted.current = true
-    
+    if (hasStarted.current) return;
+    hasStarted.current = true;
+
     const timeout = setTimeout(() => {
-      setCurrentLineIndex(0)
-      setIsTyping(true)
-    }, startDelay)
-    
-    return () => clearTimeout(timeout)
-  }, [startDelay])
+      setCurrentLineIndex(0);
+      setIsTyping(true);
+    }, startDelay);
+
+    return () => clearTimeout(timeout);
+  }, [startDelay]);
 
   const handleLineComplete = useCallback(() => {
-    const currentLine = lines[currentLineIndex]
-    
-    setCompletedLines(prev => [...prev, currentLine])
-    setIsTyping(false)
-    
+    const currentLine = lines[currentLineIndex];
+
+    setCompletedLines((prev) => [...prev, currentLine]);
+    setIsTyping(false);
+
     if (currentLineIndex < lines.length - 1) {
       setTimeout(() => {
-        setCurrentLineIndex(prev => prev + 1)
-        setIsTyping(true)
-      }, lineDelay)
+        setCurrentLineIndex((prev) => prev + 1);
+        setIsTyping(true);
+      }, lineDelay);
     } else {
-      onCompleteRef.current?.()
+      onCompleteRef.current?.();
     }
-  }, [currentLineIndex, lines, lineDelay])
+  }, [currentLineIndex, lines, lineDelay]);
 
   return (
     <div className={className}>
@@ -141,5 +141,5 @@ export function TypewriterLines({
         />
       )}
     </div>
-  )
+  );
 }

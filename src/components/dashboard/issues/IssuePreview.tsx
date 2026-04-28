@@ -1,20 +1,20 @@
 'use client';
 
-import { useEffect } from 'react';
-import { formatDistanceToNow, format } from 'date-fns';
+import { format, formatDistanceToNow } from 'date-fns';
 import {
-  X,
-  ExternalLink,
-  MessageSquare,
   Calendar,
   Clock,
-  User,
-  Tag,
-  Milestone,
+  ExternalLink,
   GitPullRequest,
+  MessageSquare,
+  Milestone,
+  Tag,
+  User,
+  X,
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { useEffect } from 'react';
 import { MarkdownRenderer } from '@/components/MarkdownRenderer';
+import { Button } from '@/components/ui/button';
 import type { Issue } from '@/types/issue';
 
 interface IssuePreviewProps {
@@ -54,10 +54,7 @@ export function IssuePreview({ issue, onClose }: IssuePreviewProps) {
   return (
     <>
       {/* Backdrop */}
-      <div
-        className="fixed inset-0 bg-black/80 backdrop-blur-sm z-40"
-        onClick={onClose}
-      />
+      <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-40" onClick={onClose} />
 
       {/* Slide-over panel */}
       <div className="fixed inset-y-0 right-0 w-full max-w-xl bg-[#0a0a0a] border-l border-[#333] z-50 flex flex-col shadow-2xl font-mono">
@@ -133,10 +130,7 @@ export function IssuePreview({ issue, onClose }: IssuePreviewProps) {
             {/* Body */}
             <div className="prose prose-invert prose-sm max-w-none mb-8 bg-[#0d0d0d] p-4 border border-[#333]">
               {issue.body ? (
-                <MarkdownRenderer 
-                  content={issue.body}
-                  className="text-[#888] text-xs"
-                />
+                <MarkdownRenderer content={issue.body} className="text-[#888] text-xs" />
               ) : (
                 <p className="text-[#444] italic font-mono text-xs">no_description_provided</p>
               )}

@@ -1,7 +1,7 @@
 'use client';
 
 import { formatDistanceToNow } from 'date-fns';
-import { MessageSquare, GitPullRequest } from 'lucide-react';
+import { GitPullRequest, MessageSquare } from 'lucide-react';
 import type { Issue } from '@/types/issue';
 
 interface IssueRowProps {
@@ -44,9 +44,7 @@ export function IssueRow({ issue, isSelected, onSelect, onClick }: IssueRowProps
       <div className="pt-0.5">
         <div
           className={`w-5 h-5 border border-[#333] flex items-center justify-center ${
-            issue.state === 'open'
-              ? 'text-[#00ff00]'
-              : 'text-purple-500'
+            issue.state === 'open' ? 'text-[#00ff00]' : 'text-purple-500'
           }`}
         >
           <GitPullRequest className="w-4 h-4" />
@@ -56,9 +54,7 @@ export function IssueRow({ issue, isSelected, onSelect, onClick }: IssueRowProps
       {/* Main Content */}
       <div className="flex-1 min-w-0">
         <div className="flex items-start gap-2">
-          <h3 className="text-white font-medium hover:text-[#00ff00] truncate">
-            {issue.title}
-          </h3>
+          <h3 className="text-white font-medium hover:text-[#00ff00] truncate">{issue.title}</h3>
         </div>
 
         {/* Labels */}

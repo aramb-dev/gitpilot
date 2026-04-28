@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useCallback, useRef } from 'react';
-import type { PullRequest, BulkPRAction } from '@/types/pull-request';
+import { useCallback, useRef, useState } from 'react';
+import type { BulkPRAction, PullRequest } from '@/types/pull-request';
 
 export interface BulkPROperationState {
   isExecuting: boolean;
@@ -46,7 +46,7 @@ export function useBulkPRActions(onSuccess?: () => void): UseBulkPRActionsReturn
   const cancelOperation = useCallback(() => {
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
-      setState(s => ({ ...s, isExecuting: false, isCompleted: true }));
+      setState((s) => ({ ...s, isExecuting: false, isCompleted: true }));
     }
   }, []);
 
@@ -54,7 +54,7 @@ export function useBulkPRActions(onSuccess?: () => void): UseBulkPRActionsReturn
     async (prs: PullRequest[], action: BulkPRAction): Promise<void> => {
       const total = prs.length;
       setState({ ...INITIAL_STATE, isExecuting: true, total });
-      
+
       lastParamsRef.current = { prs, action };
 
       abortControllerRef.current = new AbortController();
@@ -69,7 +69,7 @@ export function useBulkPRActions(onSuccess?: () => void): UseBulkPRActionsReturn
           if (abortControllerRef.current.signal.aborted) break;
 
           const batch = prs.slice(i, i + BATCH_SIZE);
-          const prParams = batch.map(pr => ({
+          const prParams = batch.map((pr) => ({
             owner: pr.repository.owner,
             repo: pr.repository.name,
             prNumber: pr.number,
@@ -89,26 +89,37 @@ export function useBulkPRActions(onSuccess?: () => void): UseBulkPRActionsReturn
 
           if (!response.ok) {
             const errorMsg = data.error || 'Batch operation failed';
-            batch.forEach(pr => {
-              allResults.push({ pr: `${pr.repository.fullName}#${pr.number}`, success: false, error: errorMsg });
+            batch.forEach((pr) => {
+              allResults.push({
+                pr: `${pr.repository.fullName}#${pr.number}`,
+                success: false,
+                error: errorMsg,
+              });
             });
             failedCount += batch.length;
           } else {
             if (data.success) {
               data.success.forEach((s: any) => {
-                allResults.push({ pr: s.full_name || `${s.owner}/${s.repo}#${s.number}`, success: true });
+                allResults.push({
+                  pr: s.full_name || `${s.owner}/${s.repo}#${s.number}`,
+                  success: true,
+                });
                 succeededCount++;
               });
             }
             if (data.errors) {
               data.errors.forEach((e: any) => {
-                allResults.push({ pr: e.pr || `${e.owner}/${e.repo}#${e.prNumber}`, success: false, error: e.error });
+                allResults.push({
+                  pr: e.pr || `${e.owner}/${e.repo}#${e.prNumber}`,
+                  success: false,
+                  error: e.error,
+                });
                 failedCount++;
               });
             }
           }
 
-          setState(prev => ({
+          setState((prev) => ({
             ...prev,
             processed: Math.min(i + BATCH_SIZE, total),
             succeeded: succeededCount,
@@ -117,38 +128,35 @@ export function useBulkPRActions(onSuccess?: () => void): UseBulkPRActionsReturn
           }));
         }
 
-        setState(prev => ({ ...prev, isExecuting: false, isCompleted: true }));
+        setState((prev) => ({ ...prev, isExecuting: false, isCompleted: true }));
         if (succeededCount > 0) {
           onSuccess?.();
         }
       } catch (err) {
         if (err instanceof Error && err.name === 'AbortError') return;
-        setState(prev => ({ ...prev, isExecuting: false, isCompleted: true }));
+        setState((prev) => ({ ...prev, isExecuting: false, isCompleted: true }));
       } finally {
         abortControllerRef.current = null;
       }
     },
-    [onSuccess]
+    [onSuccess],
   );
 
   const retryFailed = useCallback(() => {
     if (!lastParamsRef.current) return;
-    
+
     const { prs, action } = lastParamsRef.current;
-    
+
     // Identify failed PRs
-    const failedIds = new Set(
-      state.results
-        .filter(r => !r.success)
-        .map(r => r.pr)
-    );
+    const failedIds = new Set(state.results.filter((r) => !r.success).map((r) => r.pr));
 
     if (failedIds.size === 0) return;
 
     // Filter original PRs
-    const failedPRs = prs.filter(pr => 
-      failedIds.has(`${pr.repository.fullName}#${pr.number}`) ||
-      failedIds.has(`${pr.repository.owner}/${pr.repository.name}#${pr.number}`)
+    const failedPRs = prs.filter(
+      (pr) =>
+        failedIds.has(`${pr.repository.fullName}#${pr.number}`) ||
+        failedIds.has(`${pr.repository.owner}/${pr.repository.name}#${pr.number}`),
     );
 
     if (failedPRs.length > 0) {

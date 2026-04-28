@@ -1,10 +1,10 @@
 'use client';
 
+import { MessageSquare, XCircle } from 'lucide-react';
 import { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { XCircle, MessageSquare } from 'lucide-react';
 
 interface CloseIssueModalProps {
   isOpen: boolean;
@@ -39,11 +39,14 @@ export function CloseIssueModal({
 
         <div className="space-y-6 py-4">
           <div className="p-3 bg-red-500/5 border border-red-500/20 text-sm text-red-200">
-            &gt; closing <span className="text-white font-bold">{count}</span> issue{count !== 1 ? 's' : ''}.
+            &gt; closing <span className="text-white font-bold">{count}</span> issue
+            {count !== 1 ? 's' : ''}.
           </div>
 
           <div className="space-y-3">
-            <label className="text-xs text-[#666] uppercase tracking-widest block">Add a closing comment (Optional)</label>
+            <label className="text-xs text-[#666] uppercase tracking-widest block">
+              Add a closing comment (Optional)
+            </label>
             <div className="relative">
               <MessageSquare className="absolute left-3 top-3 w-4 h-4 text-[#444]" />
               <textarea

@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
-import { Settings, LogOut, ChevronDown, User } from 'lucide-react';
+import { ChevronDown, LogOut, Settings, User } from 'lucide-react';
 import Link from 'next/link';
+import { useSession } from 'next-auth/react';
+import { useEffect, useRef, useState } from 'react';
 import { useSignOut } from '@/hooks/useSignOut';
 
 export function AccountDropdown() {
@@ -61,7 +61,9 @@ export function AccountDropdown() {
             <User className="w-4 h-4 text-[#666]" />
           </div>
         )}
-        <ChevronDown className={`w-3 h-3 text-[#666] transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        <ChevronDown
+          className={`w-3 h-3 text-[#666] transition-transform ${isOpen ? 'rotate-180' : ''}`}
+        />
       </button>
 
       {isOpen && (

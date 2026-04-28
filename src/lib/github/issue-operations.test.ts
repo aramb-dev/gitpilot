@@ -1,24 +1,23 @@
-import { describe, it, expect, mock, beforeEach } from 'bun:test';
+import { beforeEach, describe, expect, it, mock } from 'bun:test';
 import {
-  closeIssue,
-  reopenIssue,
-  addLabels,
-  removeLabel,
-  setLabels,
   addAssignees,
-  removeAssignees,
-  lockIssue,
-  unlockIssue,
+  addLabels,
+  closeIssue,
   executeBulkAction,
+  lockIssue,
+  removeAssignees,
+  removeLabel,
+  reopenIssue,
+  setLabels,
+  unlockIssue,
 } from './issue-operations';
 
 describe('closeIssue', () => {
-  beforeEach(() => {
-  });
+  beforeEach(() => {});
 
   it('closes an issue without comment', async () => {
     const mockFetch = mock(() =>
-      Promise.resolve({ ok: true, json: () => Promise.resolve({}) })
+      Promise.resolve({ ok: true, json: () => Promise.resolve({}) }),
     ) as any;
     global.fetch = mockFetch as any;
 
@@ -32,7 +31,7 @@ describe('closeIssue', () => {
 
   it('adds comment before closing when provided', async () => {
     const mockFetch = mock(() =>
-      Promise.resolve({ ok: true, json: () => Promise.resolve({}) })
+      Promise.resolve({ ok: true, json: () => Promise.resolve({}) }),
     ) as any;
     global.fetch = mockFetch as any;
 
@@ -50,7 +49,7 @@ describe('closeIssue', () => {
         status: 403,
         json: () => Promise.resolve({ message: 'Forbidden' }),
         headers: { get: () => null },
-      })
+      }),
     ) as any;
     global.fetch = mockFetch as any;
 
@@ -59,12 +58,11 @@ describe('closeIssue', () => {
 });
 
 describe('reopenIssue', () => {
-  beforeEach(() => {
-  });
+  beforeEach(() => {});
 
   it('reopens an issue', async () => {
     const mockFetch = mock(() =>
-      Promise.resolve({ ok: true, json: () => Promise.resolve({}) })
+      Promise.resolve({ ok: true, json: () => Promise.resolve({}) }),
     ) as any;
     global.fetch = mockFetch as any;
 
@@ -77,12 +75,11 @@ describe('reopenIssue', () => {
 });
 
 describe('addLabels', () => {
-  beforeEach(() => {
-  });
+  beforeEach(() => {});
 
   it('adds labels to an issue', async () => {
     const mockFetch = mock(() =>
-      Promise.resolve({ ok: true, json: () => Promise.resolve({}) })
+      Promise.resolve({ ok: true, json: () => Promise.resolve({}) }),
     ) as any;
     global.fetch = mockFetch as any;
 
@@ -95,13 +92,10 @@ describe('addLabels', () => {
 });
 
 describe('removeLabel', () => {
-  beforeEach(() => {
-  });
+  beforeEach(() => {});
 
   it('removes a label from an issue', async () => {
-    const mockFetch = mock(() =>
-      Promise.resolve({ ok: true })
-    ) as any;
+    const mockFetch = mock(() => Promise.resolve({ ok: true })) as any;
     global.fetch = mockFetch as any;
 
     await removeLabel('token', 'owner', 'repo', 1, 'bug');
@@ -112,9 +106,7 @@ describe('removeLabel', () => {
   });
 
   it('ignores 404 errors', async () => {
-    const mockFetch = mock(() =>
-      Promise.resolve({ ok: false, status: 404 })
-    ) as any;
+    const mockFetch = mock(() => Promise.resolve({ ok: false, status: 404 })) as any;
     global.fetch = mockFetch as any;
 
     await expect(removeLabel('token', 'owner', 'repo', 1, 'bug')).resolves.toBeUndefined();
@@ -122,12 +114,11 @@ describe('removeLabel', () => {
 });
 
 describe('setLabels', () => {
-  beforeEach(() => {
-  });
+  beforeEach(() => {});
 
   it('replaces all labels on an issue', async () => {
     const mockFetch = mock(() =>
-      Promise.resolve({ ok: true, json: () => Promise.resolve({}) })
+      Promise.resolve({ ok: true, json: () => Promise.resolve({}) }),
     ) as any;
     global.fetch = mockFetch as any;
 
@@ -139,12 +130,11 @@ describe('setLabels', () => {
 });
 
 describe('addAssignees', () => {
-  beforeEach(() => {
-  });
+  beforeEach(() => {});
 
   it('adds assignees to an issue', async () => {
     const mockFetch = mock(() =>
-      Promise.resolve({ ok: true, json: () => Promise.resolve({}) })
+      Promise.resolve({ ok: true, json: () => Promise.resolve({}) }),
     ) as any;
     global.fetch = mockFetch as any;
 
@@ -157,12 +147,11 @@ describe('addAssignees', () => {
 });
 
 describe('removeAssignees', () => {
-  beforeEach(() => {
-  });
+  beforeEach(() => {});
 
   it('removes assignees from an issue', async () => {
     const mockFetch = mock(() =>
-      Promise.resolve({ ok: true, json: () => Promise.resolve({}) })
+      Promise.resolve({ ok: true, json: () => Promise.resolve({}) }),
     ) as any;
     global.fetch = mockFetch as any;
 
@@ -174,13 +163,10 @@ describe('removeAssignees', () => {
 });
 
 describe('lockIssue', () => {
-  beforeEach(() => {
-  });
+  beforeEach(() => {});
 
   it('locks an issue without reason', async () => {
-    const mockFetch = mock(() =>
-      Promise.resolve({ ok: true })
-    ) as any;
+    const mockFetch = mock(() => Promise.resolve({ ok: true })) as any;
     global.fetch = mockFetch as any;
 
     await lockIssue('token', 'owner', 'repo', 1);
@@ -190,9 +176,7 @@ describe('lockIssue', () => {
   });
 
   it('locks an issue with reason', async () => {
-    const mockFetch = mock(() =>
-      Promise.resolve({ ok: true })
-    ) as any;
+    const mockFetch = mock(() => Promise.resolve({ ok: true })) as any;
     global.fetch = mockFetch as any;
 
     await lockIssue('token', 'owner', 'repo', 1, 'spam');
@@ -203,13 +187,10 @@ describe('lockIssue', () => {
 });
 
 describe('unlockIssue', () => {
-  beforeEach(() => {
-  });
+  beforeEach(() => {});
 
   it('unlocks an issue', async () => {
-    const mockFetch = mock(() =>
-      Promise.resolve({ ok: true })
-    ) as any;
+    const mockFetch = mock(() => Promise.resolve({ ok: true })) as any;
     global.fetch = mockFetch as any;
 
     await unlockIssue('token', 'owner', 'repo', 1);
@@ -221,12 +202,11 @@ describe('unlockIssue', () => {
 });
 
 describe('executeBulkAction', () => {
-  beforeEach(() => {
-  });
+  beforeEach(() => {});
 
   it('executes action on multiple issues', async () => {
     const mockFetch = mock(() =>
-      Promise.resolve({ ok: true, json: () => Promise.resolve({}) })
+      Promise.resolve({ ok: true, json: () => Promise.resolve({}) }),
     ) as any;
     global.fetch = mockFetch as any;
 

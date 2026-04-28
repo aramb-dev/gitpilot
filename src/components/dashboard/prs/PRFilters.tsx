@@ -1,15 +1,14 @@
 'use client';
 
+import { CheckCircle2, GitMerge, GitPullRequest, Search, X } from 'lucide-react';
 import { useState } from 'react';
-import { Search, X, GitPullRequest, GitMerge, CheckCircle2 } from 'lucide-react';
-import { StateFilter } from '../issues/filters/StateFilter';
-import { RepoFilter } from '../issues/filters/RepoFilter';
-import { LabelFilter } from '../issues/filters/LabelFilter';
-import { AssigneeFilter } from '../issues/filters/AssigneeFilter';
-import type { PRFilters as PRFiltersType } from '@/types/pull-request';
 import type { IssueLabel, IssueUser } from '@/types/issue';
-
+import type { PRFilters as PRFiltersType } from '@/types/pull-request';
 import { FilterPresetsManager } from '../FilterPresetsManager';
+import { AssigneeFilter } from '../issues/filters/AssigneeFilter';
+import { LabelFilter } from '../issues/filters/LabelFilter';
+import { RepoFilter } from '../issues/filters/RepoFilter';
+import { StateFilter } from '../issues/filters/StateFilter';
 
 interface PRFiltersProps {
   filters: PRFiltersType;
@@ -32,10 +31,7 @@ export function PRFilters({
 }: PRFiltersProps) {
   const [searchValue, setSearchValue] = useState(filters.search || '');
 
-  const updateFilter = <K extends keyof PRFiltersType>(
-    key: K,
-    value: PRFiltersType[K]
-  ) => {
+  const updateFilter = <K extends keyof PRFiltersType>(key: K, value: PRFiltersType[K]) => {
     onFiltersChange({ ...filters, [key]: value });
   };
 
@@ -148,15 +144,16 @@ export function PRFilters({
         </select>
 
         <div className="flex items-center gap-2 border-l border-[#333] pl-3">
-          <FilterPresetsManager 
-            context="pull_requests" 
-            currentFilters={filters} 
-            onApplyPreset={applyPreset} 
+          <FilterPresetsManager
+            context="pull_requests"
+            currentFilters={filters}
+            onApplyPreset={applyPreset}
           />
         </div>
 
         {activeFilterCount > 0 && (
           <button
+            type="button"
             onClick={clearAllFilters}
             className="flex items-center gap-1.5 px-3 py-2 text-xs text-[#666] hover:text-[#00ff00] transition-colors font-mono"
           >

@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import type { UserPreferences } from '@/db/preferences';
+import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import type { UserPreferences } from '@/db/preferences';
 
 export function usePreferences() {
   const [preferences, setPreferences] = useState<UserPreferences | null>(null);
@@ -21,7 +21,6 @@ export function usePreferences() {
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Unknown error'));
-      console.error('Error fetching preferences:', err);
     } finally {
       setIsLoading(false);
     }
@@ -53,16 +52,16 @@ export function usePreferences() {
 
       const updatedPrefs = await response.json();
       setPreferences(updatedPrefs);
-      
+
       toast.success('Preferences updated successfully');
-      
+
       return updatedPrefs;
     } catch (err) {
       // Revert on error
       setPreferences(previousPreferences);
-      
+
       toast.error('Failed to update preferences');
-      
+
       throw err;
     }
   };

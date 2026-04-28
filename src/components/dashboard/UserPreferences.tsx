@@ -1,11 +1,11 @@
 'use client';
 
-import { usePreferences } from '@/hooks/usePreferences';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Checkbox } from '@/components/ui/checkbox';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
+import { usePreferences } from '@/hooks/usePreferences';
 
 export function UserPreferences() {
   const { preferences, isLoading, updatePreferences } = usePreferences();
@@ -93,7 +93,9 @@ export function UserPreferences() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs text-[#888] uppercase tracking-wider">Default Visibility</label>
+              <label className="text-xs text-[#888] uppercase tracking-wider">
+                Default Visibility
+              </label>
               <select
                 name="defaultVisibility"
                 value={formData.defaultVisibility}
@@ -142,10 +144,7 @@ export function UserPreferences() {
                 checked={formData.showForks}
                 onCheckedChange={() => handleToggle('showForks')}
               />
-              <label
-                htmlFor="showForks"
-                className="text-sm text-[#ccc] font-mono cursor-pointer"
-              >
+              <label htmlFor="showForks" className="text-sm text-[#ccc] font-mono cursor-pointer">
                 Show forked repositories by default
               </label>
             </div>

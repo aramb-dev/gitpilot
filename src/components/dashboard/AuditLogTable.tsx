@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { formatDistanceToNow } from 'date-fns';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Activity } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface AuditLog {
   id: string;
@@ -19,8 +19,8 @@ export function AuditLogTable() {
 
   useEffect(() => {
     fetch('/api/audit')
-      .then(res => res.json())
-      .then(data => {
+      .then((res) => res.json())
+      .then((data) => {
         if (Array.isArray(data)) setLogs(data);
         setLoading(false);
       })
@@ -41,7 +41,9 @@ export function AuditLogTable() {
         <div className="h-[400px] overflow-y-auto custom-scrollbar">
           <div className="divide-y divide-[#1a1a1a]">
             {logs.length === 0 ? (
-              <div className="p-4 text-center text-[#666] text-sm italic font-mono">no_activity_recorded</div>
+              <div className="p-4 text-center text-[#666] text-sm italic font-mono">
+                no_activity_recorded
+              </div>
             ) : (
               logs.map((log) => (
                 <div key={log.id} className="p-4 hover:bg-[#111] transition-colors">

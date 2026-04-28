@@ -1,6 +1,6 @@
 'use client';
 
-import { CircleDot, CheckCircle2, Circle, GitMerge } from 'lucide-react';
+import { CheckCircle2, Circle, CircleDot, GitMerge } from 'lucide-react';
 
 interface StateOption {
   value: string;

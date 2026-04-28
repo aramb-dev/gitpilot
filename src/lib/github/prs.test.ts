@@ -3,13 +3,15 @@
  * Tests cover normalization, fetching across repos, and bulk actions.
  */
 
-import { describe, expect, it, mock, beforeEach } from 'bun:test';
-import {
-  normalizePullRequest,
-  fetchPRsAcrossRepos,
-  executePRAction,
-} from './prs';
-import type { GitHubPullRequest, GitHubUser, GitHubLabel, GitHubMilestone, GitHubSimpleRepository } from '@/types/github';
+import { beforeEach, describe, expect, it, mock } from 'bun:test';
+import type {
+  GitHubLabel,
+  GitHubMilestone,
+  GitHubPullRequest,
+  GitHubSimpleRepository,
+  GitHubUser,
+} from '@/types/github';
+import { executePRAction, fetchPRsAcrossRepos, normalizePullRequest } from './prs';
 
 describe('normalizePullRequest', () => {
   const createMockGitHubUser = (overrides: Partial<GitHubUser> = {}): GitHubUser => ({
@@ -33,7 +35,9 @@ describe('normalizePullRequest', () => {
     ...overrides,
   });
 
-  const createMockGitHubMilestone = (overrides: Partial<GitHubMilestone> = {}): GitHubMilestone => ({
+  const createMockGitHubMilestone = (
+    overrides: Partial<GitHubMilestone> = {},
+  ): GitHubMilestone => ({
     url: 'https://api.github.com/milestones/1',
     html_url: 'https://github.com/milestone/1',
     labels_url: 'https://api.github.com/milestones/1/labels',
@@ -53,7 +57,9 @@ describe('normalizePullRequest', () => {
     ...overrides,
   });
 
-  const createMockGitHubSimpleRepo = (overrides: Partial<GitHubSimpleRepository> = {}): GitHubSimpleRepository => ({
+  const createMockGitHubSimpleRepo = (
+    overrides: Partial<GitHubSimpleRepository> = {},
+  ): GitHubSimpleRepository => ({
     id: 123,
     node_id: 'repo_node_id',
     name: 'test-repo',
@@ -115,8 +121,12 @@ describe('normalizePullRequest', () => {
         html: { href: 'https://github.com/testowner/test-repo/pull/1' },
         issue: { href: 'https://api.github.com/repos/testowner/test-repo/issues/1' },
         comments: { href: 'https://api.github.com/repos/testowner/test-repo/pulls/1/comments' },
-        review_comments: { href: 'https://api.github.com/repos/testowner/test-repo/pulls/1/comments' },
-        review_comment: { href: 'https://api.github.com/repos/testowner/test-repo/pulls/1/comments' },
+        review_comments: {
+          href: 'https://api.github.com/repos/testowner/test-repo/pulls/1/comments',
+        },
+        review_comment: {
+          href: 'https://api.github.com/repos/testowner/test-repo/pulls/1/comments',
+        },
         commits: { href: 'https://api.github.com/repos/testowner/test-repo/pulls/1/commits' },
         statuses: { href: 'https://api.github.com/repos/testowner/test-repo/pulls/1/statuses' },
       },
@@ -204,8 +214,18 @@ describe('normalizePullRequest', () => {
   });
 
   it('normalizes labels correctly', () => {
-    const label1 = createMockGitHubLabel({ id: 1, name: 'bug', color: 'd73a4a', description: 'Bug' });
-    const label2 = createMockGitHubLabel({ id: 2, name: 'enhancement', color: 'a2eeef', description: 'Enhancement' });
+    const label1 = createMockGitHubLabel({
+      id: 1,
+      name: 'bug',
+      color: 'd73a4a',
+      description: 'Bug',
+    });
+    const label2 = createMockGitHubLabel({
+      id: 2,
+      name: 'enhancement',
+      color: 'a2eeef',
+      description: 'Enhancement',
+    });
     const raw = createMockPullRequest({ labels: [label1, label2] });
     const result = normalizePullRequest(raw);
 
@@ -416,7 +436,9 @@ describe('normalizePullRequest', () => {
 });
 
 describe('fetchPRsAcrossRepos', () => {
-  const createMockPullRequest = (overrides: Partial<GitHubPullRequest> = {}): GitHubPullRequest => ({
+  const createMockPullRequest = (
+    overrides: Partial<GitHubPullRequest> = {},
+  ): GitHubPullRequest => ({
     id: 456,
     node_id: 'pr_node_id',
     url: 'https://api.github.com/repos/testowner/test-repo/pulls/1',
@@ -516,7 +538,9 @@ describe('fetchPRsAcrossRepos', () => {
       html: { href: 'https://github.com/testowner/test-repo/pull/1' },
       issue: { href: 'https://api.github.com/repos/testowner/test-repo/issues/1' },
       comments: { href: 'https://api.github.com/repos/testowner/test-repo/pulls/1/comments' },
-      review_comments: { href: 'https://api.github.com/repos/testowner/test-repo/pulls/1/comments' },
+      review_comments: {
+        href: 'https://api.github.com/repos/testowner/test-repo/pulls/1/comments',
+      },
       review_comment: { href: 'https://api.github.com/repos/testowner/test-repo/pulls/1/comments' },
       commits: { href: 'https://api.github.com/repos/testowner/test-repo/pulls/1/commits' },
       statuses: { href: 'https://api.github.com/repos/testowner/test-repo/pulls/1/statuses' },
@@ -527,55 +551,61 @@ describe('fetchPRsAcrossRepos', () => {
     ...overrides,
   });
 
-  beforeEach(() => {
-  });
+  beforeEach(() => {});
 
   it('fetches PRs from multiple repositories', async () => {
     const mockFetch = mock(() =>
-      Promise.resolve(new Response(
-        JSON.stringify([createMockPullRequest()]),
-        { status: 200 }
-      ))
+      Promise.resolve(new Response(JSON.stringify([createMockPullRequest()]), { status: 200 })),
     ) as any;
     global.fetch = mockFetch;
 
-    const result = await fetchPRsAcrossRepos('test-token', { repos: ['owner/repo1', 'owner/repo2'] });
+    const result = await fetchPRsAcrossRepos('test-token', {
+      repos: ['owner/repo1', 'owner/repo2'],
+    });
 
     expect(result.data.pullRequests).toHaveLength(2);
     expect(result.warnings).toHaveLength(0);
   });
 
   it('filters by merged state correctly', async () => {
-    const mergedPR = createMockPullRequest({ number: 1, merged_at: '2024-01-20T00:00:00Z', state: 'closed' });
+    const mergedPR = createMockPullRequest({
+      number: 1,
+      merged_at: '2024-01-20T00:00:00Z',
+      state: 'closed',
+    });
     const closedPR = createMockPullRequest({ number: 2, merged_at: null, state: 'closed' });
 
     const mockFetch = mock(() =>
-      Promise.resolve(new Response(
-        JSON.stringify([mergedPR, closedPR]),
-        { status: 200 }
-      ))
+      Promise.resolve(new Response(JSON.stringify([mergedPR, closedPR]), { status: 200 })),
     ) as any;
     global.fetch = mockFetch;
 
-    const result = await fetchPRsAcrossRepos('test-token', { repos: ['owner/repo1'], state: 'merged' });
+    const result = await fetchPRsAcrossRepos('test-token', {
+      repos: ['owner/repo1'],
+      state: 'merged',
+    });
 
     expect(result.data.pullRequests).toHaveLength(1);
     expect(result.data.pullRequests[0].merged).toBe(true);
   });
 
   it('filters by closed state correctly (excluding merged)', async () => {
-    const mergedPR = createMockPullRequest({ number: 1, merged_at: '2024-01-20T00:00:00Z', state: 'closed' });
+    const mergedPR = createMockPullRequest({
+      number: 1,
+      merged_at: '2024-01-20T00:00:00Z',
+      state: 'closed',
+    });
     const closedPR = createMockPullRequest({ number: 2, merged_at: null, state: 'closed' });
 
     const mockFetch = mock(() =>
-      Promise.resolve(new Response(
-        JSON.stringify([mergedPR, closedPR]),
-        { status: 200 }
-      ))
+      Promise.resolve(new Response(JSON.stringify([mergedPR, closedPR]), { status: 200 })),
     ) as any;
     global.fetch = mockFetch;
 
-    const result = await fetchPRsAcrossRepos('test-token', { repos: ['owner/repo1'], state: 'closed' });
+    const result = await fetchPRsAcrossRepos('test-token', {
+      repos: ['owner/repo1'],
+      state: 'closed',
+    });
 
     expect(result.data.pullRequests).toHaveLength(1);
     expect(result.data.pullRequests[0].merged).toBe(false);
@@ -587,32 +617,42 @@ describe('fetchPRsAcrossRepos', () => {
     const pr2 = createMockPullRequest({ number: 2, updated_at: '2024-01-20T00:00:00Z' });
 
     const mockFetch = mock(() =>
-      Promise.resolve(new Response(
-        JSON.stringify([pr1, pr2]),
-        { status: 200 }
-      ))
+      Promise.resolve(new Response(JSON.stringify([pr1, pr2]), { status: 200 })),
     ) as any;
     global.fetch = mockFetch;
 
-    const result = await fetchPRsAcrossRepos('test-token', { repos: ['owner/repo1'], sort: 'updated', direction: 'desc' });
+    const result = await fetchPRsAcrossRepos('test-token', {
+      repos: ['owner/repo1'],
+      sort: 'updated',
+      direction: 'desc',
+    });
 
     expect(result.data.pullRequests[0].number).toBe(2);
     expect(result.data.pullRequests[1].number).toBe(1);
   });
 
   it('sorts results by created date when specified', async () => {
-    const pr1 = createMockPullRequest({ number: 1, created_at: '2024-01-01T00:00:00Z', updated_at: '2024-01-20T00:00:00Z' });
-    const pr2 = createMockPullRequest({ number: 2, created_at: '2024-01-10T00:00:00Z', updated_at: '2024-01-15T00:00:00Z' });
+    const pr1 = createMockPullRequest({
+      number: 1,
+      created_at: '2024-01-01T00:00:00Z',
+      updated_at: '2024-01-20T00:00:00Z',
+    });
+    const pr2 = createMockPullRequest({
+      number: 2,
+      created_at: '2024-01-10T00:00:00Z',
+      updated_at: '2024-01-15T00:00:00Z',
+    });
 
     const mockFetch = mock(() =>
-      Promise.resolve(new Response(
-        JSON.stringify([pr1, pr2]),
-        { status: 200 }
-      ))
+      Promise.resolve(new Response(JSON.stringify([pr1, pr2]), { status: 200 })),
     ) as any;
     global.fetch = mockFetch;
 
-    const result = await fetchPRsAcrossRepos('test-token', { repos: ['owner/repo1'], sort: 'created', direction: 'asc' });
+    const result = await fetchPRsAcrossRepos('test-token', {
+      repos: ['owner/repo1'],
+      sort: 'created',
+      direction: 'asc',
+    });
 
     expect(result.data.pullRequests[0].number).toBe(1);
     expect(result.data.pullRequests[1].number).toBe(2);
@@ -622,14 +662,15 @@ describe('fetchPRsAcrossRepos', () => {
     const prs = Array.from({ length: 50 }, (_, i) => createMockPullRequest({ number: i + 1 }));
 
     const mockFetch = mock(() =>
-      Promise.resolve(new Response(
-        JSON.stringify(prs),
-        { status: 200 }
-      ))
+      Promise.resolve(new Response(JSON.stringify(prs), { status: 200 })),
     ) as any;
     global.fetch = mockFetch;
 
-    const result = await fetchPRsAcrossRepos('test-token', { repos: ['owner/repo1'], page: 2, perPage: 10 });
+    const result = await fetchPRsAcrossRepos('test-token', {
+      repos: ['owner/repo1'],
+      page: 2,
+      perPage: 10,
+    });
 
     expect(result.data.pullRequests).toHaveLength(10);
     expect(result.data.pullRequests[0].number).toBe(11);
@@ -639,7 +680,7 @@ describe('fetchPRsAcrossRepos', () => {
 
   it('returns warnings for failed repository fetches', async () => {
     const mockFetch = mock(() =>
-      Promise.resolve(new Response(null, { status: 404, statusText: 'Not Found' }))
+      Promise.resolve(new Response(null, { status: 404, statusText: 'Not Found' })),
     ) as any;
     global.fetch = mockFetch;
 
@@ -651,9 +692,7 @@ describe('fetchPRsAcrossRepos', () => {
   });
 
   it('handles errors gracefully and adds to warnings', async () => {
-    const mockFetch = mock(() =>
-      Promise.reject(new Error('Network error'))
-    ) as any;
+    const mockFetch = mock(() => Promise.reject(new Error('Network error'))) as any;
     global.fetch = mockFetch;
 
     const result = await fetchPRsAcrossRepos('test-token', { repos: ['owner/repo1'] });
@@ -667,37 +706,38 @@ describe('fetchPRsAcrossRepos', () => {
     const prs = Array.from({ length: 25 }, (_, i) => createMockPullRequest({ number: i + 1 }));
 
     const mockFetch = mock(() =>
-      Promise.resolve(new Response(
-        JSON.stringify(prs),
-        { status: 200 }
-      ))
+      Promise.resolve(new Response(JSON.stringify(prs), { status: 200 })),
     ) as any;
     global.fetch = mockFetch;
 
-    const result = await fetchPRsAcrossRepos('test-token', { repos: ['owner/repo1'], page: 1, perPage: 30 });
+    const result = await fetchPRsAcrossRepos('test-token', {
+      repos: ['owner/repo1'],
+      page: 1,
+      perPage: 30,
+    });
 
     expect(result.data.hasNextPage).toBe(false);
   });
 });
 
 describe('executePRAction', () => {
-  beforeEach(() => {
-  });
+  beforeEach(() => {});
 
   it('executes merge action successfully', async () => {
     const mockFetch = mock(() =>
-      Promise.resolve(new Response(
-        JSON.stringify({ merged: true }),
-        { status: 200 }
-      ))
+      Promise.resolve(new Response(JSON.stringify({ merged: true }), { status: 200 })),
     ) as any;
     global.fetch = mockFetch;
 
-    const result = await executePRAction('token', { owner: 'owner', repo: 'repo', number: 1 }, {
-      type: 'merge',
-      mergeMethod: 'squash',
-      commitMessage: 'Merge PR',
-    });
+    const result = await executePRAction(
+      'token',
+      { owner: 'owner', repo: 'repo', number: 1 },
+      {
+        type: 'merge',
+        mergeMethod: 'squash',
+        commitMessage: 'Merge PR',
+      },
+    );
 
     expect(result.success).toBe(true);
     expect(mockFetch).toHaveBeenCalled();
@@ -705,16 +745,22 @@ describe('executePRAction', () => {
 
   it('returns error when merge fails', async () => {
     const mockFetch = mock(() =>
-      Promise.resolve(new Response(
-        JSON.stringify({ message: 'Merge conflict' }),
-        { status: 405, statusText: 'Method Not Allowed' }
-      ))
+      Promise.resolve(
+        new Response(JSON.stringify({ message: 'Merge conflict' }), {
+          status: 405,
+          statusText: 'Method Not Allowed',
+        }),
+      ),
     ) as any;
     global.fetch = mockFetch;
 
-    const result = await executePRAction('token', { owner: 'owner', repo: 'repo', number: 1 }, {
-      type: 'merge',
-    });
+    const result = await executePRAction(
+      'token',
+      { owner: 'owner', repo: 'repo', number: 1 },
+      {
+        type: 'merge',
+      },
+    );
 
     expect(result.success).toBe(false);
     expect(result.error).toBeDefined();
@@ -722,114 +768,127 @@ describe('executePRAction', () => {
 
   it('executes close action successfully', async () => {
     const mockFetch = mock(() =>
-      Promise.resolve(new Response(
-        JSON.stringify({ state: 'closed' }),
-        { status: 200 }
-      ))
+      Promise.resolve(new Response(JSON.stringify({ state: 'closed' }), { status: 200 })),
     ) as any;
     global.fetch = mockFetch;
 
-    const result = await executePRAction('token', { owner: 'owner', repo: 'repo', number: 1 }, {
-      type: 'close',
-    });
+    const result = await executePRAction(
+      'token',
+      { owner: 'owner', repo: 'repo', number: 1 },
+      {
+        type: 'close',
+      },
+    );
 
     expect(result.success).toBe(true);
   });
 
   it('executes reopen action successfully', async () => {
     const mockFetch = mock(() =>
-      Promise.resolve(new Response(
-        JSON.stringify({ state: 'open' }),
-        { status: 200 }
-      ))
+      Promise.resolve(new Response(JSON.stringify({ state: 'open' }), { status: 200 })),
     ) as any;
     global.fetch = mockFetch;
 
-    const result = await executePRAction('token', { owner: 'owner', repo: 'repo', number: 1 }, {
-      type: 'reopen',
-    });
+    const result = await executePRAction(
+      'token',
+      { owner: 'owner', repo: 'repo', number: 1 },
+      {
+        type: 'reopen',
+      },
+    );
 
     expect(result.success).toBe(true);
   });
 
   it('executes add_labels action successfully', async () => {
     const mockFetch = mock(() =>
-      Promise.resolve(new Response(
-        JSON.stringify([]),
-        { status: 200 }
-      ))
+      Promise.resolve(new Response(JSON.stringify([]), { status: 200 })),
     ) as any;
     global.fetch = mockFetch;
 
-    const result = await executePRAction('token', { owner: 'owner', repo: 'repo', number: 1 }, {
-      type: 'add_labels',
-      labels: ['bug', 'priority'],
-    });
+    const result = await executePRAction(
+      'token',
+      { owner: 'owner', repo: 'repo', number: 1 },
+      {
+        type: 'add_labels',
+        labels: ['bug', 'priority'],
+      },
+    );
 
     expect(result.success).toBe(true);
   });
 
   it('executes set_labels action successfully', async () => {
     const mockFetch = mock(() =>
-      Promise.resolve(new Response(
-        JSON.stringify([]),
-        { status: 200 }
-      ))
+      Promise.resolve(new Response(JSON.stringify([]), { status: 200 })),
     ) as any;
     global.fetch = mockFetch;
 
-    const result = await executePRAction('token', { owner: 'owner', repo: 'repo', number: 1 }, {
-      type: 'set_labels',
-      labels: ['enhancement'],
-    });
+    const result = await executePRAction(
+      'token',
+      { owner: 'owner', repo: 'repo', number: 1 },
+      {
+        type: 'set_labels',
+        labels: ['enhancement'],
+      },
+    );
 
     expect(result.success).toBe(true);
   });
 
   it('executes remove_labels action successfully', async () => {
     const mockFetch = mock(() =>
-      Promise.resolve(new Response(
-        JSON.stringify({}),
-        { status: 200 }
-      ))
+      Promise.resolve(new Response(JSON.stringify({}), { status: 200 })),
     ) as any;
     global.fetch = mockFetch;
 
-    const result = await executePRAction('token', { owner: 'owner', repo: 'repo', number: 1 }, {
-      type: 'remove_labels',
-      labels: ['bug'],
-    });
+    const result = await executePRAction(
+      'token',
+      { owner: 'owner', repo: 'repo', number: 1 },
+      {
+        type: 'remove_labels',
+        labels: ['bug'],
+      },
+    );
 
     expect(result.success).toBe(true);
   });
 
   it('ignores 404 errors when removing labels (label not present)', async () => {
-    const mockFetch = mock(() =>
-      Promise.resolve(new Response(null, { status: 404 }))
-    ) as any;
+    const mockFetch = mock(() => Promise.resolve(new Response(null, { status: 404 }))) as any;
     global.fetch = mockFetch;
 
-    const result = await executePRAction('token', { owner: 'owner', repo: 'repo', number: 1 }, {
-      type: 'remove_labels',
-      labels: ['nonexistent'],
-    });
+    const result = await executePRAction(
+      'token',
+      { owner: 'owner', repo: 'repo', number: 1 },
+      {
+        type: 'remove_labels',
+        labels: ['nonexistent'],
+      },
+    );
 
     expect(result.success).toBe(true);
   });
 
   it('returns error when remove_labels fails with non-404 status', async () => {
     const mockFetch = mock(() =>
-      Promise.resolve(new Response(
-        JSON.stringify({ message: 'Unauthorized' }),
-        { status: 403, statusText: 'Forbidden' }
-      ))
+      Promise.resolve(
+        new Response(JSON.stringify({ message: 'Unauthorized' }), {
+          status: 403,
+          statusText: 'Forbidden',
+        }),
+      ),
     ) as any;
     global.fetch = mockFetch;
 
-    const result = await executePRAction('token', { owner: 'owner', repo: 'repo', number: 1 }, {
-      type: 'remove_labels',
-      labels: ['bug'],
-    });
+    const result = await executePRAction(
+      'token',
+      { owner: 'owner', repo: 'repo', number: 1 },
+      {
+        type: 'remove_labels',
+        labels: ['bug'],
+      },
+    );
 
     expect(result.success).toBe(false);
     expect(result.error).toBeDefined();
@@ -837,68 +896,72 @@ describe('executePRAction', () => {
 
   it('executes assign action successfully', async () => {
     const mockFetch = mock(() =>
-      Promise.resolve(new Response(
-        JSON.stringify([]),
-        { status: 200 }
-      ))
+      Promise.resolve(new Response(JSON.stringify([]), { status: 200 })),
     ) as any;
     global.fetch = mockFetch;
 
-    const result = await executePRAction('token', { owner: 'owner', repo: 'repo', number: 1 }, {
-      type: 'assign',
-      assignees: ['user1', 'user2'],
-    });
+    const result = await executePRAction(
+      'token',
+      { owner: 'owner', repo: 'repo', number: 1 },
+      {
+        type: 'assign',
+        assignees: ['user1', 'user2'],
+      },
+    );
 
     expect(result.success).toBe(true);
   });
 
   it('executes unassign action successfully', async () => {
     const mockFetch = mock(() =>
-      Promise.resolve(new Response(
-        JSON.stringify([]),
-        { status: 200 }
-      ))
+      Promise.resolve(new Response(JSON.stringify([]), { status: 200 })),
     ) as any;
     global.fetch = mockFetch;
 
-    const result = await executePRAction('token', { owner: 'owner', repo: 'repo', number: 1 }, {
-      type: 'unassign',
-      assignees: ['user1'],
-    });
+    const result = await executePRAction(
+      'token',
+      { owner: 'owner', repo: 'repo', number: 1 },
+      {
+        type: 'unassign',
+        assignees: ['user1'],
+      },
+    );
 
     expect(result.success).toBe(true);
   });
 
   it('executes request_reviewers action successfully', async () => {
     const mockFetch = mock(() =>
-      Promise.resolve(new Response(
-        JSON.stringify([]),
-        { status: 200 }
-      ))
+      Promise.resolve(new Response(JSON.stringify([]), { status: 200 })),
     ) as any;
     global.fetch = mockFetch;
 
-    const result = await executePRAction('token', { owner: 'owner', repo: 'repo', number: 1 }, {
-      type: 'request_reviewers',
-      reviewers: ['reviewer1', 'reviewer2'],
-    });
+    const result = await executePRAction(
+      'token',
+      { owner: 'owner', repo: 'repo', number: 1 },
+      {
+        type: 'request_reviewers',
+        reviewers: ['reviewer1', 'reviewer2'],
+      },
+    );
 
     expect(result.success).toBe(true);
   });
 
   it('executes remove_reviewers action successfully', async () => {
     const mockFetch = mock(() =>
-      Promise.resolve(new Response(
-        JSON.stringify([]),
-        { status: 200 }
-      ))
+      Promise.resolve(new Response(JSON.stringify([]), { status: 200 })),
     ) as any;
     global.fetch = mockFetch;
 
-    const result = await executePRAction('token', { owner: 'owner', repo: 'repo', number: 1 }, {
-      type: 'remove_reviewers',
-      reviewers: ['reviewer1'],
-    });
+    const result = await executePRAction(
+      'token',
+      { owner: 'owner', repo: 'repo', number: 1 },
+      {
+        type: 'remove_reviewers',
+        reviewers: ['reviewer1'],
+      },
+    );
 
     expect(result.success).toBe(true);
   });
@@ -907,23 +970,29 @@ describe('executePRAction', () => {
     const mockFetch = mock() as any;
     global.fetch = mockFetch;
 
-    const result = await executePRAction('token', { owner: 'owner', repo: 'repo', number: 1 }, {
-      type: 'unsupported' as any,
-    });
+    const result = await executePRAction(
+      'token',
+      { owner: 'owner', repo: 'repo', number: 1 },
+      {
+        type: 'unsupported' as any,
+      },
+    );
 
     expect(result.success).toBe(false);
     expect(result.error).toBe('Unsupported action type');
   });
 
   it('handles network errors gracefully', async () => {
-    const mockFetch = mock(() =>
-      Promise.reject(new Error('Network error'))
-    ) as any;
+    const mockFetch = mock(() => Promise.reject(new Error('Network error'))) as any;
     global.fetch = mockFetch;
 
-    const result = await executePRAction('token', { owner: 'owner', repo: 'repo', number: 1 }, {
-      type: 'close',
-    });
+    const result = await executePRAction(
+      'token',
+      { owner: 'owner', repo: 'repo', number: 1 },
+      {
+        type: 'close',
+      },
+    );
 
     expect(result.success).toBe(false);
     expect(result.error).toBe('Network error');
@@ -931,16 +1000,17 @@ describe('executePRAction', () => {
 
   it('handles JSON parse errors gracefully', async () => {
     const mockFetch = mock(() =>
-      Promise.resolve(new Response(
-        'Invalid JSON',
-        { status: 400, statusText: 'Bad Request' }
-      ))
+      Promise.resolve(new Response('Invalid JSON', { status: 400, statusText: 'Bad Request' })),
     ) as any;
     global.fetch = mockFetch;
 
-    const result = await executePRAction('token', { owner: 'owner', repo: 'repo', number: 1 }, {
-      type: 'merge',
-    });
+    const result = await executePRAction(
+      'token',
+      { owner: 'owner', repo: 'repo', number: 1 },
+      {
+        type: 'merge',
+      },
+    );
 
     expect(result.success).toBe(false);
     expect(result.error).toBeDefined();
@@ -948,16 +1018,17 @@ describe('executePRAction', () => {
 
   it('uses default merge method when not specified', async () => {
     const mockFetch = mock(() =>
-      Promise.resolve(new Response(
-        JSON.stringify({ merged: true }),
-        { status: 200 }
-      ))
+      Promise.resolve(new Response(JSON.stringify({ merged: true }), { status: 200 })),
     ) as any;
     global.fetch = mockFetch;
 
-    await executePRAction('token', { owner: 'owner', repo: 'repo', number: 1 }, {
-      type: 'merge',
-    });
+    await executePRAction(
+      'token',
+      { owner: 'owner', repo: 'repo', number: 1 },
+      {
+        type: 'merge',
+      },
+    );
 
     const body = JSON.parse(mockFetch.mock.calls[0][1]?.body as string);
     expect(body.merge_method).toBe('merge');

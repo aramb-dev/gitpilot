@@ -3,11 +3,10 @@
  * Handles fetching repos from personal accounts and organizations.
  */
 
-import type { GitHubRepository } from '@/types/github';
 import type { ApiError } from '@/types/api-errors';
+import type { GitHubRepository } from '@/types/github';
 import { createGitHubHeaders, GITHUB_API_BASE } from './client';
 import { fetchAllPages, type PaginatedFetchResult } from './pagination';
-import { classifyGitHubError, createApiErrorFromResponse } from './errors';
 
 const MAX_CONCURRENT_ORG_FETCHES = 5;
 const DEFAULT_MAX_PAGES = 10;
@@ -37,7 +36,7 @@ export interface FetchAllReposResult {
  */
 export async function fetchUserRepos(
   accessToken: string,
-  options: FetchReposOptions = {}
+  options: FetchReposOptions = {},
 ): Promise<PaginatedFetchResult<GitHubRepository>> {
   const { maxPages = DEFAULT_MAX_PAGES, onProgress } = options;
   const headers = createGitHubHeaders(accessToken);
@@ -68,7 +67,7 @@ export async function fetchUserRepos(
 export async function fetchOrgRepos(
   accessToken: string,
   orgName: string,
-  options: FetchReposOptions = {}
+  options: FetchReposOptions = {},
 ): Promise<PaginatedFetchResult<GitHubRepository> | { error: ApiError }> {
   const { maxPages = DEFAULT_MAX_PAGES, onProgress } = options;
   const headers = createGitHubHeaders(accessToken);
@@ -129,7 +128,7 @@ export async function fetchOrgRepos(
 export async function fetchAllRepos(
   accessToken: string,
   orgNames: string[] = [],
-  options: FetchReposOptions = {}
+  options: FetchReposOptions = {},
 ): Promise<FetchAllReposResult> {
   const { onProgress } = options;
   const allRepos: GitHubRepository[] = [];
@@ -171,7 +170,7 @@ export async function fetchAllRepos(
       }
 
       const results = await Promise.all(
-        batch.map((org) => fetchOrgRepos(accessToken, org, options))
+        batch.map((org) => fetchOrgRepos(accessToken, org, options)),
       );
 
       for (let i = 0; i < results.length; i++) {
@@ -184,7 +183,9 @@ export async function fetchAllRepos(
           allRepos.push(...result.data);
 
           if (result.hasMore) {
-            warnings.push(`Some repositories from '${orgName}' may not be shown due to pagination limits`);
+            warnings.push(
+              `Some repositories from '${orgName}' may not be shown due to pagination limits`,
+            );
           }
 
           if (result.rateLimited) {
@@ -206,7 +207,7 @@ export async function fetchAllRepos(
  * Checks if a fetch result indicates a rate limit error.
  */
 export function isOrgFetchError(
-  result: PaginatedFetchResult<GitHubRepository> | { error: ApiError }
+  result: PaginatedFetchResult<GitHubRepository> | { error: ApiError },
 ): result is { error: ApiError } {
   return 'error' in result;
 }

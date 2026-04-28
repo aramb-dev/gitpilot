@@ -1,5 +1,5 @@
-import { describe, expect, it, mock, beforeEach, afterEach } from 'bun:test';
-import { parseLinkHeader, fetchAllPages } from './pagination';
+import { afterEach, describe, expect, it, mock } from 'bun:test';
+import { fetchAllPages, parseLinkHeader } from './pagination';
 
 describe('parseLinkHeader', () => {
   it('returns empty object for null header', () => {
@@ -72,20 +72,19 @@ describe('fetchAllPages', () => {
 
   it('fetches single page when no Link header', async () => {
     const mockData = [{ id: 1 }, { id: 2 }];
-    
+
     global.fetch = mock(() =>
       Promise.resolve(
         new Response(JSON.stringify(mockData), {
           status: 200,
           headers: { 'Content-Type': 'application/json' },
-        })
-      )
+        }),
+      ),
     ) as any;
 
-    const result = await fetchAllPages<{ id: number }>(
-      'https://api.github.com/test',
-      { Authorization: 'Bearer token' }
-    );
+    const result = await fetchAllPages<{ id: number }>('https://api.github.com/test', {
+      Authorization: 'Bearer token',
+    });
 
     expect(result.data).toEqual(mockData);
     expect(result.pagesFetched).toBe(1);
@@ -107,21 +106,20 @@ describe('fetchAllPages', () => {
               'Content-Type': 'application/json',
               Link: '<https://api.github.com/test?page=2>; rel="next"',
             },
-          })
+          }),
         );
       }
       return Promise.resolve(
         new Response(JSON.stringify(page2), {
           status: 200,
           headers: { 'Content-Type': 'application/json' },
-        })
+        }),
       );
     }) as any;
 
-    const result = await fetchAllPages<{ id: number }>(
-      'https://api.github.com/test',
-      { Authorization: 'Bearer token' }
-    );
+    const result = await fetchAllPages<{ id: number }>('https://api.github.com/test', {
+      Authorization: 'Bearer token',
+    });
 
     expect(result.data).toEqual([...page1, ...page2]);
     expect(result.pagesFetched).toBe(2);
@@ -139,14 +137,14 @@ describe('fetchAllPages', () => {
             'Content-Type': 'application/json',
             Link: '<https://api.github.com/test?page=999>; rel="next"',
           },
-        })
-      )
+        }),
+      ),
     ) as any;
 
     const result = await fetchAllPages<{ id: number }>(
       'https://api.github.com/test',
       { Authorization: 'Bearer token' },
-      { maxPages: 2 }
+      { maxPages: 2 },
     );
 
     expect(result.pagesFetched).toBe(2);
@@ -168,12 +166,10 @@ describe('fetchAllPages', () => {
             headers: {
               Link: '<https://api.github.com/test?page=2>; rel="next"',
             },
-          })
+          }),
         );
       }
-      return Promise.resolve(
-        new Response(JSON.stringify(page2), { status: 200 })
-      );
+      return Promise.resolve(new Response(JSON.stringify(page2), { status: 200 }));
     }) as any;
 
     await fetchAllPages<{ id: number }>(
@@ -183,7 +179,7 @@ describe('fetchAllPages', () => {
         onPage: (page, count) => {
           pageCallbacks.push({ page, count });
         },
-      }
+      },
     );
 
     expect(pageCallbacks).toEqual([
@@ -205,7 +201,7 @@ describe('fetchAllPages', () => {
             headers: {
               Link: '<https://api.github.com/test?page=2>; rel="next"',
             },
-          })
+          }),
         );
       }
       return Promise.resolve(
@@ -216,14 +212,13 @@ describe('fetchAllPages', () => {
             'X-RateLimit-Limit': '5000',
             'X-RateLimit-Reset': '1704067200',
           },
-        })
+        }),
       );
     }) as any;
 
-    const result = await fetchAllPages<{ id: number }>(
-      'https://api.github.com/test',
-      { Authorization: 'Bearer token' }
-    );
+    const result = await fetchAllPages<{ id: number }>('https://api.github.com/test', {
+      Authorization: 'Bearer token',
+    });
 
     expect(result.data).toEqual(page1);
     expect(result.pagesFetched).toBe(1);
@@ -235,12 +230,12 @@ describe('fetchAllPages', () => {
       Promise.resolve(
         new Response(JSON.stringify({ message: 'Not Found' }), {
           status: 404,
-        })
-      )
+        }),
+      ),
     ) as any;
 
     await expect(
-      fetchAllPages('https://api.github.com/test', { Authorization: 'Bearer token' })
+      fetchAllPages('https://api.github.com/test', { Authorization: 'Bearer token' }),
     ).rejects.toThrow('GitHub API error: 404');
   });
 });

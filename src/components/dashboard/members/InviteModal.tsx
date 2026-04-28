@@ -1,10 +1,10 @@
 'use client';
 
+import { Mail, Shield, UserPlus } from 'lucide-react';
 import { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { UserPlus, Mail, Shield } from 'lucide-react';
 
 interface InviteModalProps {
   isOpen: boolean;
@@ -13,12 +13,7 @@ interface InviteModalProps {
   isLoading?: boolean;
 }
 
-export function InviteModal({
-  isOpen,
-  onClose,
-  onInvite,
-  isLoading = false,
-}: InviteModalProps) {
+export function InviteModal({ isOpen, onClose, onInvite, isLoading = false }: InviteModalProps) {
   const [target, setTarget] = useState('');
   const [role, setRole] = useState<'admin' | 'direct_member'>('direct_member');
 
@@ -39,7 +34,9 @@ export function InviteModal({
 
         <div className="space-y-6 py-4">
           <div className="space-y-3">
-            <label className="text-xs text-[#666] uppercase tracking-widest block">GitHub Username or Email</label>
+            <label className="text-xs text-[#666] uppercase tracking-widest block">
+              GitHub Username or Email
+            </label>
             <div className="relative">
               <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#444]" />
               <Input
@@ -52,13 +49,15 @@ export function InviteModal({
           </div>
 
           <div className="space-y-3">
-            <label className="text-xs text-[#666] uppercase tracking-widest block">Organization Role</label>
+            <label className="text-xs text-[#666] uppercase tracking-widest block">
+              Organization Role
+            </label>
             <div className="grid grid-cols-2 gap-2">
               <button
                 onClick={() => setRole('direct_member')}
                 className={`px-3 py-3 text-xs border transition-all flex flex-col items-center gap-2 ${
-                  role === 'direct_member' 
-                    ? 'bg-[#00ff00]/10 border-[#00ff00] text-[#00ff00]' 
+                  role === 'direct_member'
+                    ? 'bg-[#00ff00]/10 border-[#00ff00] text-[#00ff00]'
                     : 'bg-[#1a1a1a] border-[#333] text-[#666] hover:border-[#444]'
                 }`}
               >
@@ -68,8 +67,8 @@ export function InviteModal({
               <button
                 onClick={() => setRole('admin')}
                 className={`px-3 py-3 text-xs border transition-all flex flex-col items-center gap-2 ${
-                  role === 'admin' 
-                    ? 'bg-purple-500/10 border-purple-500 text-purple-400' 
+                  role === 'admin'
+                    ? 'bg-purple-500/10 border-purple-500 text-purple-400'
                     : 'bg-[#1a1a1a] border-[#333] text-[#666] hover:border-[#444]'
                 }`}
               >
@@ -81,7 +80,8 @@ export function InviteModal({
 
           <div className="p-3 bg-blue-500/5 border border-blue-500/20 text-[10px] text-blue-300 leading-relaxed">
             <Shield className="w-3 h-3 mb-1" />
-            Invitation will be sent via email. If the user already has a GitHub account, they will also see it in their notifications.
+            Invitation will be sent via email. If the user already has a GitHub account, they will
+            also see it in their notifications.
           </div>
 
           <div className="flex gap-3 pt-4">

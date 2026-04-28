@@ -1,11 +1,11 @@
-'use client'
+'use client';
 
-import { useState, useEffect, ReactNode } from 'react'
-import { TypewriterLines } from './Typewriter'
+import { type ReactNode, useState } from 'react';
+import { TypewriterLines } from './Typewriter';
 
 interface TerminalBootProps {
-  onBootComplete: () => void
-  children?: ReactNode
+  onBootComplete: () => void;
+  children?: ReactNode;
 }
 
 const BOOT_LINES = [
@@ -17,17 +17,17 @@ const BOOT_LINES = [
   '[OK] System ready.',
   '',
   '> Launching interface...',
-]
+];
 
 export function TerminalBoot({ onBootComplete }: TerminalBootProps) {
-  const [phase, setPhase] = useState<'booting' | 'complete'>('booting')
+  const [phase, setPhase] = useState<'booting' | 'complete'>('booting');
 
   const handleBootComplete = () => {
     setTimeout(() => {
-      setPhase('complete')
-      onBootComplete()
-    }, 500)
-  }
+      setPhase('complete');
+      onBootComplete();
+    }, 500);
+  };
 
   return (
     <div
@@ -56,5 +56,5 @@ export function TerminalBoot({ onBootComplete }: TerminalBootProps) {
         </div>
       </div>
     </div>
-  )
+  );
 }

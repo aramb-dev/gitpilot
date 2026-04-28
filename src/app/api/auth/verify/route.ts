@@ -1,9 +1,9 @@
-import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import type { Session } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import type { TokenVerificationResult } from "@/types/account";
-import { createGitHubHeaders, parseRateLimitHeaders } from "@/lib/github/client";
+import { NextResponse } from 'next/server';
+import type { Session } from 'next-auth';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+import { createGitHubHeaders, parseRateLimitHeaders } from '@/lib/github/client';
+import type { TokenVerificationResult } from '@/types/account';
 
 /**
  * GET /api/auth/verify
@@ -11,9 +11,11 @@ import { createGitHubHeaders, parseRateLimitHeaders } from "@/lib/github/client"
  * Returns user info, granted scopes, and rate limit status.
  */
 export async function GET() {
-  const session = (await getServerSession(authOptions)) as (Session & {
-    accessToken?: string;
-  }) | null;
+  const session = (await getServerSession(authOptions)) as
+    | (Session & {
+        accessToken?: string;
+      })
+    | null;
 
   if (!session?.accessToken) {
     const result: TokenVerificationResult = {
@@ -60,8 +62,11 @@ export async function GET() {
 
     // Extract scopes from response header
     const scopesHeader = response.headers.get('X-OAuth-Scopes');
-    const scopes = scopesHeader 
-      ? scopesHeader.split(',').map(s => s.trim()).filter(Boolean)
+    const scopes = scopesHeader
+      ? scopesHeader
+          .split(',')
+          .map((s) => s.trim())
+          .filter(Boolean)
       : [];
 
     // Get rate limit info

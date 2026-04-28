@@ -1,32 +1,32 @@
-import { describe, expect, it, mock, beforeEach } from "bun:test";
-import { GET, DELETE } from "./route";
+import { beforeEach, describe, expect, it, mock } from 'bun:test';
+import { DELETE, GET } from './route';
 
 // Helper to create a complete mock GitHub repo
 const createMockGitHubRepo = (overrides: Record<string, unknown> = {}) => ({
   id: 1,
-  name: "test-repo",
-  full_name: "user/test-repo",
-  owner: { login: "user", id: 1, type: "User", avatar_url: "" },
+  name: 'test-repo',
+  full_name: 'user/test-repo',
+  owner: { login: 'user', id: 1, type: 'User', avatar_url: '' },
   private: false,
-  html_url: "https://github.com/user/test-repo",
+  html_url: 'https://github.com/user/test-repo',
   description: null,
   fork: false,
-  url: "https://api.github.com/repos/user/test-repo",
-  archive_url: "",
+  url: 'https://api.github.com/repos/user/test-repo',
+  archive_url: '',
   archived: false,
   disabled: false,
-  visibility: "public",
-  pushed_at: "2023-01-01T00:00:00Z",
-  created_at: "2023-01-01T00:00:00Z",
-  updated_at: "2023-01-01T00:00:00Z",
-  clone_url: "https://github.com/user/test-repo.git",
-  ssh_url: "",
+  visibility: 'public',
+  pushed_at: '2023-01-01T00:00:00Z',
+  created_at: '2023-01-01T00:00:00Z',
+  updated_at: '2023-01-01T00:00:00Z',
+  clone_url: 'https://github.com/user/test-repo.git',
+  ssh_url: '',
   language: null,
   forks_count: 0,
   stargazers_count: 0,
   watchers_count: 0,
   open_issues_count: 0,
-  default_branch: "main",
+  default_branch: 'main',
   has_issues: true,
   has_projects: true,
   has_wiki: true,
@@ -40,82 +40,104 @@ const createMockGitHubRepo = (overrides: Record<string, unknown> = {}) => ({
 });
 
 // Mock getServerSession
-mock.module("next-auth", () => ({
-  getServerSession: () => Promise.resolve({ accessToken: "mock-token" }),
+mock.module('next-auth', () => ({
+  getServerSession: () => Promise.resolve({ accessToken: 'mock-token' }),
 }));
 
-
-
-describe("Repositories API Route", () => {
+describe('Repositories API Route', () => {
   beforeEach(() => {
-    mock.module("next-auth", () => ({
-      getServerSession: () => Promise.resolve({ accessToken: "mock-token" }),
+    mock.module('next-auth', () => ({
+      getServerSession: () => Promise.resolve({ accessToken: 'mock-token' }),
     }));
     global.fetch = mock(() => Promise.resolve(new Response(JSON.stringify([])))) as any;
   });
 
-  describe("GET", () => {
-    it("should fetch repos for user and multiple orgs", async () => {
+  describe('GET', () => {
+    it('should fetch repos for user and multiple orgs', async () => {
       global.fetch = mock((url: string) => {
-        if (url.includes("/user/repos")) {
-          return Promise.resolve(new Response(JSON.stringify([
-            createMockGitHubRepo({ id: 1, name: "user-repo", full_name: "user/user-repo", updated_at: "2023-01-01T00:00:00Z" })
-          ])));
+        if (url.includes('/user/repos')) {
+          return Promise.resolve(
+            new Response(
+              JSON.stringify([
+                createMockGitHubRepo({
+                  id: 1,
+                  name: 'user-repo',
+                  full_name: 'user/user-repo',
+                  updated_at: '2023-01-01T00:00:00Z',
+                }),
+              ]),
+            ),
+          );
         }
-        if (url.includes("/orgs/org1/repos")) {
-          return Promise.resolve(new Response(JSON.stringify([
-            createMockGitHubRepo({ id: 2, name: "org1-repo", full_name: "org1/org1-repo", owner: { login: "org1", id: 2, type: "Organization", avatar_url: "" }, private: true, updated_at: "2023-01-02T00:00:00Z" })
-          ])));
+        if (url.includes('/orgs/org1/repos')) {
+          return Promise.resolve(
+            new Response(
+              JSON.stringify([
+                createMockGitHubRepo({
+                  id: 2,
+                  name: 'org1-repo',
+                  full_name: 'org1/org1-repo',
+                  owner: { login: 'org1', id: 2, type: 'Organization', avatar_url: '' },
+                  private: true,
+                  updated_at: '2023-01-02T00:00:00Z',
+                }),
+              ]),
+            ),
+          );
         }
         return Promise.resolve(new Response(JSON.stringify([])));
       }) as any;
 
-      const req = { url: "http://localhost/api/github/repos?orgs=org1" } as any;
+      const req = { url: 'http://localhost/api/github/repos?orgs=org1' } as any;
       const response = await GET(req);
       const json = await response.json();
 
       expect(response.status).toBe(200);
       expect(json.data).toHaveLength(2);
       // Sorted by updated_at desc, so org1-repo (Jan 2) should be first
-      expect(json.data[0].name).toBe("org1-repo");
-      expect(json.data[1].name).toBe("user-repo");
+      expect(json.data[0].name).toBe('org1-repo');
+      expect(json.data[1].name).toBe('user-repo');
     });
 
-    it("should handle empty orgs list", async () => {
+    it('should handle empty orgs list', async () => {
       global.fetch = mock((url: string) => {
-        if (url.includes("/user/repos")) {
-          return Promise.resolve(new Response(JSON.stringify([
-            createMockGitHubRepo({ id: 1, name: "user-repo", full_name: "user/user-repo" })
-          ])));
+        if (url.includes('/user/repos')) {
+          return Promise.resolve(
+            new Response(
+              JSON.stringify([
+                createMockGitHubRepo({ id: 1, name: 'user-repo', full_name: 'user/user-repo' }),
+              ]),
+            ),
+          );
         }
         return Promise.resolve(new Response(JSON.stringify([])));
       }) as any;
 
-      const req = { url: "http://localhost/api/github/repos" } as any;
+      const req = { url: 'http://localhost/api/github/repos' } as any;
       const response = await GET(req);
       const json = await response.json();
 
       expect(response.status).toBe(200);
       expect(json.data).toHaveLength(1);
-      expect(json.data[0].name).toBe("user-repo");
+      expect(json.data[0].name).toBe('user-repo');
     });
 
-    it("should return 401 if unauthorized", async () => {
-      mock.module("next-auth", () => ({
+    it('should return 401 if unauthorized', async () => {
+      mock.module('next-auth', () => ({
         getServerSession: () => Promise.resolve(null),
       }));
 
-      const req = { url: "http://localhost/api/github/repos" } as any;
+      const req = { url: 'http://localhost/api/github/repos' } as any;
       const response = await GET(req);
       const json = await response.json();
 
       expect(response.status).toBe(401);
-      expect(json.error.code).toBe("UNAUTHORIZED");
+      expect(json.error.code).toBe('UNAUTHORIZED');
     });
 
-    it("should include error in warnings when personal repos fetch fails", async () => {
-      global.fetch = mock(() => Promise.reject(new Error("Network error"))) as any;
-      const req = { url: "http://localhost/api/github/repos" } as any;
+    it('should include error in warnings when personal repos fetch fails', async () => {
+      global.fetch = mock(() => Promise.reject(new Error('Network error'))) as any;
+      const req = { url: 'http://localhost/api/github/repos' } as any;
       const response = await GET(req);
       const json = await response.json();
 
@@ -123,29 +145,31 @@ describe("Repositories API Route", () => {
       expect(response.status).toBe(200);
       expect(json.data).toEqual([]);
       expect(json.warnings).toBeDefined();
-      expect(json.warnings.some((w: string) => w.includes("personal"))).toBe(true);
+      expect(json.warnings.some((w: string) => w.includes('personal'))).toBe(true);
     });
 
-    it("should handle pagination with Link headers", async () => {
-      const page1 = [createMockGitHubRepo({ id: 1, name: "repo1" })];
-      const page2 = [createMockGitHubRepo({ id: 2, name: "repo2" })];
+    it('should handle pagination with Link headers', async () => {
+      const page1 = [createMockGitHubRepo({ id: 1, name: 'repo1' })];
+      const page2 = [createMockGitHubRepo({ id: 2, name: 'repo2' })];
       let callCount = 0;
 
       global.fetch = mock((url: string) => {
-        if (url.includes("/user/repos")) {
+        if (url.includes('/user/repos')) {
           callCount++;
           if (callCount === 1) {
-            return Promise.resolve(new Response(JSON.stringify(page1), {
-              status: 200,
-              headers: { Link: '<https://api.github.com/user/repos?page=2>; rel="next"' },
-            }));
+            return Promise.resolve(
+              new Response(JSON.stringify(page1), {
+                status: 200,
+                headers: { Link: '<https://api.github.com/user/repos?page=2>; rel="next"' },
+              }),
+            );
           }
           return Promise.resolve(new Response(JSON.stringify(page2), { status: 200 }));
         }
         return Promise.resolve(new Response(JSON.stringify([]), { status: 200 }));
       }) as any;
 
-      const req = { url: "http://localhost/api/github/repos" } as any;
+      const req = { url: 'http://localhost/api/github/repos' } as any;
       const response = await GET(req);
       const json = await response.json();
 
@@ -153,56 +177,60 @@ describe("Repositories API Route", () => {
       expect(json.data).toHaveLength(2);
     });
 
-    it("should include warnings for partial org failures", async () => {
+    it('should include warnings for partial org failures', async () => {
       global.fetch = mock((url: string) => {
-        if (url.includes("/user/repos")) {
-          return Promise.resolve(new Response(JSON.stringify([
-            createMockGitHubRepo({ id: 1, name: "user-repo" })
-          ])));
+        if (url.includes('/user/repos')) {
+          return Promise.resolve(
+            new Response(JSON.stringify([createMockGitHubRepo({ id: 1, name: 'user-repo' })])),
+          );
         }
-        if (url.includes("/orgs/failing-org")) {
-          return Promise.resolve(new Response(JSON.stringify({ message: "Not Found" }), { status: 404 }));
+        if (url.includes('/orgs/failing-org')) {
+          return Promise.resolve(
+            new Response(JSON.stringify({ message: 'Not Found' }), { status: 404 }),
+          );
         }
         return Promise.resolve(new Response(JSON.stringify([])));
       }) as any;
 
-      const req = { url: "http://localhost/api/github/repos?orgs=failing-org" } as any;
+      const req = { url: 'http://localhost/api/github/repos?orgs=failing-org' } as any;
       const response = await GET(req);
       const json = await response.json();
 
       expect(response.status).toBe(200);
       expect(json.data).toHaveLength(1);
       expect(json.warnings).toBeDefined();
-      expect(json.warnings.some((w: string) => w.includes("failing-org"))).toBe(true);
+      expect(json.warnings.some((w: string) => w.includes('failing-org'))).toBe(true);
     });
 
-    it("should handle rate limiting gracefully", async () => {
+    it('should handle rate limiting gracefully', async () => {
       let callCount = 0;
       global.fetch = mock((url: string) => {
-        if (url.includes("/user/repos")) {
+        if (url.includes('/user/repos')) {
           callCount++;
           if (callCount === 1) {
-            return Promise.resolve(new Response(JSON.stringify([
-              createMockGitHubRepo({ id: 1, name: "repo1" })
-            ]), {
-              status: 200,
-              headers: { Link: '<https://api.github.com/user/repos?page=2>; rel="next"' },
-            }));
+            return Promise.resolve(
+              new Response(JSON.stringify([createMockGitHubRepo({ id: 1, name: 'repo1' })]), {
+                status: 200,
+                headers: { Link: '<https://api.github.com/user/repos?page=2>; rel="next"' },
+              }),
+            );
           }
           // Second page hits rate limit
-          return Promise.resolve(new Response(JSON.stringify({ message: "Rate limit exceeded" }), {
-            status: 403,
-            headers: {
-              "X-RateLimit-Remaining": "0",
-              "X-RateLimit-Limit": "5000",
-              "X-RateLimit-Reset": String(Math.floor(Date.now() / 1000) - 1),
-            },
-          }));
+          return Promise.resolve(
+            new Response(JSON.stringify({ message: 'Rate limit exceeded' }), {
+              status: 403,
+              headers: {
+                'X-RateLimit-Remaining': '0',
+                'X-RateLimit-Limit': '5000',
+                'X-RateLimit-Reset': String(Math.floor(Date.now() / 1000) - 1),
+              },
+            }),
+          );
         }
         return Promise.resolve(new Response(JSON.stringify([]), { status: 200 }));
       }) as any;
 
-      const req = { url: "http://localhost/api/github/repos" } as any;
+      const req = { url: 'http://localhost/api/github/repos' } as any;
       const response = await GET(req);
       const json = await response.json();
 
@@ -213,10 +241,10 @@ describe("Repositories API Route", () => {
     });
   });
 
-  describe("DELETE", () => {
-    it("should delete multiple repos", async () => {
-      global.fetch = mock((url: string, options: any) => {
-        if (options.method === "DELETE") {
+  describe('DELETE', () => {
+    it('should delete multiple repos', async () => {
+      global.fetch = mock((_url: string, options: any) => {
+        if (options.method === 'DELETE') {
           return Promise.resolve(new Response(null, { status: 204 }));
         }
         return Promise.resolve(new Response(null, { status: 404 }));
@@ -225,8 +253,8 @@ describe("Repositories API Route", () => {
       const req = {
         json: async () => ({
           repos: [
-            { owner: "user", repo: "repo1" },
-            { owner: "user", repo: "repo2" },
+            { owner: 'user', repo: 'repo1' },
+            { owner: 'user', repo: 'repo2' },
           ],
         }),
       } as any;
@@ -239,19 +267,21 @@ describe("Repositories API Route", () => {
       expect(data.errors).toHaveLength(0);
     });
 
-    it("should handle partial failures in deletion", async () => {
+    it('should handle partial failures in deletion', async () => {
       global.fetch = mock((url: string) => {
-        if (url.includes("repo1")) {
+        if (url.includes('repo1')) {
           return Promise.resolve(new Response(null, { status: 204 }));
         }
-        return Promise.resolve(new Response(JSON.stringify({ message: "Not Found" }), { status: 404 }));
+        return Promise.resolve(
+          new Response(JSON.stringify({ message: 'Not Found' }), { status: 404 }),
+        );
       }) as any;
 
       const req = {
         json: async () => ({
           repos: [
-            { owner: "user", repo: "repo1" },
-            { owner: "user", repo: "fail-repo" },
+            { owner: 'user', repo: 'repo1' },
+            { owner: 'user', repo: 'fail-repo' },
           ],
         }),
       } as any;
@@ -264,14 +294,14 @@ describe("Repositories API Route", () => {
       expect(data.errors).toHaveLength(1);
     });
 
-    it("should return 401 if unauthorized", async () => {
-      mock.module("next-auth", () => ({
+    it('should return 401 if unauthorized', async () => {
+      mock.module('next-auth', () => ({
         getServerSession: () => Promise.resolve(null),
       }));
 
       const req = {
         json: async () => ({
-          repos: [{ owner: "user", repo: "repo1" }],
+          repos: [{ owner: 'user', repo: 'repo1' }],
         }),
       } as any;
 
@@ -279,28 +309,28 @@ describe("Repositories API Route", () => {
       expect(response.status).toBe(401);
     });
 
-    it("should return 400 if validation fails (empty repos)", async () => {
+    it('should return 400 if validation fails (empty repos)', async () => {
       // Reset mock
-      mock.module("next-auth", () => ({
-        getServerSession: () => Promise.resolve({ accessToken: "mock-token" }),
+      mock.module('next-auth', () => ({
+        getServerSession: () => Promise.resolve({ accessToken: 'mock-token' }),
       }));
 
       const req = {
         json: async () => ({
-          repos: []
-        })
+          repos: [],
+        }),
       } as any;
 
       const response = await DELETE(req);
       expect(response.status).toBe(400);
     });
 
-    it("should handle network errors", async () => {
-      global.fetch = mock(() => Promise.reject(new Error("Network Error"))) as any;
+    it('should handle network errors', async () => {
+      global.fetch = mock(() => Promise.reject(new Error('Network Error'))) as any;
 
       const req = {
         json: async () => ({
-          repos: [{ owner: "user", repo: "net-fail" }],
+          repos: [{ owner: 'user', repo: 'net-fail' }],
         }),
       } as any;
 
@@ -309,7 +339,7 @@ describe("Repositories API Route", () => {
 
       expect(response.status).toBe(200);
       expect(data.errors).toHaveLength(1);
-      expect(data.errors[0].error).toBe("Network Error");
+      expect(data.errors[0].error).toBe('Network Error');
     });
   });
 });

@@ -4,7 +4,12 @@
  */
 
 import type { GitHubRepository } from '@/types/github';
-import type { Repository, RepositoryPermissions, OwnerType, RepositoryVisibility } from '@/types/repository';
+import type {
+  OwnerType,
+  Repository,
+  RepositoryPermissions,
+  RepositoryVisibility,
+} from '@/types/repository';
 
 const DEFAULT_PERMISSIONS: RepositoryPermissions = {
   admin: false,

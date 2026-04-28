@@ -1,7 +1,7 @@
 'use client';
 
+import { AlertTriangle, CheckCircle, RefreshCw, XCircle } from 'lucide-react';
 import { useState } from 'react';
-import { CheckCircle, XCircle, RefreshCw, AlertTriangle } from 'lucide-react';
 import { useTokenVerification } from '@/hooks/useTokenVerification';
 
 export function ConnectionStatus() {
@@ -81,7 +81,10 @@ export function ConnectionStatus() {
 
         {error && (
           <div className="p-3 bg-red-500/10 border border-red-900/50">
-            <p className="text-sm text-red-400"><span className="text-[#666]">error: </span>{error.message}</p>
+            <p className="text-sm text-red-400">
+              <span className="text-[#666]">error: </span>
+              {error.message}
+            </p>
           </div>
         )}
 

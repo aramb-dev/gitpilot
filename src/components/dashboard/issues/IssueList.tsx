@@ -1,9 +1,9 @@
 'use client';
 
 import { useCallback, useState } from 'react';
-import { IssueRow } from './IssueRow';
-import { IssueListHeader } from './IssueListHeader';
 import type { Issue } from '@/types/issue';
+import { IssueListHeader } from './IssueListHeader';
+import { IssueRow } from './IssueRow';
 
 interface IssueListProps {
   issues: Issue[];
@@ -40,7 +40,7 @@ export function IssueList({
         onSelectionChange([]);
       }
     },
-    [issues, onSelectionChange]
+    [issues, onSelectionChange],
   );
 
   const handleSelect = useCallback(
@@ -76,7 +76,7 @@ export function IssueList({
 
       setLastSelectedIndex(issueIndex);
     },
-    [issues, selectedIssues, selectedIds, lastSelectedIndex, onSelectionChange]
+    [issues, selectedIssues, selectedIds, lastSelectedIndex, onSelectionChange],
   );
 
   const allSelected = issues.length > 0 && selectedIssues.length === issues.length;

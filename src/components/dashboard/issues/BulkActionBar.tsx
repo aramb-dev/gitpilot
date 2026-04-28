@@ -1,10 +1,10 @@
 'use client';
 
+import { Lock, MoreHorizontal, RotateCcw, Tag, UserPlus, X, XCircle } from 'lucide-react';
 import { useState } from 'react';
-import { X, XCircle, RotateCcw, Tag, UserPlus, Lock, MoreHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import type { BulkIssueAction, Issue, IssueLabel, IssueUser } from '@/types/issue';
 import { CloseIssueModal } from './CloseIssueModal';
-import type { Issue, IssueLabel, IssueUser, BulkIssueAction } from '@/types/issue';
 
 interface BulkActionBarProps {
   selectedIssues: Issue[];

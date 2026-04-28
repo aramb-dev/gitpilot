@@ -1,7 +1,7 @@
-import { fetchAllRepos } from "./repos";
-import { normalizeRepositories } from "./normalize";
-import { getCached, setCache } from "@/db/cache";
-import type { Repository } from "@/types/repository";
+import { getCached, setCache } from '@/db/cache';
+import type { Repository } from '@/types/repository';
+import { normalizeRepositories } from './normalize';
+import { fetchAllRepos } from './repos';
 
 export interface GetCachedReposResult {
   data: Repository[];
@@ -13,9 +13,9 @@ export async function getCachedRepos(
   userId: string,
   accessToken: string,
   selectedOrgs: string[] = [],
-  skipCache = false
+  skipCache = false,
 ): Promise<GetCachedReposResult> {
-  const cacheKey = `repos:${selectedOrgs.sort().join(",")}`;
+  const cacheKey = `repos:${selectedOrgs.sort().join(',')}`;
 
   if (!skipCache) {
     const cached = await getCached<Repository[]>(userId, cacheKey);
@@ -31,7 +31,7 @@ export async function getCachedRepos(
   const result = await fetchAllRepos(accessToken, selectedOrgs, { userId });
   const normalizedRepos = normalizeRepositories(result.repos);
 
-  await setCache(userId, cacheKey, "repositories", normalizedRepos, {
+  await setCache(userId, cacheKey, 'repositories', normalizedRepos, {
     ttlMinutes: 5,
   });
 

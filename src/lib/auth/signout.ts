@@ -4,11 +4,7 @@
 
 import { signOut } from 'next-auth/react';
 
-const LOCAL_STORAGE_KEYS_TO_CLEAR = [
-  'selected_orgs',
-  'gitpilot_preferences',
-  'gitpilot_cache',
-];
+const LOCAL_STORAGE_KEYS_TO_CLEAR = ['selected_orgs', 'gitpilot_preferences', 'gitpilot_cache'];
 
 /**
  * Clears all GitPilot-related data from localStorage.
@@ -44,7 +40,7 @@ export async function handleSignOut(callbackUrl = '/'): Promise<void> {
  */
 export async function handleSignOutWithToast(
   showToast: (message: string) => void,
-  callbackUrl = '/'
+  callbackUrl = '/',
 ): Promise<void> {
   showToast('Signing out...');
   await handleSignOut(callbackUrl);

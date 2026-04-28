@@ -1,11 +1,11 @@
 'use client';
 
+import { AlertCircle, Building2, ExternalLink } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { Building2, ExternalLink, AlertCircle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { getStatusColor, getStatusLabel } from '@/lib/github/org-status';
 import type { OrganizationAccess } from '@/types/account';
 import type { ApiResponse } from '@/types/api-errors';
-import { getStatusLabel, getStatusColor } from '@/lib/github/org-status';
 
 export function OrganizationAccessList() {
   const [orgs, setOrgs] = useState<OrganizationAccess[]>([]);
@@ -66,7 +66,10 @@ export function OrganizationAccessList() {
         </div>
         <div className="flex items-center gap-2 text-red-400">
           <AlertCircle className="w-4 h-4" />
-          <p className="text-sm"><span className="text-[#666]">error: </span>{error}</p>
+          <p className="text-sm">
+            <span className="text-[#666]">error: </span>
+            {error}
+          </p>
         </div>
       </div>
     );
@@ -80,9 +83,7 @@ export function OrganizationAccessList() {
       </div>
 
       {orgs.length === 0 ? (
-        <p className="text-[#666] text-sm">
-          no organizations found, or access not granted.
-        </p>
+        <p className="text-[#666] text-sm">no organizations found, or access not granted.</p>
       ) : (
         <div className="space-y-3">
           {orgs.map((org) => (
@@ -99,23 +100,16 @@ export function OrganizationAccessList() {
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="font-medium text-white">{org.login}</span>
-                    {org.role && (
-                      <span className="text-xs text-[#666] capitalize">{org.role}</span>
-                    )}
+                    {org.role && <span className="text-xs text-[#666] capitalize">{org.role}</span>}
                   </div>
                   {org.description && (
-                    <p className="text-sm text-[#666] truncate max-w-xs">
-                      {org.description}
-                    </p>
+                    <p className="text-sm text-[#666] truncate max-w-xs">{org.description}</p>
                   )}
                 </div>
               </div>
 
               <div className="flex items-center gap-2">
-                <Badge
-                  variant="outline"
-                  className={getStatusColor(org.status)}
-                >
+                <Badge variant="outline" className={getStatusColor(org.status)}>
                   {getStatusLabel(org.status)}
                 </Badge>
 

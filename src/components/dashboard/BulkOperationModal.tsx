@@ -1,9 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { CheckCircle2, Loader2, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { CheckCircle2, XCircle, Loader2, AlertTriangle } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 export interface BulkItemStatus {
   id: string | number;
@@ -32,17 +31,20 @@ export function BulkOperationModal({
   onRetry,
 }: BulkOperationModalProps) {
   const total = items.length;
-  const processed = items.filter(i => i.status === 'success' || i.status === 'error').length;
-  const succeeded = items.filter(i => i.status === 'success').length;
-  const failed = items.filter(i => i.status === 'error').length;
+  const processed = items.filter((i) => i.status === 'success' || i.status === 'error').length;
+  const succeeded = items.filter((i) => i.status === 'success').length;
+  const failed = items.filter((i) => i.status === 'error').length;
   const progress = total > 0 ? (processed / total) * 100 : 0;
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => {
-      if (!open && (isCompleted || !onCancel)) {
-        onClose();
-      }
-    }}>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open && (isCompleted || !onCancel)) {
+          onClose();
+        }
+      }}
+    >
       <DialogContent className="bg-[#0d0d0d] border border-[#333] text-white font-mono rounded-none max-w-lg max-h-[80vh] flex flex-col">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold flex items-center gap-2">
@@ -54,11 +56,13 @@ export function BulkOperationModal({
           {/* Progress Summary */}
           <div className="space-y-2">
             <div className="flex justify-between text-xs text-[#666]">
-              <span>PROGRESS: {processed}/{total}</span>
+              <span>
+                PROGRESS: {processed}/{total}
+              </span>
               <span>{Math.round(progress)}%</span>
             </div>
             <div className="w-full h-1 bg-[#1a1a1a] border border-[#333]">
-              <div 
+              <div
                 className="h-full bg-[#00ff00] transition-all duration-300"
                 style={{ width: `${progress}%` }}
               />
@@ -77,8 +81,12 @@ export function BulkOperationModal({
                 <div key={item.id} className="flex items-center justify-between p-2 text-xs">
                   <div className="flex items-center gap-2 overflow-hidden">
                     {item.status === 'pending' && <div className="w-4 h-4 border border-[#333]" />}
-                    {item.status === 'processing' && <Loader2 className="w-4 h-4 text-[#00ff00] animate-spin" />}
-                    {item.status === 'success' && <CheckCircle2 className="w-4 h-4 text-[#00ff00]" />}
+                    {item.status === 'processing' && (
+                      <Loader2 className="w-4 h-4 text-[#00ff00] animate-spin" />
+                    )}
+                    {item.status === 'success' && (
+                      <CheckCircle2 className="w-4 h-4 text-[#00ff00]" />
+                    )}
                     {item.status === 'error' && <XCircle className="w-4 h-4 text-red-500" />}
                     <span className="truncate text-[#888]">{item.label}</span>
                   </div>
@@ -104,13 +112,13 @@ export function BulkOperationModal({
             </Button>
           )}
           {isCompleted && failed > 0 && onRetry && (
-             <Button
-               variant="outline"
-               onClick={onRetry}
-               className="bg-[#0d0d0d] border-red-500 text-red-500 hover:bg-red-500/10 font-mono rounded-none h-9"
-             >
-               RETRY_FAILED
-             </Button>
+            <Button
+              variant="outline"
+              onClick={onRetry}
+              className="bg-[#0d0d0d] border-red-500 text-red-500 hover:bg-red-500/10 font-mono rounded-none h-9"
+            >
+              RETRY_FAILED
+            </Button>
           )}
           {isCompleted && (
             <Button

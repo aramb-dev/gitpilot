@@ -1,9 +1,19 @@
 'use client';
 
+import {
+  GitMerge,
+  Lock,
+  MoreHorizontal,
+  RotateCcw,
+  Tag,
+  UserCheck,
+  UserPlus,
+  X,
+  XCircle,
+} from 'lucide-react';
 import { useState } from 'react';
-import { X, XCircle, RotateCcw, Tag, UserPlus, GitMerge, UserCheck, MoreHorizontal, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import type { PullRequest, BulkPRAction, PRLabel, PRUser } from '@/types/pull-request';
+import type { BulkPRAction, PRLabel, PRUser, PullRequest } from '@/types/pull-request';
 
 interface PRBulkActionBarProps {
   selectedPRs: PullRequest[];
@@ -90,6 +100,7 @@ export function PRBulkActionBar({
           {/* Selection info */}
           <div className="flex items-center gap-3">
             <button
+              type="button"
               onClick={onClearSelection}
               className="p-1 text-[#666] hover:text-[#00ff00] transition-colors"
               title="Clear selection"
@@ -151,9 +162,9 @@ export function PRBulkActionBar({
                 size="sm"
                 className="border-[#333] hover:border-[#00ff00] text-[#888] hover:text-[#00ff00]"
                 onClick={() => {
-                    const newState = !showLabelPicker;
-                    closePickers();
-                    setShowLabelPicker(newState);
+                  const newState = !showLabelPicker;
+                  closePickers();
+                  setShowLabelPicker(newState);
                 }}
                 disabled={isExecuting}
               >
@@ -186,21 +197,27 @@ export function PRBulkActionBar({
                           </div>
                           <div className="flex gap-1">
                             <button
-                              onClick={() => handleAddLabel(label.name)}
+                              type="button"
+                              onClick=
+{() => handleAddLabel(label.name)}
                               className="px-2 py-0.5 text-[10px] text-[#00ff00] hover:bg-[#00ff00]/10 border border-[#00ff00]/30"
                               title="Add label"
                             >
                               ADD
                             </button>
                             <button
-                              onClick={() => handleRemoveLabel(label.name)}
+                              type="button"
+                              onClick=
+{() => handleRemoveLabel(label.name)}
                               className="px-2 py-0.5 text-[10px] text-red-500 hover:bg-red-500/10 border border-red-500/30"
                               title="Remove label"
                             >
                               REM
                             </button>
                             <button
-                              onClick={() => handleSetLabel(label.name)}
+                              type="button"
+                              onClick=
+{() => handleSetLabel(label.name)}
                               className="px-2 py-0.5 text-[10px] text-blue-500 hover:bg-blue-500/10 border border-blue-500/30"
                               title="Set as only label"
                             >
@@ -222,9 +239,9 @@ export function PRBulkActionBar({
                 size="sm"
                 className="border-[#333] hover:border-[#00ff00] text-[#888] hover:text-[#00ff00]"
                 onClick={() => {
-                    const newState = !showAssigneePicker;
-                    closePickers();
-                    setShowAssigneePicker(newState);
+                  const newState = !showAssigneePicker;
+                  closePickers();
+                  setShowAssigneePicker(newState);
                 }}
                 disabled={isExecuting}
               >
@@ -251,20 +268,24 @@ export function PRBulkActionBar({
                           <div className="flex items-center gap-2">
                             <img
                               src={user.avatarUrl}
-                              alt={user.login}
+                              alt={`Avatar of ${user.login}`}
                               className="w-5 h-5 border border-[#333]"
                             />
                             <span className="text-xs text-[#888]">{user.login}</span>
                           </div>
                           <div className="flex gap-1">
                             <button
-                              onClick={() => handleAssign(user.login)}
+                              type="button"
+                              onClick=
+{() => handleAssign(user.login)}
                               className="px-2 py-0.5 text-[10px] text-[#00ff00] hover:bg-[#00ff00]/10 border border-[#00ff00]/30"
                             >
                               ADD
                             </button>
                             <button
-                              onClick={() => handleUnassign(user.login)}
+                              type="button"
+                              onClick=
+{() => handleUnassign(user.login)}
                               className="px-2 py-0.5 text-[10px] text-red-500 hover:bg-red-500/10 border border-red-500/30"
                             >
                               REM
@@ -278,16 +299,16 @@ export function PRBulkActionBar({
               )}
             </div>
 
-             {/* Reviewer picker */}
-             <div className="relative">
+            {/* Reviewer picker */}
+            <div className="relative">
               <Button
                 variant="outline"
                 size="sm"
                 className="border-[#333] hover:border-[#00ff00] text-[#888] hover:text-[#00ff00]"
                 onClick={() => {
-                    const newState = !showReviewerPicker;
-                    closePickers();
-                    setShowReviewerPicker(newState);
+                  const newState = !showReviewerPicker;
+                  closePickers();
+                  setShowReviewerPicker(newState);
                 }}
                 disabled={isExecuting}
               >
@@ -314,20 +335,24 @@ export function PRBulkActionBar({
                           <div className="flex items-center gap-2">
                             <img
                               src={user.avatarUrl}
-                              alt={user.login}
+                              alt={`Avatar of ${user.login}`}
                               className="w-5 h-5 border border-[#333]"
                             />
                             <span className="text-xs text-[#888]">{user.login}</span>
                           </div>
                           <div className="flex gap-1">
                             <button
-                              onClick={() => handleRequestReview(user.login)}
+                              type="button"
+                              onClick=
+{() => handleRequestReview(user.login)}
                               className="px-2 py-0.5 text-[10px] text-[#00ff00] hover:bg-[#00ff00]/10 border border-[#00ff00]/30"
                             >
                               REQ
                             </button>
                             <button
-                              onClick={() => handleRemoveReviewRequest(user.login)}
+                              type="button"
+                              onClick=
+{() => handleRemoveReviewRequest(user.login)}
                               className="px-2 py-0.5 text-[10px] text-red-500 hover:bg-red-500/10 border border-red-500/30"
                             >
                               REM

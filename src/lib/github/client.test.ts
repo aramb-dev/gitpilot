@@ -1,17 +1,17 @@
-import { describe, expect, it, mock, afterEach, beforeEach } from 'bun:test';
+import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test';
 import {
   createGitHubHeaders,
-  parseRateLimitHeaders,
-  isRateLimited,
-  getSecondsUntilReset,
   fetchWithBackoff,
+  getSecondsUntilReset,
+  isRateLimited,
   isRetryableStatus,
+  parseRateLimitHeaders,
 } from './client';
 
 describe('createGitHubHeaders', () => {
   it('creates headers with Bearer token', () => {
     const headers = createGitHubHeaders('test-token');
-    
+
     expect(headers).toEqual({
       Accept: 'application/vnd.github+json',
       Authorization: 'Bearer test-token',
@@ -163,7 +163,7 @@ describe('fetchWithBackoff', () => {
 
     Math.random = () => 0.5;
     Math.random = () => 0.5;
-    const timeoutMock = mock((callback: TimerHandler, ms?: number) => {
+    const timeoutMock = mock((callback: TimerHandler, _ms?: number) => {
       if (typeof callback === 'function') {
         callback();
       }
@@ -195,8 +195,8 @@ describe('fetchWithBackoff', () => {
               'X-RateLimit-Reset': resetTimestamp.toString(),
               'X-RateLimit-Limit': '5000',
             },
-          })
-        )
+          }),
+        ),
       )
       .mockImplementationOnce(() => Promise.resolve(new Response('ok', { status: 200 })));
     global.fetch = fetchMock as any;
@@ -205,7 +205,7 @@ describe('fetchWithBackoff', () => {
     console.warn = warnMock as any;
 
     Math.random = () => 0.5;
-    const timeoutMock = mock((callback: TimerHandler, ms?: number) => {
+    const timeoutMock = mock((callback: TimerHandler, _ms?: number) => {
       if (typeof callback === 'function') {
         callback();
       }

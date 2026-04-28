@@ -3,7 +3,7 @@
  */
 
 import type { ApiError, ApiErrorCode } from '@/types/api-errors';
-import { isRateLimited, parseRateLimitHeaders, getSecondsUntilReset } from './client';
+import { getSecondsUntilReset, isRateLimited, parseRateLimitHeaders } from './client';
 
 /**
  * Classifies a GitHub API response into an error code.
@@ -42,11 +42,7 @@ export function classifyGitHubError(response: Response): ApiErrorCode {
  * @param details - Optional additional details
  * @returns ApiError object
  */
-export function createApiError(
-  code: ApiErrorCode,
-  message: string,
-  details?: string
-): ApiError {
+export function createApiError(code: ApiErrorCode, message: string, details?: string): ApiError {
   return {
     code,
     message,
@@ -63,10 +59,10 @@ export function createApiError(
  */
 export async function createApiErrorFromResponse(
   response: Response,
-  defaultMessage: string = 'GitHub API error'
+  defaultMessage: string = 'GitHub API error',
 ): Promise<ApiError> {
   const code = classifyGitHubError(response);
-  
+
   let message = defaultMessage;
   let details: string | undefined;
   let retry_after: number | undefined;

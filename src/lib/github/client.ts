@@ -55,7 +55,7 @@ export function isRateLimited(response: Response): boolean {
   if (response.status === 429) {
     return true;
   }
-  
+
   if (response.status !== 403) {
     return false;
   }
@@ -115,7 +115,7 @@ function getRequestUrl(input: RequestInfo | URL): string {
  * Fetches a URL with intelligent backoff for rate limiting.
  * Respects X-RateLimit-Reset and Retry-After headers.
  * Uses exponential backoff for other retryable errors if configured.
- * 
+ *
  * @param input - URL or Request object
  * @param init - Fetch options
  * @param maxRetries - Maximum number of retries (default: 3)
@@ -126,16 +126,16 @@ export async function fetchWithBackoff(
   input: RequestInfo | URL,
   init?: RequestInit,
   maxRetries: number = 3,
-  userId?: string
+  userId?: string,
 ): Promise<Response> {
   let attempt = 0;
   const requestUrl = getRequestUrl(input);
-  
+
   while (attempt <= maxRetries) {
     const response = await fetch(input, init);
-    
+
     if (isRateLimited(response)) {
-      let waitTimeMs = BACKOFF_BASE_MS * Math.pow(2, attempt);
+      let waitTimeMs = BACKOFF_BASE_MS * 2 ** attempt;
       let backoffSource: 'exponential' | 'rate_limit_reset' | 'retry_after' = 'exponential';
 
       // Check X-RateLimit-Reset
@@ -150,7 +150,7 @@ export async function fetchWithBackoff(
       const retryAfter = response.headers.get('Retry-After');
       if (retryAfter) {
         const seconds = parseInt(retryAfter, 10);
-        if (!isNaN(seconds)) {
+        if (!Number.isNaN(seconds)) {
           waitTimeMs = (seconds + 1) * 1000;
           backoffSource = 'retry_after';
         }
@@ -161,7 +161,7 @@ export async function fetchWithBackoff(
       }
 
       const cappedWait = capWaitTime(waitTimeMs);
-      
+
       // Log metric if userId is provided
       if (userId) {
         await logApiMetric(
@@ -170,7 +170,7 @@ export async function fetchWithBackoff(
           response.status,
           attempt,
           cappedWait.waitTimeMs,
-          'rate_limit'
+          'rate_limit',
         );
       }
 
@@ -179,21 +179,15 @@ export async function fetchWithBackoff(
       }
 
       if (cappedWait.capped) {
-        console.warn(`Rate limit backoff capped to ${Math.round(MAX_BACKOFF_MS / 1000)}s for ${requestUrl}.`);
       }
 
-      console.warn(
-        `Rate limited. Waiting ${Math.round(cappedWait.waitTimeMs / 1000)}s before retry ${attempt + 1}/${maxRetries} ` +
-          `(${backoffSource}) for ${requestUrl}.`
-      );
-      
-      await new Promise(resolve => setTimeout(resolve, cappedWait.waitTimeMs));
+      await new Promise((resolve) => setTimeout(resolve, cappedWait.waitTimeMs));
       attempt++;
       continue;
     }
 
     if (isRetryableStatus(response.status)) {
-      let waitTimeMs = applyJitter(BACKOFF_BASE_MS * Math.pow(2, attempt));
+      const waitTimeMs = applyJitter(BACKOFF_BASE_MS * 2 ** attempt);
       const cappedWait = capWaitTime(waitTimeMs);
 
       // Log metric if userId is provided
@@ -204,7 +198,7 @@ export async function fetchWithBackoff(
           response.status,
           attempt,
           cappedWait.waitTimeMs,
-          'server_error'
+          'server_error',
         );
       }
 
@@ -213,35 +207,73 @@ export async function fetchWithBackoff(
       }
 
       if (cappedWait.capped) {
-        console.warn(`Server error backoff capped to ${Math.round(MAX_BACKOFF_MS / 1000)}s for ${requestUrl}.`);
       }
 
-      console.warn(
-        `Server error ${response.status}. Waiting ${Math.round(cappedWait.waitTimeMs / 1000)}s before retry ${attempt + 1}/${maxRetries} ` +
-          `for ${requestUrl}.`
-      );
-
-      await new Promise(resolve => setTimeout(resolve, cappedWait.waitTimeMs));
+      await new Promise((resolve) => setTimeout(resolve, cappedWait.waitTimeMs));
       attempt++;
       continue;
     }
 
     // Success - log if userId provided and it wasn't the first attempt (meaning we recovered)
     if (userId && attempt > 0) {
-      await logApiMetric(
-        userId,
-        requestUrl,
-        response.status,
-        attempt,
-        0,
-        'success'
-      );
+      await logApiMetric(userId, requestUrl, response.status, attempt, 0, 'success');
     }
 
     return response;
   }
 
   throw new Error('Unreachable code in fetchWithBackoff');
+}
+
+/**
+ * Advanced fetch for GitHub that integrates with Database Caching and ETags.
+ *
+ * @param userId - For caching attribution
+ * @param cacheKey - Unique key for this request
+ * @param dataType - Type of data for cache metadata
+ * @param url - GitHub API URL
+ * @param accessToken - GitHub OAuth token
+ * @param ttlMinutes - Cache duration
+ * @returns Data and a flag indicating if it was from cache
+ */
+export async function fetchGitHub<T>(
+  userId: string,
+  cacheKey: string,
+  dataType: any, // Using any here to avoid importing CacheDataType which might cause circular deps or is complex
+  url: string,
+  accessToken: string,
+  ttlMinutes = 5,
+): Promise<{ data: T; fromCache: boolean }> {
+  const cached = await getCached<T>(userId, cacheKey);
+
+  const headers = createGitHubHeaders(accessToken) as Record<string, string>;
+
+  if (cached?.etag) {
+    headers['If-None-Match'] = cached.etag;
+  }
+
+  const response = await fetchWithBackoff(url, { headers }, 3, userId);
+
+  if (response.status === 304 && cached) {
+    // Not modified, return cached data
+    return { data: cached.data, fromCache: true };
+  }
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.message || `GitHub API error: ${response.status}`);
+  }
+
+  const data = await response.json();
+  const etag = response.headers.get('ETag') || undefined;
+
+  // Update cache
+  await setCache(userId, cacheKey, dataType, data, {
+    ttlMinutes,
+    etag,
+  });
+
+  return { data, fromCache: false };
 }
 
 export { GITHUB_API_BASE, GITHUB_API_VERSION };

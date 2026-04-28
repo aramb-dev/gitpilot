@@ -1,19 +1,19 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
 import { AlertCircle, RefreshCw } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { IssueList } from './IssueList';
-import { IssueFilters } from './IssueFilters';
-import { IssuePreview } from './IssuePreview';
-import { BulkActionBar } from './BulkActionBar';
-import { BulkOperationModal, type BulkItemStatus } from '../BulkOperationModal';
-import { IssueListPagination } from './IssueListPagination';
-import { useIssues } from '@/hooks/useIssues';
-import { useIssueFilters } from '@/hooks/useIssueFilters';
 import { useBulkIssueActions } from '@/hooks/useBulkIssueActions';
+import { useIssueFilters } from '@/hooks/useIssueFilters';
+import { useIssues } from '@/hooks/useIssues';
 import { usePreferences } from '@/hooks/usePreferences';
 import type { Issue, IssueLabel, IssueUser } from '@/types/issue';
+import { type BulkItemStatus, BulkOperationModal } from '../BulkOperationModal';
+import { BulkActionBar } from './BulkActionBar';
+import { IssueFilters } from './IssueFilters';
+import { IssueList } from './IssueList';
+import { IssueListPagination } from './IssueListPagination';
+import { IssuePreview } from './IssuePreview';
 
 interface IssuesPageClientProps {
   availableRepos: string[];
@@ -35,16 +35,8 @@ export function IssuesPageClient({ availableRepos }: IssuesPageClientProps) {
     }
   }, [availableRepos, filters, setFilters]);
 
-  const {
-    issues,
-    isLoading,
-    error,
-    totalCount,
-    hasNextPage,
-    currentPage,
-    refetch,
-    loadPage,
-  } = useIssues(filters);
+  const { issues, isLoading, error, totalCount, hasNextPage, currentPage, refetch, loadPage } =
+    useIssues(filters);
 
   const {
     selectedIssues,
@@ -59,11 +51,12 @@ export function IssuesPageClient({ availableRepos }: IssuesPageClientProps) {
 
   // Map bulk results to modal items
   const bulkItems: BulkItemStatus[] = useMemo(() => {
-    return selectedIssues.map(issue => {
-      const result = bulkState.results.find(r => 
-        r.issue.owner === issue.repository.owner && 
-        r.issue.repo === issue.repository.name && 
-        r.issue.number === issue.number
+    return selectedIssues.map((issue) => {
+      const result = bulkState.results.find(
+        (r) =>
+          r.issue.owner === issue.repository.owner &&
+          r.issue.repo === issue.repository.name &&
+          r.issue.number === issue.number,
       );
 
       let status: BulkItemStatus['status'] = 'pending';
@@ -120,14 +113,14 @@ export function IssuesPageClient({ availableRepos }: IssuesPageClientProps) {
     (sort: 'created' | 'updated' | 'comments') => {
       setFilters({ ...filters, sort });
     },
-    [filters, setFilters]
+    [filters, setFilters],
   );
 
   const handleDirectionChange = useCallback(
     (direction: 'asc' | 'desc') => {
       setFilters({ ...filters, direction });
     },
-    [filters, setFilters]
+    [filters, setFilters],
   );
 
   const handleCloseBulkModal = () => {
@@ -153,11 +146,10 @@ export function IssuesPageClient({ availableRepos }: IssuesPageClientProps) {
           <div className="inline-flex items-center justify-center w-16 h-16 border border-[#00ff00]/30 bg-[#00ff00]/5 mb-4">
             <AlertCircle className="w-8 h-8 text-[#00ff00]" />
           </div>
-          <h3 className="text-lg font-bold text-white mb-2">
-            // SELECT_REPOSITORIES
-          </h3>
+          <h3 className="text-lg font-bold text-white mb-2">// SELECT_REPOSITORIES</h3>
           <p className="text-[#666] text-sm max-w-md mx-auto">
-            &gt; Use the repository filter above to select which repositories you want to view issues from.
+            &gt; Use the repository filter above to select which repositories you want to view
+            issues from.
           </p>
         </div>
       </div>
@@ -180,11 +172,14 @@ export function IssuesPageClient({ availableRepos }: IssuesPageClientProps) {
         <div className="bg-red-900/10 border border-red-900/50 p-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <AlertCircle className="w-5 h-5 text-red-500" />
-            <span className="text-red-400 text-sm"><span className="text-[#666]">error: </span>{error}</span>
+            <span className="text-red-400 text-sm">
+              <span className="text-[#666]">error: </span>
+              {error}
+            </span>
           </div>
-          <Button 
-            variant="outline" 
-            size="sm" 
+          <Button
+            variant="outline"
+            size="sm"
             onClick={refetch}
             className="border-[#333] hover:border-[#00ff00] text-[#888] hover:text-[#00ff00]"
           >

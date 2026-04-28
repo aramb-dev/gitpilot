@@ -2,24 +2,21 @@
  * GitHub Issues fetching utilities.
  */
 
-import { fetchWithBackoff, createGitHubHeaders } from './client';
 import type {
+  GitHubIssueResponse,
   Issue,
   IssueFilters,
-  GitHubIssueResponse,
-  IssuesListResponse,
   IssueRepository,
+  IssuesListResponse,
 } from '@/types/issue';
+import { createGitHubHeaders, fetchWithBackoff } from './client';
 
 const GITHUB_API_BASE = 'https://api.github.com';
 
 /**
  * Normalizes a raw GitHub issue response to our Issue type.
  */
-export function normalizeIssue(
-  raw: GitHubIssueResponse,
-  repoInfo: IssueRepository
-): Issue {
+export function normalizeIssue(raw: GitHubIssueResponse, repoInfo: IssueRepository): Issue {
   return {
     id: raw.id,
     nodeId: raw.node_id,
@@ -96,7 +93,7 @@ export function parseLinkHeader(linkHeader: string | null): {
 export function buildIssueQueryParams(
   filters: IssueFilters,
   page: number = 1,
-  perPage: number = 30
+  perPage: number = 30,
 ): string {
   const params = new URLSearchParams();
 
@@ -150,27 +147,21 @@ export async function fetchRepoIssues(
   filters: IssueFilters = {},
   page: number = 1,
   perPage: number = 30,
-  userId?: string
+  userId?: string,
 ): Promise<IssuesListResponse> {
   const queryString = buildIssueQueryParams(filters, page, perPage);
   const url = `${GITHUB_API_BASE}/repos/${owner}/${repo}/issues?${queryString}`;
-  const headers = createGitHubHeaders(accessToken);
 
-  const response = await fetchWithBackoff(url, {
-    headers,
-    cache: 'no-store',
-  }, 3, userId);
+  const cacheKey = `repo_issues:${owner}/${repo}:${queryString}`;
 
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(
-      error.message || `Failed to fetch issues: ${response.status}`
-    );
-  }
-
-  const rawIssues: GitHubIssueResponse[] = await response.json();
-  const linkHeader = response.headers.get('Link');
-  const pagination = parseLinkHeader(linkHeader);
+  const { data: rawIssues } = await fetchGitHub<GitHubIssueResponse[]>(
+    userId ?? 'anonymous',
+    cacheKey,
+    'issues',
+    url,
+    accessToken,
+    2, // 2 minutes TTL for issues
+  );
 
   // Get repo info for normalization
   const repoInfo: IssueRepository = {
@@ -182,17 +173,15 @@ export async function fetchRepoIssues(
   };
 
   // Filter out pull requests (GitHub returns PRs in issues endpoint)
-  const issuesOnly = rawIssues.filter(
-    (issue) => !('pull_request' in issue)
-  );
+  const issuesOnly = rawIssues.filter((issue) => !('pull_request' in issue));
 
   const issues = issuesOnly.map((raw) => normalizeIssue(raw, repoInfo));
 
   return {
     issues,
     totalCount: issues.length,
-    hasNextPage: !!pagination.next,
-    nextPage: pagination.next,
+    hasNextPage: rawIssues.length >= perPage, // Heuristic since we lost Link header in fetchGitHub
+    nextPage: rawIssues.length >= perPage ? page + 1 : undefined,
   };
 }
 
@@ -205,7 +194,7 @@ export async function fetchMultiRepoIssues(
   filters: IssueFilters = {},
   page: number = 1,
   perPage: number = 30,
-  userId?: string
+  userId?: string,
 ): Promise<IssuesListResponse> {
   if (repos.length === 0) {
     return { issues: [], totalCount: 0, hasNextPage: false };
@@ -213,7 +202,7 @@ export async function fetchMultiRepoIssues(
 
   const CONCURRENCY_LIMIT = 5;
   const allIssues: Issue[] = [];
-  let hasMorePages = false;
+  let _hasMorePages = false;
 
   // If state is 'all', fetch both open and closed issues
   const statesToFetch = filters.state === 'all' ? ['open', 'closed'] : [filters.state || 'open'];
@@ -236,10 +225,9 @@ export async function fetchMultiRepoIssues(
             filtersForState,
             page,
             perPage,
-            userId
+            userId,
           );
-        } catch (error) {
-          console.error(`Failed to fetch issues from ${repoFullName}:`, error);
+        } catch (_error) {
           return null;
         }
       });
@@ -249,7 +237,7 @@ export async function fetchMultiRepoIssues(
       for (const result of results) {
         if (result) {
           allIssues.push(...result.issues);
-          if (result.hasNextPage) hasMorePages = true;
+          if (result.hasNextPage) _hasMorePages = true;
         }
       }
     }
@@ -278,9 +266,7 @@ export async function fetchMultiRepoIssues(
     }
 
     if (typeof aVal === 'string' && typeof bVal === 'string') {
-      return sortDirection === 'desc'
-        ? bVal.localeCompare(aVal)
-        : aVal.localeCompare(bVal);
+      return sortDirection === 'desc' ? bVal.localeCompare(aVal) : aVal.localeCompare(bVal);
     }
 
     return sortDirection === 'desc'
@@ -295,7 +281,7 @@ export async function fetchMultiRepoIssues(
     filteredIssues = allIssues.filter(
       (issue) =>
         issue.title.toLowerCase().includes(searchLower) ||
-        (issue.body && issue.body.toLowerCase().includes(searchLower))
+        issue.body?.toLowerCase().includes(searchLower),
     );
   }
 
@@ -320,21 +306,24 @@ export async function fetchIssue(
   owner: string,
   repo: string,
   issueNumber: number,
-  userId?: string
+  userId?: string,
 ): Promise<Issue> {
   const url = `${GITHUB_API_BASE}/repos/${owner}/${repo}/issues/${issueNumber}`;
   const headers = createGitHubHeaders(accessToken);
 
-  const response = await fetchWithBackoff(url, {
-    headers,
-    cache: 'no-store',
-  }, 3, userId);
+  const response = await fetchWithBackoff(
+    url,
+    {
+      headers,
+      cache: 'no-store',
+    },
+    3,
+    userId,
+  );
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));
-    throw new Error(
-      error.message || `Failed to fetch issue: ${response.status}`
-    );
+    throw new Error(error.message || `Failed to fetch issue: ${response.status}`);
   }
 
   const raw: GitHubIssueResponse = await response.json();

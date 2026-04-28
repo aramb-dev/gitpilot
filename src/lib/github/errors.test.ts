@@ -3,8 +3,8 @@ import {
   classifyGitHubError,
   createApiError,
   createApiErrorFromResponse,
-  errorCodeToHttpStatus,
   ERROR_MESSAGES,
+  errorCodeToHttpStatus,
 } from './errors';
 
 describe('classifyGitHubError', () => {
@@ -58,7 +58,7 @@ describe('classifyGitHubError', () => {
 describe('createApiError', () => {
   it('creates error with code and message', () => {
     const error = createApiError('UNAUTHORIZED', 'Test message');
-    
+
     expect(error).toEqual({
       code: 'UNAUTHORIZED',
       message: 'Test message',
@@ -67,7 +67,7 @@ describe('createApiError', () => {
 
   it('includes details when provided', () => {
     const error = createApiError('FORBIDDEN', 'Test message', 'Extra details');
-    
+
     expect(error).toEqual({
       code: 'FORBIDDEN',
       message: 'Test message',
@@ -77,17 +77,17 @@ describe('createApiError', () => {
 
   it('omits details when undefined', () => {
     const error = createApiError('NOT_FOUND', 'Not found');
-    
+
     expect(error.details).toBeUndefined();
   });
 });
 
 describe('createApiErrorFromResponse', () => {
   it('extracts message from JSON body', async () => {
-    const response = new Response(
-      JSON.stringify({ message: 'Bad credentials' }),
-      { status: 401, headers: { 'Content-Type': 'application/json' } }
-    );
+    const response = new Response(JSON.stringify({ message: 'Bad credentials' }), {
+      status: 401,
+      headers: { 'Content-Type': 'application/json' },
+    });
 
     const error = await createApiErrorFromResponse(response);
 
@@ -106,17 +106,14 @@ describe('createApiErrorFromResponse', () => {
 
   it('includes retry_after for rate limited response', async () => {
     const futureReset = Math.floor(Date.now() / 1000) + 3600;
-    const response = new Response(
-      JSON.stringify({ message: 'Rate limit exceeded' }),
-      {
-        status: 403,
-        headers: {
-          'X-RateLimit-Remaining': '0',
-          'X-RateLimit-Limit': '5000',
-          'X-RateLimit-Reset': futureReset.toString(),
-        },
-      }
-    );
+    const response = new Response(JSON.stringify({ message: 'Rate limit exceeded' }), {
+      status: 403,
+      headers: {
+        'X-RateLimit-Remaining': '0',
+        'X-RateLimit-Limit': '5000',
+        'X-RateLimit-Reset': futureReset.toString(),
+      },
+    });
 
     const error = await createApiErrorFromResponse(response);
 
@@ -130,7 +127,7 @@ describe('createApiErrorFromResponse', () => {
         message: 'Not Found',
         documentation_url: 'https://docs.github.com/rest',
       }),
-      { status: 404 }
+      { status: 404 },
     );
 
     const error = await createApiErrorFromResponse(response);

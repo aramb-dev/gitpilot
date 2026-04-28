@@ -1,11 +1,9 @@
 'use client';
 
+import { Bookmark, Check, Save, Star, Trash2, X } from 'lucide-react';
 import { useState } from 'react';
-import { Save, X, Bookmark, Trash2, Check, Star } from 'lucide-react';
-import { useFilterPresets } from '@/hooks/useFilterPresets';
-import type { PresetContext, FilterConfig } from '@/db/filter-presets';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import {
   Dialog,
   DialogContent,
@@ -20,7 +18,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { toast } from 'sonner';
+import { Input } from '@/components/ui/input';
+import type { FilterConfig, PresetContext } from '@/db/filter-presets';
+import { useFilterPresets } from '@/hooks/useFilterPresets';
 
 interface FilterPresetsManagerProps {
   context: PresetContext;
@@ -93,9 +93,7 @@ export function FilterPresetsManager({
             Saved Presets
           </div>
           {presets.length === 0 ? (
-            <div className="px-2 py-4 text-center text-xs text-[#444]">
-              No presets found
-            </div>
+            <div className="px-2 py-4 text-center text-xs text-[#444]">No presets found</div>
           ) : (
             presets.map((preset) => (
               <DropdownMenuItem
@@ -118,7 +116,7 @@ export function FilterPresetsManager({
                       handleToggleDefault(preset.id, preset.isDefault);
                     }}
                     className={`p-1 hover:bg-[#333] ${preset.isDefault ? 'text-[#00ff00]' : 'text-[#666]'}`}
-                    title={preset.isDefault ? "Unset as default" : "Set as default"}
+                    title={preset.isDefault ? 'Unset as default' : 'Set as default'}
                   >
                     <Check className="w-3 h-3" />
                   </button>
@@ -177,16 +175,18 @@ export function FilterPresetsManager({
 
       {/* Quick presets (most recent or default) */}
       <div className="flex gap-2">
-        {presets.filter(p => p.isDefault).map((preset) => (
-          <button
-            key={preset.id}
-            onClick={() => onApplyPreset(preset.filters)}
-            className="px-2 py-1 text-[10px] bg-[#0d0d0d] border border-[#00ff00]/30 hover:border-[#00ff00] text-[#00ff00] font-mono transition-all flex items-center gap-1"
-          >
-            <Star className="w-2.5 h-2.5" fill="currentColor" />
-            {preset.name.toLowerCase()}
-          </button>
-        ))}
+        {presets
+          .filter((p) => p.isDefault)
+          .map((preset) => (
+            <button
+              key={preset.id}
+              onClick={() => onApplyPreset(preset.filters)}
+              className="px-2 py-1 text-[10px] bg-[#0d0d0d] border border-[#00ff00]/30 hover:border-[#00ff00] text-[#00ff00] font-mono transition-all flex items-center gap-1"
+            >
+              <Star className="w-2.5 h-2.5" fill="currentColor" />
+              {preset.name.toLowerCase()}
+            </button>
+          ))}
       </div>
     </div>
   );

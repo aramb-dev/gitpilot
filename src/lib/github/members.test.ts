@@ -3,14 +3,14 @@
  * Tests cover fetching members, invitations, role detection, and bulk operations.
  */
 
-import { describe, expect, it, mock, beforeEach } from 'bun:test';
+import { beforeEach, describe, expect, it, mock } from 'bun:test';
+import type { GitHubUser } from '@/types/github';
 import {
-  fetchOrgMembers,
   fetchOrgInvitations,
+  fetchOrgMembers,
   removeOrgMember,
   updateOrgMemberRole,
 } from './members';
-import type { GitHubUser } from '@/types/github';
 
 describe('fetchOrgMembers', () => {
   const createMockGitHubUser = (overrides: Partial<GitHubUser> = {}): GitHubUser => ({
@@ -23,8 +23,7 @@ describe('fetchOrgMembers', () => {
     ...overrides,
   });
 
-  beforeEach(() => {
-  });
+  beforeEach(() => {});
 
   it('fetches and normalizes organization members', async () => {
     const mockMembers = [
@@ -39,16 +38,14 @@ describe('fetchOrgMembers', () => {
       callCount++;
       if (callCount === 1) {
         // All members
-        return Promise.resolve(new Response(
-          JSON.stringify(mockMembers),
-          { status: 200 }
-        ));
+        return Promise.resolve(new Response(JSON.stringify(mockMembers), { status: 200 }));
       }
       // Admins - user1 is an admin
-      return Promise.resolve(new Response(
-        JSON.stringify([createMockGitHubUser({ id: 1, login: 'user1' })]),
-        { status: 200 }
-      ));
+      return Promise.resolve(
+        new Response(JSON.stringify([createMockGitHubUser({ id: 1, login: 'user1' })]), {
+          status: 200,
+        }),
+      );
     }) as any;
     global.fetch = mockFetch;
 
@@ -72,16 +69,14 @@ describe('fetchOrgMembers', () => {
       callCount++;
       if (callCount === 1) {
         // All members
-        return Promise.resolve(new Response(
-          JSON.stringify(mockMembers),
-          { status: 200 }
-        ));
+        return Promise.resolve(new Response(JSON.stringify(mockMembers), { status: 200 }));
       }
       // Admins - only admin1
-      return Promise.resolve(new Response(
-        JSON.stringify([createMockGitHubUser({ id: 1, login: 'admin1' })]),
-        { status: 200 }
-      ));
+      return Promise.resolve(
+        new Response(JSON.stringify([createMockGitHubUser({ id: 1, login: 'admin1' })]), {
+          status: 200,
+        }),
+      );
     }) as any;
     global.fetch = mockFetch;
 
@@ -98,9 +93,7 @@ describe('fetchOrgMembers', () => {
       createMockGitHubUser({ id: 1, login: 'user1' }),
       createMockGitHubUser({ id: 2, login: 'user2' }),
     ];
-    const page2 = [
-      createMockGitHubUser({ id: 3, login: 'user3' }),
-    ];
+    const page2 = [createMockGitHubUser({ id: 3, login: 'user3' })];
 
     let callCount = 0;
     const mockFetch = mock(() => {
@@ -108,31 +101,19 @@ describe('fetchOrgMembers', () => {
       if (callCount === 1) {
         // First page of members - indicates more pages
         const headers = new Headers({
-          'Link': '<https://api.github.com/orgs/test-org/members?per_page=100&page=2>; rel="next", <https://api.github.com/orgs/test-org/members?per_page=100&page=2>; rel="last"',
+          Link: '<https://api.github.com/orgs/test-org/members?per_page=100&page=2>; rel="next", <https://api.github.com/orgs/test-org/members?per_page=100&page=2>; rel="last"',
         });
-        return Promise.resolve(new Response(
-          JSON.stringify(page1),
-          { status: 200, headers }
-        ));
+        return Promise.resolve(new Response(JSON.stringify(page1), { status: 200, headers }));
       } else if (callCount === 2) {
         // Second page of members
         const headers = new Headers({});
-        return Promise.resolve(new Response(
-          JSON.stringify(page2),
-          { status: 200, headers }
-        ));
+        return Promise.resolve(new Response(JSON.stringify(page2), { status: 200, headers }));
       } else if (callCount <= 4) {
         // Admins pagination
         const headers = new Headers({});
-        return Promise.resolve(new Response(
-          JSON.stringify([]),
-          { status: 200, headers }
-        ));
+        return Promise.resolve(new Response(JSON.stringify([]), { status: 200, headers }));
       }
-      return Promise.resolve(new Response(
-        JSON.stringify([]),
-        { status: 200 }
-      ));
+      return Promise.resolve(new Response(JSON.stringify([]), { status: 200 }));
     }) as any;
     global.fetch = mockFetch;
 
@@ -145,25 +126,21 @@ describe('fetchOrgMembers', () => {
   });
 
   it('filters by admin role when specified', async () => {
-    const mockMembers = [
-      createMockGitHubUser({ id: 1, login: 'admin1' }),
-    ];
+    const mockMembers = [createMockGitHubUser({ id: 1, login: 'admin1' })];
 
     let callCount = 0;
     const mockFetch = mock(() => {
       callCount++;
       if (callCount === 1) {
         // All members (with role param in URL, but we just return admins)
-        return Promise.resolve(new Response(
-          JSON.stringify(mockMembers),
-          { status: 200 }
-        ));
+        return Promise.resolve(new Response(JSON.stringify(mockMembers), { status: 200 }));
       }
       // Admins for verification
-      return Promise.resolve(new Response(
-        JSON.stringify([createMockGitHubUser({ id: 1, login: 'admin1' })]),
-        { status: 200 }
-      ));
+      return Promise.resolve(
+        new Response(JSON.stringify([createMockGitHubUser({ id: 1, login: 'admin1' })]), {
+          status: 200,
+        }),
+      );
     }) as any;
     global.fetch = mockFetch;
 
@@ -174,23 +151,15 @@ describe('fetchOrgMembers', () => {
   });
 
   it('handles null html_url in member', async () => {
-    const mockMembers = [
-      createMockGitHubUser({ id: 1, login: 'user1', html_url: null as any }),
-    ];
+    const mockMembers = [createMockGitHubUser({ id: 1, login: 'user1', html_url: null as any })];
 
     let callCount = 0;
     const mockFetch = mock(() => {
       callCount++;
       if (callCount === 1) {
-        return Promise.resolve(new Response(
-          JSON.stringify(mockMembers),
-          { status: 200 }
-        ));
+        return Promise.resolve(new Response(JSON.stringify(mockMembers), { status: 200 }));
       }
-      return Promise.resolve(new Response(
-        JSON.stringify([]),
-        { status: 200 }
-      ));
+      return Promise.resolve(new Response(JSON.stringify([]), { status: 200 }));
     }) as any;
     global.fetch = mockFetch;
 
@@ -201,23 +170,15 @@ describe('fetchOrgMembers', () => {
   });
 
   it('sets status to active for all members', async () => {
-    const mockMembers = [
-      createMockGitHubUser({ id: 1, login: 'user1' }),
-    ];
+    const mockMembers = [createMockGitHubUser({ id: 1, login: 'user1' })];
 
     let callCount = 0;
     const mockFetch = mock(() => {
       callCount++;
       if (callCount === 1) {
-        return Promise.resolve(new Response(
-          JSON.stringify(mockMembers),
-          { status: 200 }
-        ));
+        return Promise.resolve(new Response(JSON.stringify(mockMembers), { status: 200 }));
       }
-      return Promise.resolve(new Response(
-        JSON.stringify([]),
-        { status: 200 }
-      ));
+      return Promise.resolve(new Response(JSON.stringify([]), { status: 200 }));
     }) as any;
     global.fetch = mockFetch;
 
@@ -228,22 +189,20 @@ describe('fetchOrgMembers', () => {
 
   it('normalizes avatar URL correctly', async () => {
     const mockMembers = [
-      createMockGitHubUser({ id: 1, login: 'user1', avatar_url: 'https://avatars.example.com/u/1' }),
+      createMockGitHubUser({
+        id: 1,
+        login: 'user1',
+        avatar_url: 'https://avatars.example.com/u/1',
+      }),
     ];
 
     let callCount = 0;
     const mockFetch = mock(() => {
       callCount++;
       if (callCount === 1) {
-        return Promise.resolve(new Response(
-          JSON.stringify(mockMembers),
-          { status: 200 }
-        ));
+        return Promise.resolve(new Response(JSON.stringify(mockMembers), { status: 200 }));
       }
-      return Promise.resolve(new Response(
-        JSON.stringify([]),
-        { status: 200 }
-      ));
+      return Promise.resolve(new Response(JSON.stringify([]), { status: 200 }));
     }) as any;
     global.fetch = mockFetch;
 
@@ -254,8 +213,7 @@ describe('fetchOrgMembers', () => {
 });
 
 describe('fetchOrgInvitations', () => {
-  beforeEach(() => {
-  });
+  beforeEach(() => {});
 
   it('fetches and normalizes pending invitations', async () => {
     const mockInvites = [
@@ -276,10 +234,7 @@ describe('fetchOrgInvitations', () => {
 
     const mockFetch = mock(() => {
       const headers = new Headers({ 'x-total-pages': '1' });
-      return Promise.resolve(new Response(
-        JSON.stringify(mockInvites),
-        { status: 200, headers }
-      ));
+      return Promise.resolve(new Response(JSON.stringify(mockInvites), { status: 200, headers }));
     }) as any;
     global.fetch = mockFetch;
 
@@ -314,10 +269,7 @@ describe('fetchOrgInvitations', () => {
 
     const mockFetch = mock(() => {
       const headers = new Headers({ 'x-total-pages': '1' });
-      return Promise.resolve(new Response(
-        JSON.stringify(mockInvites),
-        { status: 200, headers }
-      ));
+      return Promise.resolve(new Response(JSON.stringify(mockInvites), { status: 200, headers }));
     }) as any;
     global.fetch = mockFetch;
 
@@ -346,10 +298,7 @@ describe('fetchOrgInvitations', () => {
 
     const mockFetch = mock(() => {
       const headers = new Headers({ 'x-total-pages': '1' });
-      return Promise.resolve(new Response(
-        JSON.stringify(mockInvites),
-        { status: 200, headers }
-      ));
+      return Promise.resolve(new Response(JSON.stringify(mockInvites), { status: 200, headers }));
     }) as any;
     global.fetch = mockFetch;
 
@@ -393,18 +342,12 @@ describe('fetchOrgInvitations', () => {
       callCount++;
       if (callCount === 1) {
         const headers = new Headers({
-          'Link': '<https://api.github.com/orgs/test-org/invitations?per_page=100&page=2>; rel="next"',
+          Link: '<https://api.github.com/orgs/test-org/invitations?per_page=100&page=2>; rel="next"',
         });
-        return Promise.resolve(new Response(
-          JSON.stringify(page1),
-          { status: 200, headers }
-        ));
+        return Promise.resolve(new Response(JSON.stringify(page1), { status: 200, headers }));
       }
       const headers = new Headers({});
-      return Promise.resolve(new Response(
-        JSON.stringify(page2),
-        { status: 200, headers }
-      ));
+      return Promise.resolve(new Response(JSON.stringify(page2), { status: 200, headers }));
     }) as any;
     global.fetch = mockFetch;
 
@@ -418,10 +361,7 @@ describe('fetchOrgInvitations', () => {
   it('handles empty invitation list', async () => {
     const mockFetch = mock(() => {
       const headers = new Headers({ 'x-total-pages': '1' });
-      return Promise.resolve(new Response(
-        JSON.stringify([]),
-        { status: 200, headers }
-      ));
+      return Promise.resolve(new Response(JSON.stringify([]), { status: 200, headers }));
     }) as any;
     global.fetch = mockFetch;
 
@@ -448,10 +388,7 @@ describe('fetchOrgInvitations', () => {
 
     const mockFetch = mock(() => {
       const headers = new Headers({ 'x-total-pages': '1' });
-      return Promise.resolve(new Response(
-        JSON.stringify(mockInvites),
-        { status: 200, headers }
-      ));
+      return Promise.resolve(new Response(JSON.stringify(mockInvites), { status: 200, headers }));
     }) as any;
     global.fetch = mockFetch;
 
@@ -462,13 +399,10 @@ describe('fetchOrgInvitations', () => {
 });
 
 describe('removeOrgMember', () => {
-  beforeEach(() => {
-  });
+  beforeEach(() => {});
 
   it('removes a member successfully', async () => {
-    const mockFetch = mock(() =>
-      Promise.resolve(new Response(null, { status: 204 }))
-    ) as any;
+    const mockFetch = mock(() => Promise.resolve(new Response(null, { status: 204 }))) as any;
     global.fetch = mockFetch;
 
     const result = await removeOrgMember('test-token', 'test-org', 'user-to-remove');
@@ -479,10 +413,12 @@ describe('removeOrgMember', () => {
 
   it('returns error when removal fails', async () => {
     const mockFetch = mock(() =>
-      Promise.resolve(new Response(
-        JSON.stringify({ message: 'User is not a member' }),
-        { status: 404, statusText: 'Not Found' }
-      ))
+      Promise.resolve(
+        new Response(JSON.stringify({ message: 'User is not a member' }), {
+          status: 404,
+          statusText: 'Not Found',
+        }),
+      ),
     ) as any;
     global.fetch = mockFetch;
 
@@ -493,9 +429,7 @@ describe('removeOrgMember', () => {
   });
 
   it('handles network errors gracefully', async () => {
-    const mockFetch = mock(() =>
-      Promise.reject(new Error('Network error'))
-    ) as any;
+    const mockFetch = mock(() => Promise.reject(new Error('Network error'))) as any;
     global.fetch = mockFetch;
 
     const result = await removeOrgMember('test-token', 'test-org', 'user-to-remove');
@@ -505,9 +439,7 @@ describe('removeOrgMember', () => {
   });
 
   it('uses correct DELETE endpoint', async () => {
-    const mockFetch = mock(() =>
-      Promise.resolve(new Response(null, { status: 204 }))
-    ) as any;
+    const mockFetch = mock(() => Promise.resolve(new Response(null, { status: 204 }))) as any;
     global.fetch = mockFetch;
 
     await removeOrgMember('test-token', 'test-org', 'user-to-remove');
@@ -519,10 +451,7 @@ describe('removeOrgMember', () => {
 
   it('handles JSON parse errors gracefully', async () => {
     const mockFetch = mock(() =>
-      Promise.resolve(new Response(
-        'Invalid JSON',
-        { status: 403, statusText: 'Forbidden' }
-      ))
+      Promise.resolve(new Response('Invalid JSON', { status: 403, statusText: 'Forbidden' })),
     ) as any;
     global.fetch = mockFetch;
 
@@ -534,15 +463,11 @@ describe('removeOrgMember', () => {
 });
 
 describe('updateOrgMemberRole', () => {
-  beforeEach(() => {
-  });
+  beforeEach(() => {});
 
   it('updates member role to admin successfully', async () => {
     const mockFetch = mock(() =>
-      Promise.resolve(new Response(
-        JSON.stringify({ role: 'admin' }),
-        { status: 200 }
-      ))
+      Promise.resolve(new Response(JSON.stringify({ role: 'admin' }), { status: 200 })),
     ) as any;
     global.fetch = mockFetch;
 
@@ -554,10 +479,7 @@ describe('updateOrgMemberRole', () => {
 
   it('updates member role to member successfully', async () => {
     const mockFetch = mock(() =>
-      Promise.resolve(new Response(
-        JSON.stringify({ role: 'member' }),
-        { status: 200 }
-      ))
+      Promise.resolve(new Response(JSON.stringify({ role: 'member' }), { status: 200 })),
     ) as any;
     global.fetch = mockFetch;
 
@@ -568,10 +490,12 @@ describe('updateOrgMemberRole', () => {
 
   it('returns error when update fails', async () => {
     const mockFetch = mock(() =>
-      Promise.resolve(new Response(
-        JSON.stringify({ message: 'User not found' }),
-        { status: 404, statusText: 'Not Found' }
-      ))
+      Promise.resolve(
+        new Response(JSON.stringify({ message: 'User not found' }), {
+          status: 404,
+          statusText: 'Not Found',
+        }),
+      ),
     ) as any;
     global.fetch = mockFetch;
 
@@ -582,9 +506,7 @@ describe('updateOrgMemberRole', () => {
   });
 
   it('handles network errors gracefully', async () => {
-    const mockFetch = mock(() =>
-      Promise.reject(new Error('Network error'))
-    ) as any;
+    const mockFetch = mock(() => Promise.reject(new Error('Network error'))) as any;
     global.fetch = mockFetch;
 
     const result = await updateOrgMemberRole('test-token', 'test-org', 'user1', 'admin');
@@ -595,10 +517,7 @@ describe('updateOrgMemberRole', () => {
 
   it('uses correct PUT endpoint with role in body', async () => {
     const mockFetch = mock(() =>
-      Promise.resolve(new Response(
-        JSON.stringify({ role: 'admin' }),
-        { status: 200 }
-      ))
+      Promise.resolve(new Response(JSON.stringify({ role: 'admin' }), { status: 200 })),
     ) as any;
     global.fetch = mockFetch;
 
@@ -614,10 +533,7 @@ describe('updateOrgMemberRole', () => {
 
   it('handles JSON parse errors gracefully', async () => {
     const mockFetch = mock(() =>
-      Promise.resolve(new Response(
-        'Invalid JSON',
-        { status: 403, statusText: 'Forbidden' }
-      ))
+      Promise.resolve(new Response('Invalid JSON', { status: 403, statusText: 'Forbidden' })),
     ) as any;
     global.fetch = mockFetch;
 
@@ -629,10 +545,7 @@ describe('updateOrgMemberRole', () => {
 
   it('includes role in request body for member role', async () => {
     const mockFetch = mock(() =>
-      Promise.resolve(new Response(
-        JSON.stringify({ role: 'member' }),
-        { status: 200 }
-      ))
+      Promise.resolve(new Response(JSON.stringify({ role: 'member' }), { status: 200 })),
     ) as any;
     global.fetch = mockFetch;
 

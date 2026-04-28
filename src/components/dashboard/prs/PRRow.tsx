@@ -1,5 +1,5 @@
 import { formatDistanceToNow } from 'date-fns';
-import { MessageSquare, GitPullRequest, GitMerge } from 'lucide-react';
+import { GitMerge, GitPullRequest, MessageSquare } from 'lucide-react';
 import type { PullRequest } from '@/types/pull-request';
 
 interface PRRowProps {
@@ -56,8 +56,8 @@ export function PRRow({ pr, isSelected, onSelect, onClick }: PRRowProps) {
             pr.merged
               ? 'border-purple-400 text-purple-400'
               : pr.state === 'open'
-              ? 'border-[#00ff00] text-[#00ff00]'
-              : 'border-red-400 text-red-400'
+                ? 'border-[#00ff00] text-[#00ff00]'
+                : 'border-red-400 text-red-400'
           }`}
         >
           {pr.merged ? <GitMerge className="w-4 h-4" /> : <GitPullRequest className="w-4 h-4" />}
@@ -67,9 +67,7 @@ export function PRRow({ pr, isSelected, onSelect, onClick }: PRRowProps) {
       {/* Main Content */}
       <div className="flex-1 min-w-0">
         <div className="flex items-start gap-2">
-          <h3 className="text-white font-medium hover:text-[#00ff00] truncate">
-            {pr.title}
-          </h3>
+          <h3 className="text-white font-medium hover:text-[#00ff00] truncate">{pr.title}</h3>
           {pr.draft && (
             <span className="px-2 py-0.5 text-[10px] font-mono border border-[#666]/30 bg-[#666]/10 text-[#888] whitespace-nowrap">
               [DRAFT]

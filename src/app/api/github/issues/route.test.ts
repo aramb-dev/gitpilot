@@ -1,4 +1,4 @@
-import { describe, it, expect, mock, beforeEach } from 'bun:test';
+import { beforeEach, describe, expect, it, mock } from 'bun:test';
 import { GET } from './route';
 
 const mockSession = {
@@ -37,15 +37,12 @@ mock.module('@/lib/github/issues', () => ({
       issues: [mockIssue],
       totalCount: 1,
       hasNextPage: false,
-    })
+    }),
   ),
 }));
 
-
-
 describe('Issues API Route', () => {
-  beforeEach(() => {
-  });
+  beforeEach(() => {});
 
   it('should return issues for specified repos', async () => {
     mock.module('@/lib/auth', () => ({
@@ -58,13 +55,11 @@ describe('Issues API Route', () => {
           issues: [mockIssue],
           totalCount: 1,
           hasNextPage: false,
-        })
+        }),
       ),
     }));
 
-    const request = new Request(
-      'http://localhost:3000/api/github/issues?repos=owner/repo'
-    );
+    const request = new Request('http://localhost:3000/api/github/issues?repos=owner/repo');
     const response = await GET(request);
     const data = await response.json();
 
@@ -78,9 +73,7 @@ describe('Issues API Route', () => {
       getAuthSession: mock(() => Promise.resolve(null)),
     }));
 
-    const request = new Request(
-      'http://localhost:3000/api/github/issues?repos=owner/repo'
-    );
+    const request = new Request('http://localhost:3000/api/github/issues?repos=owner/repo');
     const response = await GET(request);
 
     expect(response.status).toBe(401);
@@ -113,12 +106,12 @@ describe('Issues API Route', () => {
             totalCount: 0,
             hasNextPage: false,
           });
-        }
+        },
       ),
     }));
 
     const request = new Request(
-      'http://localhost:3000/api/github/issues?repos=owner/repo&state=closed&labels=bug,help&assignee=user1&sort=updated&direction=asc'
+      'http://localhost:3000/api/github/issues?repos=owner/repo&state=closed&labels=bug,help&assignee=user1&sort=updated&direction=asc',
     );
     await GET(request);
 
@@ -135,14 +128,10 @@ describe('Issues API Route', () => {
     }));
 
     mock.module('@/lib/github/issues', () => ({
-      fetchMultiRepoIssues: mock(() =>
-        Promise.reject(new Error('Network error'))
-      ),
+      fetchMultiRepoIssues: mock(() => Promise.reject(new Error('Network error'))),
     }));
 
-    const request = new Request(
-      'http://localhost:3000/api/github/issues?repos=owner/repo'
-    );
+    const request = new Request('http://localhost:3000/api/github/issues?repos=owner/repo');
     const response = await GET(request);
 
     expect(response.status).toBe(502);

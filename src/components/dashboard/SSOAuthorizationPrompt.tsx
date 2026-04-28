@@ -26,8 +26,8 @@ export function SSOAuthorizationPrompt({
             // SSO_AUTHORIZATION_REQUIRED
           </h4>
           <p className="text-xs text-[#888] mt-1">
-            &gt; The organization <strong className="text-white">{orgName || orgLogin}</strong> requires 
-            SAML single sign-on.
+            &gt; The organization <strong className="text-white">{orgName || orgLogin}</strong>{' '}
+            requires SAML single sign-on.
           </p>
           <div className="flex items-center gap-3 mt-4">
             <a

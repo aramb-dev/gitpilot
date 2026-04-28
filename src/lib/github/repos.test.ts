@@ -1,5 +1,5 @@
-import { describe, expect, it, mock, afterEach } from 'bun:test';
-import { fetchUserRepos, fetchOrgRepos, fetchAllRepos } from './repos';
+import { afterEach, describe, expect, it, mock } from 'bun:test';
+import { fetchAllRepos, fetchOrgRepos, fetchUserRepos } from './repos';
 
 describe('fetchUserRepos', () => {
   const originalFetch = global.fetch;
@@ -20,15 +20,13 @@ describe('fetchUserRepos', () => {
     global.fetch = mock((url: string, options: RequestInit) => {
       capturedUrl = url;
       capturedHeaders = options.headers;
-      return Promise.resolve(
-        new Response(JSON.stringify(mockRepos), { status: 200 })
-      );
+      return Promise.resolve(new Response(JSON.stringify(mockRepos), { status: 200 }));
     }) as any;
 
     const result = await fetchUserRepos('test-token');
 
     expect(capturedUrl).toBe(
-      'https://api.github.com/user/repos?affiliation=owner&per_page=100&sort=updated'
+      'https://api.github.com/user/repos?affiliation=owner&per_page=100&sort=updated',
     );
     expect(capturedHeaders).toMatchObject({
       Authorization: 'Bearer test-token',
@@ -51,12 +49,10 @@ describe('fetchUserRepos', () => {
             headers: {
               Link: '<https://api.github.com/user/repos?page=2>; rel="next"',
             },
-          })
+          }),
         );
       }
-      return Promise.resolve(
-        new Response(JSON.stringify(page2), { status: 200 })
-      );
+      return Promise.resolve(new Response(JSON.stringify(page2), { status: 200 }));
     }) as any;
 
     const result = await fetchUserRepos('test-token');
@@ -70,7 +66,7 @@ describe('fetchUserRepos', () => {
     const progressMessages: string[] = [];
 
     global.fetch = mock(() =>
-      Promise.resolve(new Response(JSON.stringify(mockRepos), { status: 200 }))
+      Promise.resolve(new Response(JSON.stringify(mockRepos), { status: 200 })),
     ) as any;
 
     await fetchUserRepos('test-token', {
@@ -94,16 +90,12 @@ describe('fetchOrgRepos', () => {
 
     global.fetch = mock((url: string) => {
       capturedUrl = url;
-      return Promise.resolve(
-        new Response(JSON.stringify(mockRepos), { status: 200 })
-      );
+      return Promise.resolve(new Response(JSON.stringify(mockRepos), { status: 200 }));
     }) as any;
 
     const result = await fetchOrgRepos('test-token', 'my-org');
 
-    expect(capturedUrl).toBe(
-      'https://api.github.com/orgs/my-org/repos?per_page=100&sort=updated'
-    );
+    expect(capturedUrl).toBe('https://api.github.com/orgs/my-org/repos?per_page=100&sort=updated');
     expect('data' in result && result.data).toEqual(mockRepos as any);
   });
 
@@ -122,9 +114,7 @@ describe('fetchOrgRepos', () => {
 
   it('returns error for 404 response', async () => {
     global.fetch = mock(() =>
-      Promise.resolve(
-        new Response(JSON.stringify({ message: 'Not Found' }), { status: 404 })
-      )
+      Promise.resolve(new Response(JSON.stringify({ message: 'Not Found' }), { status: 404 })),
     ) as any;
 
     const result = await fetchOrgRepos('test-token', 'nonexistent-org');
@@ -142,8 +132,8 @@ describe('fetchOrgRepos', () => {
         new Response(JSON.stringify({ message: 'Forbidden' }), {
           status: 403,
           headers: { 'X-RateLimit-Remaining': '100' },
-        })
-      )
+        }),
+      ),
     ) as any;
 
     const result = await fetchOrgRepos('test-token', 'private-org');
@@ -166,7 +156,7 @@ describe('fetchAllRepos', () => {
     const mockRepos = [{ id: 1, name: 'personal-repo' }];
 
     global.fetch = mock(() =>
-      Promise.resolve(new Response(JSON.stringify(mockRepos), { status: 200 }))
+      Promise.resolve(new Response(JSON.stringify(mockRepos), { status: 200 })),
     ) as any;
 
     const result = await fetchAllRepos('test-token', []);
@@ -179,18 +169,14 @@ describe('fetchAllRepos', () => {
   it('combines personal and org repos', async () => {
     const personalRepos = [{ id: 1, name: 'personal' }];
     const orgRepos = [{ id: 2, name: 'org-repo' }];
-    let callCount = 0;
+    let _callCount = 0;
 
     global.fetch = mock((url: string) => {
-      callCount++;
+      _callCount++;
       if (url.includes('/user/repos')) {
-        return Promise.resolve(
-          new Response(JSON.stringify(personalRepos), { status: 200 })
-        );
+        return Promise.resolve(new Response(JSON.stringify(personalRepos), { status: 200 }));
       }
-      return Promise.resolve(
-        new Response(JSON.stringify(orgRepos), { status: 200 })
-      );
+      return Promise.resolve(new Response(JSON.stringify(orgRepos), { status: 200 }));
     }) as any;
 
     const result = await fetchAllRepos('test-token', ['my-org']);
@@ -206,18 +192,14 @@ describe('fetchAllRepos', () => {
 
     global.fetch = mock((url: string) => {
       if (url.includes('/user/repos')) {
-        return Promise.resolve(
-          new Response(JSON.stringify(personalRepos), { status: 200 })
-        );
+        return Promise.resolve(new Response(JSON.stringify(personalRepos), { status: 200 }));
       }
       if (url.includes('/orgs/failing-org')) {
         return Promise.resolve(
-          new Response(JSON.stringify({ message: 'Not Found' }), { status: 404 })
+          new Response(JSON.stringify({ message: 'Not Found' }), { status: 404 }),
         );
       }
-      return Promise.resolve(
-        new Response(JSON.stringify(org2Repos), { status: 200 })
-      );
+      return Promise.resolve(new Response(JSON.stringify(org2Repos), { status: 200 }));
     }) as any;
 
     const result = await fetchAllRepos('test-token', ['failing-org', 'working-org']);
@@ -237,8 +219,8 @@ describe('fetchAllRepos', () => {
           headers: {
             Link: '<https://api.github.com/user/repos?page=999>; rel="next"',
           },
-        })
-      )
+        }),
+      ),
     ) as any;
 
     const result = await fetchAllRepos('test-token', [], { maxPages: 1 });

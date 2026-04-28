@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type { Issue, IssueFilters, IssuesListResponse } from '@/types/issue';
 import { usePreferences } from './usePreferences';
 
@@ -40,11 +40,11 @@ export function useIssues(filters: IssueFilters): UseIssuesReturn {
         const params = new URLSearchParams();
         params.set('repos', filters.repos.join(','));
         params.set('page', String(page));
-        
+
         if (refresh) {
           params.set('refresh', 'true');
         }
-        
+
         if (preferences?.itemsPerPage) {
           params.set('per_page', String(preferences.itemsPerPage));
         }
@@ -78,7 +78,7 @@ export function useIssues(filters: IssueFilters): UseIssuesReturn {
         setIsLoading(false);
       }
     },
-    [filters, preferences]
+    [filters, preferences],
   );
 
   useEffect(() => {
@@ -93,7 +93,7 @@ export function useIssues(filters: IssueFilters): UseIssuesReturn {
     (page: number) => {
       fetchIssues(page);
     },
-    [fetchIssues]
+    [fetchIssues],
   );
 
   return {

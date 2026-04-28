@@ -1,20 +1,22 @@
-import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import type { Session } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import { createGitHubHeaders } from "@/lib/github/client";
-import { detectAllOrgStatuses } from "@/lib/github/org-status";
-import type { ApiResponse } from "@/types/api-errors";
-import type { OrganizationAccess } from "@/types/account";
+import { NextResponse } from 'next/server';
+import type { Session } from 'next-auth';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+import { createGitHubHeaders } from '@/lib/github/client';
+import { detectAllOrgStatuses } from '@/lib/github/org-status';
+import type { OrganizationAccess } from '@/types/account';
+import type { ApiResponse } from '@/types/api-errors';
 
 /**
  * GET /api/github/orgs/status
  * Fetches all user's organizations with their access status.
  */
 export async function GET() {
-  const session = (await getServerSession(authOptions)) as (Session & {
-    accessToken?: string;
-  }) | null;
+  const session = (await getServerSession(authOptions)) as
+    | (Session & {
+        accessToken?: string;
+      })
+    | null;
 
   if (!session?.accessToken) {
     const response: ApiResponse<OrganizationAccess[]> = {

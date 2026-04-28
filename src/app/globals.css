@@ -95,7 +95,7 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
-    border-radius: 0 !important;
+    border-radius: 0;
   }
   body {
     @apply bg-background text-foreground font-mono;
@@ -138,8 +138,14 @@ html {
 
 /* Animations */
 @keyframes blink {
-  0%, 50% { opacity: 1; }
-  51%, 100% { opacity: 0; }
+  0%,
+  50% {
+    opacity: 1;
+  }
+  51%,
+  100% {
+    opacity: 0;
+  }
 }
 
 .animate-blink {
@@ -147,9 +153,17 @@ html {
 }
 
 @keyframes terminal-flicker {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.98; }
-  25%, 75% { opacity: 0.99; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.98;
+  }
+  25%,
+  75% {
+    opacity: 0.99;
+  }
 }
 
 .terminal-flicker {
@@ -171,8 +185,12 @@ html {
 }
 
 @keyframes scanline {
-  0% { top: 0; }
-  100% { top: 100%; }
+  0% {
+    top: 0;
+  }
+  100% {
+    top: 100%;
+  }
 }
 
 /* Utilities */

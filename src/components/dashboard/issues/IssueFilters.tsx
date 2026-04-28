@@ -1,15 +1,14 @@
 'use client';
 
-import { useState } from 'react';
 import { Search, X } from 'lucide-react';
-import { StateFilter } from './filters/StateFilter';
-import { RepoFilter } from './filters/RepoFilter';
-import { LabelFilter } from './filters/LabelFilter';
-import { AssigneeFilter } from './filters/AssigneeFilter';
-import { UserFilter } from './filters/UserFilter';
+import { useState } from 'react';
 import type { IssueFilters as IssueFiltersType, IssueLabel, IssueUser } from '@/types/issue';
-
 import { FilterPresetsManager } from '../FilterPresetsManager';
+import { AssigneeFilter } from './filters/AssigneeFilter';
+import { LabelFilter } from './filters/LabelFilter';
+import { RepoFilter } from './filters/RepoFilter';
+import { StateFilter } from './filters/StateFilter';
+import { UserFilter } from './filters/UserFilter';
 
 interface IssueFiltersProps {
   filters: IssueFiltersType;
@@ -32,10 +31,7 @@ export function IssueFilters({
 }: IssueFiltersProps) {
   const [searchValue, setSearchValue] = useState(filters.search || '');
 
-  const updateFilter = <K extends keyof IssueFiltersType>(
-    key: K,
-    value: IssueFiltersType[K]
-  ) => {
+  const updateFilter = <K extends keyof IssueFiltersType>(key: K, value: IssueFiltersType[K]) => {
     onFiltersChange({ ...filters, [key]: value });
   };
 
@@ -152,10 +148,10 @@ export function IssueFilters({
         />
 
         <div className="flex items-center gap-2 border-l border-[#333] pl-3">
-          <FilterPresetsManager 
-            context="issues" 
-            currentFilters={filters} 
-            onApplyPreset={applyPreset} 
+          <FilterPresetsManager
+            context="issues"
+            currentFilters={filters}
+            onApplyPreset={applyPreset}
           />
         </div>
 

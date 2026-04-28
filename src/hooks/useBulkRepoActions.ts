@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useRef } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import type { Repository } from '@/types/repository';
 
 export interface BulkRepoOperationState {
@@ -15,7 +15,11 @@ export interface BulkRepoOperationState {
 
 interface UseBulkRepoActionsReturn {
   state: BulkRepoOperationState;
-  executeAction: (repos: Repository[], type: 'archive' | 'unarchive' | 'delete' | 'visibility', options?: any) => Promise<void>;
+  executeAction: (
+    repos: Repository[],
+    type: 'archive' | 'unarchive' | 'delete' | 'visibility',
+    options?: any,
+  ) => Promise<void>;
   cancelOperation: () => void;
   resetState: () => void;
   retryFailed: () => void;
@@ -47,17 +51,21 @@ export function useBulkRepoActions(onSuccess?: () => void): UseBulkRepoActionsRe
   const cancelOperation = useCallback(() => {
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
-      setState(s => ({ ...s, isExecuting: false, isCompleted: true }));
+      setState((s) => ({ ...s, isExecuting: false, isCompleted: true }));
     }
   }, []);
 
   const executeAction = useCallback(
-    async (repos: Repository[], type: 'archive' | 'unarchive' | 'delete' | 'visibility', options?: any): Promise<void> => {
+    async (
+      repos: Repository[],
+      type: 'archive' | 'unarchive' | 'delete' | 'visibility',
+      options?: any,
+    ): Promise<void> => {
       const total = repos.length;
       setState({ ...INITIAL_STATE, isExecuting: true, total });
-      
+
       lastParamsRef.current = { repos, type, options };
-      
+
       abortControllerRef.current = new AbortController();
 
       const BATCH_SIZE = 2; // Repos operations are heavier, use smaller batch
@@ -70,11 +78,11 @@ export function useBulkRepoActions(onSuccess?: () => void): UseBulkRepoActionsRe
           if (abortControllerRef.current.signal.aborted) break;
 
           const batch = repos.slice(i, i + BATCH_SIZE);
-          const repoParams = batch.map(r => ({ owner: r.owner, repo: r.name }));
+          const repoParams = batch.map((r) => ({ owner: r.owner, repo: r.name }));
 
           let url = '';
           let method = 'PATCH';
-          let body: any = { repos: repoParams };
+          const body: any = { repos: repoParams };
 
           switch (type) {
             case 'archive':
@@ -106,7 +114,7 @@ export function useBulkRepoActions(onSuccess?: () => void): UseBulkRepoActionsRe
 
           if (!response.ok) {
             const errorMsg = data.error || 'Batch operation failed';
-            batch.forEach(r => {
+            batch.forEach((r) => {
               allResults.push({ repo: r.full_name, success: false, error: errorMsg });
             });
             failedCount += batch.length;
@@ -126,7 +134,7 @@ export function useBulkRepoActions(onSuccess?: () => void): UseBulkRepoActionsRe
             }
           }
 
-          setState(prev => ({
+          setState((prev) => ({
             ...prev,
             processed: Math.min(i + BATCH_SIZE, total),
             succeeded: succeededCount,
@@ -135,35 +143,31 @@ export function useBulkRepoActions(onSuccess?: () => void): UseBulkRepoActionsRe
           }));
         }
 
-        setState(prev => ({ ...prev, isExecuting: false, isCompleted: true }));
+        setState((prev) => ({ ...prev, isExecuting: false, isCompleted: true }));
         if (succeededCount > 0) {
           onSuccess?.();
         }
       } catch (err) {
         if (err instanceof Error && err.name === 'AbortError') return;
-        setState(prev => ({ ...prev, isExecuting: false, isCompleted: true }));
+        setState((prev) => ({ ...prev, isExecuting: false, isCompleted: true }));
       } finally {
         abortControllerRef.current = null;
       }
     },
-    [onSuccess]
+    [onSuccess],
   );
 
   const retryFailed = useCallback(() => {
     if (!lastParamsRef.current) return;
-    
+
     const { repos, type, options } = lastParamsRef.current;
-    
+
     // Identify failed repos
-    const failedFullNames = new Set(
-      state.results
-        .filter(r => !r.success)
-        .map(r => r.repo)
-    );
+    const failedFullNames = new Set(state.results.filter((r) => !r.success).map((r) => r.repo));
 
     if (failedFullNames.size === 0) return;
 
-    const failedRepos = repos.filter(r => failedFullNames.has(r.full_name));
+    const failedRepos = repos.filter((r) => failedFullNames.has(r.full_name));
 
     if (failedRepos.length > 0) {
       executeAction(failedRepos, type, options);

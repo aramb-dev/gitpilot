@@ -1,7 +1,7 @@
 'use client';
 
+import { Building, Calendar, ExternalLink, MapPin } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { ExternalLink, MapPin, Building, Calendar } from 'lucide-react';
 import type { Account } from '@/types/account';
 import type { ApiResponse } from '@/types/api-errors';
 
@@ -57,7 +57,10 @@ export function AccountProfile({ initialAccount }: AccountProfileProps) {
   if (error) {
     return (
       <div className="bg-[#0d0d0d] border border-red-900/50 p-6 font-mono">
-        <p className="text-red-400 text-sm"><span className="text-[#666]">error: </span>{error}</p>
+        <p className="text-red-400 text-sm">
+          <span className="text-[#666]">error: </span>
+          {error}
+        </p>
         <button
           onClick={() => window.location.reload()}
           className="mt-2 text-sm text-[#00ff00] hover:underline"
@@ -98,9 +101,7 @@ export function AccountProfile({ initialAccount }: AccountProfileProps) {
           </div>
           <p className="text-[#666] text-sm">@{account.login}</p>
 
-          {account.bio && (
-            <p className="text-[#888] text-sm mt-2">{account.bio}</p>
-          )}
+          {account.bio && <p className="text-[#888] text-sm mt-2">{account.bio}</p>}
 
           <div className="flex flex-wrap gap-4 mt-3 text-sm text-[#666]">
             {account.company && (

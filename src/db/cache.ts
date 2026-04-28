@@ -1,8 +1,8 @@
-import { db } from "./index";
-import { cachedGithubData } from "./schema";
-import { eq, and, lt } from "drizzle-orm";
+import { eq, lt } from 'drizzle-orm';
+import { db } from './index';
+import { cachedGithubData } from './schema';
 
-type CacheDataType = "repositories" | "issues" | "pulls" | "orgs" | "user";
+type CacheDataType = 'repositories' | 'issues' | 'pulls' | 'orgs' | 'user';
 
 interface CacheOptions {
   ttlMinutes?: number;
@@ -21,10 +21,7 @@ function generateCacheId(userId: string, key: string): string {
   return `${userId}:${key}`;
 }
 
-export async function getCached<T>(
-  userId: string,
-  key: string
-): Promise<CacheEntry<T> | null> {
+export async function getCached<T>(userId: string, key: string): Promise<CacheEntry<T> | null> {
   try {
     const cacheId = generateCacheId(userId, key);
     const result = await db
@@ -46,8 +43,7 @@ export async function getCached<T>(
       etag: entry.etag,
       isStale,
     };
-  } catch (error) {
-    console.error("Cache read error:", error);
+  } catch (_error) {
     return null;
   }
 }
@@ -57,7 +53,7 @@ export async function setCache<T>(
   key: string,
   dataType: CacheDataType,
   data: T,
-  options: CacheOptions = {}
+  options: CacheOptions = {},
 ): Promise<void> {
   const { ttlMinutes = DEFAULT_TTL_MINUTES, etag } = options;
   const cacheId = generateCacheId(userId, key);
@@ -87,49 +83,33 @@ export async function setCache<T>(
           updatedAt: now,
         },
       });
-  } catch (error) {
-    console.error("Cache write error:", error);
-  }
+  } catch (_error) {}
 }
 
-export async function invalidateCache(
-  userId: string,
-  key?: string
-): Promise<void> {
+export async function invalidateCache(userId: string, key?: string): Promise<void> {
   try {
     if (key) {
       const cacheId = generateCacheId(userId, key);
       await db.delete(cachedGithubData).where(eq(cachedGithubData.id, cacheId));
     } else {
-      await db
-        .delete(cachedGithubData)
-        .where(eq(cachedGithubData.userId, userId));
+      await db.delete(cachedGithubData).where(eq(cachedGithubData.userId, userId));
     }
-  } catch (error) {
-    console.error("Cache invalidation error:", error);
-  }
+  } catch (_error) {}
 }
 
-export async function invalidateCacheByPrefix(
-  userId: string,
-  keyPrefix: string
-): Promise<void> {
+export async function invalidateCacheByPrefix(userId: string, keyPrefix: string): Promise<void> {
   try {
     const entries = await db
       .select({ id: cachedGithubData.id, key: cachedGithubData.key })
       .from(cachedGithubData)
       .where(eq(cachedGithubData.userId, userId));
 
-    const idsToDelete = entries
-      .filter((e) => e.key.startsWith(keyPrefix))
-      .map((e) => e.id);
+    const idsToDelete = entries.filter((e) => e.key.startsWith(keyPrefix)).map((e) => e.id);
 
     for (const id of idsToDelete) {
       await db.delete(cachedGithubData).where(eq(cachedGithubData.id, id));
     }
-  } catch (error) {
-    console.error("Cache prefix invalidation error:", error);
-  }
+  } catch (_error) {}
 }
 
 export async function cleanupExpiredCache(): Promise<number> {
@@ -141,8 +121,7 @@ export async function cleanupExpiredCache(): Promise<number> {
       .returning({ id: cachedGithubData.id });
 
     return result.length;
-  } catch (error) {
-    console.error("Cache cleanup error:", error);
+  } catch (_error) {
     return 0;
   }
 }
@@ -151,7 +130,7 @@ export async function getCacheWithStaleWhileRevalidate<T>(
   userId: string,
   key: string,
   fetchFn: () => Promise<{ data: T; etag?: string }>,
-  options: CacheOptions = {}
+  options: CacheOptions = {},
 ): Promise<T> {
   const cached = await getCached<T>(userId, key);
 
@@ -161,12 +140,12 @@ export async function getCacheWithStaleWhileRevalidate<T>(
 
   if (cached?.isStale) {
     fetchFn().then(async ({ data, etag }) => {
-      await setCache(userId, key, "repositories", data, { ...options, etag });
+      await setCache(userId, key, 'repositories', data, { ...options, etag });
     });
     return cached.data;
   }
 
   const { data, etag } = await fetchFn();
-  await setCache(userId, key, "repositories", data, { ...options, etag });
+  await setCache(userId, key, 'repositories', data, { ...options, etag });
   return data;
 }

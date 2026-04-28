@@ -1,11 +1,11 @@
-import { db } from "@/db";
-import { apiMetrics } from "@/db/schema";
+import { db } from '@/db';
+import { apiMetrics } from '@/db/schema';
 
 export type MetricSource = 'rate_limit' | 'server_error' | 'success';
 
 /**
  * Logs an API event to the database for monitoring.
- * 
+ *
  * @param userId - ID of the user who triggered the request
  * @param endpoint - The API endpoint being called
  * @param status - HTTP status code received
@@ -19,7 +19,7 @@ export async function logApiMetric(
   status: number,
   attempt: number,
   waitTimeMs: number,
-  source: MetricSource
+  source: MetricSource,
 ) {
   try {
     await db.insert(apiMetrics).values({
@@ -31,8 +31,5 @@ export async function logApiMetric(
       waitTimeMs,
       source,
     });
-  } catch (error) {
-    // We don't want to fail the main operation if metrics logging fails
-    console.error("Failed to log API metric:", error);
-  }
+  } catch (_error) {}
 }

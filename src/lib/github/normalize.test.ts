@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test';
-import { normalizeRepository, normalizeRepositories } from './normalize';
 import type { GitHubRepository } from '@/types/github';
+import { normalizeRepositories, normalizeRepository } from './normalize';
 
 const createMockGitHubRepo = (overrides: Partial<GitHubRepository> = {}): GitHubRepository => ({
   id: 1,

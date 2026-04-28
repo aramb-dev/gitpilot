@@ -1,7 +1,12 @@
 'use client';
 
-import { useState, useCallback, useRef } from 'react';
-import type { Issue, BulkIssueAction, BulkOperationSummary, BulkOperationResult } from '@/types/issue';
+import { useCallback, useRef, useState } from 'react';
+import type {
+  BulkIssueAction,
+  BulkOperationResult,
+  BulkOperationSummary,
+  Issue,
+} from '@/types/issue';
 
 export interface BulkOperationState {
   isExecuting: boolean;
@@ -35,9 +40,7 @@ const INITIAL_STATE: BulkOperationState = {
   isCompleted: false,
 };
 
-export function useBulkIssueActions(
-  onSuccess?: () => void
-): UseBulkIssueActionsReturn {
+export function useBulkIssueActions(onSuccess?: () => void): UseBulkIssueActionsReturn {
   const [selectedIssues, setSelectedIssues] = useState<Issue[]>([]);
   const [state, setState] = useState<BulkOperationState>(INITIAL_STATE);
   const [error, setError] = useState<string | null>(null);
@@ -56,14 +59,14 @@ export function useBulkIssueActions(
   const cancelOperation = useCallback(() => {
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
-      setState(s => ({ ...s, isExecuting: false, isCompleted: true }));
+      setState((s) => ({ ...s, isExecuting: false, isCompleted: true }));
     }
   }, []);
 
   const executeAction = useCallback(
     async (action: BulkIssueAction, issuesOverride?: Issue[]): Promise<void> => {
       const issuesToProcess = issuesOverride || selectedIssues;
-      
+
       if (issuesToProcess.length === 0) {
         throw new Error('No issues selected');
       }
@@ -107,18 +110,18 @@ export function useBulkIssueActions(
           if (!response.ok) {
             // Handle partial failure or API error
             const errorMsg = data.error?.message || 'Batch operation failed';
-            
+
             // Mark all items in this batch as failed if the whole request failed
-            const batchFailures: BulkOperationResult[] = batch.map(issue => ({
+            const batchFailures: BulkOperationResult[] = batch.map((issue) => ({
               issue: {
                 owner: issue.repository.owner,
                 repo: issue.repository.name,
                 number: issue.number,
               },
               success: false,
-              error: errorMsg
+              error: errorMsg,
             }));
-            
+
             allResults.push(...batchFailures);
             failedCount += batch.length;
           } else {
@@ -128,7 +131,7 @@ export function useBulkIssueActions(
             failedCount += summary.failed;
           }
 
-          setState(prev => ({
+          setState((prev) => ({
             ...prev,
             processed: Math.min(i + BATCH_SIZE, total),
             succeeded: succeededCount,
@@ -137,8 +140,8 @@ export function useBulkIssueActions(
           }));
         }
 
-        setState(prev => ({ ...prev, isExecuting: false, isCompleted: true }));
-        
+        setState((prev) => ({ ...prev, isExecuting: false, isCompleted: true }));
+
         if (succeededCount > 0) {
           onSuccess?.();
           // We don't clear selection immediately so user can see results
@@ -150,33 +153,33 @@ export function useBulkIssueActions(
         }
         const message = err instanceof Error ? err.message : 'Unknown error';
         setError(message);
-        setState(prev => ({ ...prev, isExecuting: false, isCompleted: true }));
+        setState((prev) => ({ ...prev, isExecuting: false, isCompleted: true }));
       } finally {
         abortControllerRef.current = null;
       }
     },
-    [selectedIssues, onSuccess]
+    [selectedIssues, onSuccess],
   );
 
   const retryFailed = useCallback(() => {
     if (!lastActionRef.current) return;
-    
+
     // Identify failed issues from results
     const failedIdentifiers = new Set(
       state.results
-        .filter(r => !r.success)
-        .map(r => `${r.issue.owner}/${r.issue.repo}#${r.issue.number}`)
+        .filter((r) => !r.success)
+        .map((r) => `${r.issue.owner}/${r.issue.repo}#${r.issue.number}`),
     );
 
     if (failedIdentifiers.size === 0) return;
 
-    // We need to find the original Issue objects. 
+    // We need to find the original Issue objects.
     // They should be in selectedIssues (if the user hasn't cleared them).
-    // If we passed issuesOverride, we rely on selectedIssues containing them 
-    // OR we should have stored the last processed batch? 
+    // If we passed issuesOverride, we rely on selectedIssues containing them
+    // OR we should have stored the last processed batch?
     // Assumption: selectedIssues hasn't changed significantly.
-    const failedIssues = selectedIssues.filter(issue => 
-      failedIdentifiers.has(`${issue.repository.owner}/${issue.repository.name}#${issue.number}`)
+    const failedIssues = selectedIssues.filter((issue) =>
+      failedIdentifiers.has(`${issue.repository.owner}/${issue.repository.name}#${issue.number}`),
     );
 
     if (failedIssues.length > 0) {

@@ -1,20 +1,22 @@
-import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import type { Session } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import { createGitHubHeaders } from "@/lib/github/client";
-import { normalizeAccount } from "@/lib/github/account";
-import type { ApiResponse } from "@/types/api-errors";
-import type { Account } from "@/types/account";
+import { NextResponse } from 'next/server';
+import type { Session } from 'next-auth';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+import { normalizeAccount } from '@/lib/github/account';
+import { createGitHubHeaders } from '@/lib/github/client';
+import type { Account } from '@/types/account';
+import type { ApiResponse } from '@/types/api-errors';
 
 /**
  * GET /api/auth/account
  * Fetches the full GitHub user profile for the authenticated user.
  */
 export async function GET() {
-  const session = (await getServerSession(authOptions)) as (Session & {
-    accessToken?: string;
-  }) | null;
+  const session = (await getServerSession(authOptions)) as
+    | (Session & {
+        accessToken?: string;
+      })
+    | null;
 
   if (!session?.accessToken) {
     const response: ApiResponse<Account> = {

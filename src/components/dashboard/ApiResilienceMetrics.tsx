@@ -1,7 +1,7 @@
 'use client';
 
+import { AlertCircle, Clock, Shield, TrendingUp } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { Shield, Clock, AlertCircle, TrendingUp } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface MetricsStats {
@@ -61,7 +61,7 @@ export function ApiResilienceMetrics() {
 
   const { hourStats, dayStats } = data || {
     hourStats: { rateLimitHits: 0, avgWaitTime: 0, totalEvents: 0 },
-    dayStats: { rateLimitHits: 0, avgWaitTime: 0, totalEvents: 0 }
+    dayStats: { rateLimitHits: 0, avgWaitTime: 0, totalEvents: 0 },
   };
 
   return (
@@ -76,9 +76,7 @@ export function ApiResilienceMetrics() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-yellow-500">
-              {hourStats.rateLimitHits}
-            </div>
+            <div className="text-2xl font-bold text-yellow-500">{hourStats.rateLimitHits}</div>
             <p className="text-[10px] text-[#444] mt-1 uppercase">
               {dayStats.rateLimitHits} IN_LAST_24H
             </p>
@@ -112,12 +110,8 @@ export function ApiResilienceMetrics() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-[#00ff00]">
-              {hourStats.totalEvents}
-            </div>
-            <p className="text-[10px] text-[#444] mt-1 uppercase">
-              RETRY_EVENTS_HANDLED
-            </p>
+            <div className="text-2xl font-bold text-[#00ff00]">{hourStats.totalEvents}</div>
+            <p className="text-[10px] text-[#444] mt-1 uppercase">RETRY_EVENTS_HANDLED</p>
           </CardContent>
         </Card>
       </div>
@@ -139,7 +133,10 @@ export function ApiResilienceMetrics() {
             data?.recentEvents.map((event: any) => (
               <div key={event.id} className="p-3 flex items-center justify-between font-mono">
                 <div className="flex flex-col">
-                  <span className="text-[10px] text-white truncate max-w-[300px]" title={event.endpoint}>
+                  <span
+                    className="text-[10px] text-white truncate max-w-[300px]"
+                    title={event.endpoint}
+                  >
                     {new URL(event.endpoint).pathname}
                   </span>
                   <span className="text-[9px] text-[#444] uppercase">
@@ -148,15 +145,18 @@ export function ApiResilienceMetrics() {
                 </div>
                 <div className="flex items-center gap-4 text-right">
                   <div className="flex flex-col items-end">
-                    <span className={`text-[10px] uppercase ${
-                      event.source === 'rate_limit' ? 'text-yellow-500' : 
-                      event.source === 'server_error' ? 'text-red-500' : 'text-green-500'
-                    }`}>
+                    <span
+                      className={`text-[10px] uppercase ${
+                        event.source === 'rate_limit'
+                          ? 'text-yellow-500'
+                          : event.source === 'server_error'
+                            ? 'text-red-500'
+                            : 'text-green-500'
+                      }`}
+                    >
                       {event.source.replace('_', ' ')}
                     </span>
-                    <span className="text-[9px] text-[#444]">
-                      ATTEMPT_{event.attempt + 1}
-                    </span>
+                    <span className="text-[9px] text-[#444]">ATTEMPT_{event.attempt + 1}</span>
                   </div>
                   <div className="min-w-[40px] text-right">
                     <span className="text-[10px] text-[#666]">

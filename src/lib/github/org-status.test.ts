@@ -1,9 +1,9 @@
-import { describe, expect, it, mock, afterEach } from 'bun:test';
+import { afterEach, describe, expect, it, mock } from 'bun:test';
 import {
-  detectOrgAccessStatus,
   detectAllOrgStatuses,
-  getStatusLabel,
+  detectOrgAccessStatus,
   getStatusColor,
+  getStatusLabel,
 } from './org-status';
 
 const mockOrg = {
@@ -26,9 +26,7 @@ describe('detectOrgAccessStatus', () => {
         return Promise.resolve(new Response(JSON.stringify([]), { status: 200 }));
       }
       if (url.includes('/memberships')) {
-        return Promise.resolve(
-          new Response(JSON.stringify({ role: 'admin' }), { status: 200 })
-        );
+        return Promise.resolve(new Response(JSON.stringify({ role: 'admin' }), { status: 200 }));
       }
       return Promise.resolve(new Response('{}', { status: 200 }));
     }) as any;
@@ -47,9 +45,9 @@ describe('detectOrgAccessStatus', () => {
           JSON.stringify({
             message: 'Resource protected by organization SAML enforcement',
           }),
-          { status: 403 }
-        )
-      )
+          { status: 403 },
+        ),
+      ),
     ) as any;
 
     const result = await detectOrgAccessStatus('token', mockOrg);
@@ -65,9 +63,9 @@ describe('detectOrgAccessStatus', () => {
           JSON.stringify({
             message: 'Organization has enabled OAuth App access restrictions',
           }),
-          { status: 403 }
-        )
-      )
+          { status: 403 },
+        ),
+      ),
     ) as any;
 
     const result = await detectOrgAccessStatus('token', mockOrg);
@@ -78,9 +76,7 @@ describe('detectOrgAccessStatus', () => {
 
   it('returns unknown status on other errors', async () => {
     global.fetch = mock(() =>
-      Promise.resolve(
-        new Response(JSON.stringify({ message: 'Not Found' }), { status: 404 })
-      )
+      Promise.resolve(new Response(JSON.stringify({ message: 'Not Found' }), { status: 404 })),
     ) as any;
 
     const result = await detectOrgAccessStatus('token', mockOrg);
@@ -99,7 +95,7 @@ describe('detectOrgAccessStatus', () => {
 
   it('preserves org info in result', async () => {
     global.fetch = mock(() =>
-      Promise.resolve(new Response(JSON.stringify([]), { status: 200 }))
+      Promise.resolve(new Response(JSON.stringify([]), { status: 200 })),
     ) as any;
 
     const result = await detectOrgAccessStatus('token', mockOrg);
@@ -120,7 +116,7 @@ describe('detectAllOrgStatuses', () => {
 
   it('processes multiple orgs', async () => {
     global.fetch = mock(() =>
-      Promise.resolve(new Response(JSON.stringify([]), { status: 200 }))
+      Promise.resolve(new Response(JSON.stringify([]), { status: 200 })),
     ) as any;
 
     const orgs = [

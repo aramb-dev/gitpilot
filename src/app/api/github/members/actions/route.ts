@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 import { getAuthSession } from '@/lib/auth';
 import { removeOrgMember, updateOrgMemberRole } from '@/lib/github/members';
 import type { BulkMemberAction } from '@/types/member';
@@ -8,20 +8,14 @@ export async function POST(request: NextRequest) {
     const session = await getAuthSession();
 
     if (!session?.accessToken) {
-      return NextResponse.json(
-        { error: { message: 'Unauthorized' } },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: { message: 'Unauthorized' } }, { status: 401 });
     }
 
     const body: BulkMemberAction = await request.json();
     const { org, members, action, role } = body;
 
     if (!org || !members.length || !action) {
-      return NextResponse.json(
-        { error: { message: 'Missing required fields' } },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: { message: 'Missing required fields' } }, { status: 400 });
     }
 
     const accessToken = session.accessToken;
@@ -29,7 +23,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: { message: 'Unauthorized' } }, { status: 401 });
     }
 
-    const results = { success: [] as string[], errors: [] as { login: string, message: string }[] };
+    const results = { success: [] as string[], errors: [] as { login: string; message: string }[] };
 
     const actionPromises = members.map(async (username) => {
       let result;
@@ -54,11 +48,10 @@ export async function POST(request: NextRequest) {
     await Promise.all(actionPromises);
 
     return NextResponse.json(results, { status: 200 });
-  } catch (error) {
-    console.error('Error processing member actions:', error);
+  } catch (_error) {
     return NextResponse.json(
       { error: { message: 'Failed to process member actions' } },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

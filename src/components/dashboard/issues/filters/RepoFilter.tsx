@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
-import { ChevronDown, X, Check } from 'lucide-react';
+import { Check, ChevronDown, X } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 
 interface RepoFilterProps {
   availableRepos: string[];
@@ -9,11 +9,7 @@ interface RepoFilterProps {
   onChange: (repos: string[]) => void;
 }
 
-export function RepoFilter({
-  availableRepos,
-  selectedRepos,
-  onChange,
-}: RepoFilterProps) {
+export function RepoFilter({ availableRepos, selectedRepos, onChange }: RepoFilterProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState('');
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -29,7 +25,7 @@ export function RepoFilter({
   }, []);
 
   const filteredRepos = availableRepos.filter((repo) =>
-    repo.toLowerCase().includes(search.toLowerCase())
+    repo.toLowerCase().includes(search.toLowerCase()),
   );
 
   const toggleRepo = (repo: string) => {
@@ -73,9 +69,7 @@ export function RepoFilter({
 
           <div className="max-h-64 overflow-y-auto">
             {filteredRepos.length === 0 ? (
-              <div className="px-3 py-4 text-xs text-[#666] text-center italic">
-                no_repos_found
-              </div>
+              <div className="px-3 py-4 text-xs text-[#666] text-center italic">no_repos_found</div>
             ) : (
               filteredRepos.map((repo) => {
                 const isSelected = selectedRepos.includes(repo);
@@ -87,16 +81,12 @@ export function RepoFilter({
                   >
                     <div
                       className={`w-3.5 h-3.5 border flex items-center justify-center ${
-                        isSelected
-                          ? 'bg-[#00ff00] border-[#00ff00]'
-                          : 'border-[#333]'
+                        isSelected ? 'bg-[#00ff00] border-[#00ff00]' : 'border-[#333]'
                       }`}
                     >
                       {isSelected && <Check className="w-2.5 h-2.5 text-black font-black" />}
                     </div>
-                    <span className={isSelected ? 'text-[#00ff00]' : 'text-[#888]'}>
-                      {repo}
-                    </span>
+                    <span className={isSelected ? 'text-[#00ff00]' : 'text-[#888]'}>{repo}</span>
                   </button>
                 );
               })

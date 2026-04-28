@@ -10,19 +10,19 @@ export interface Issue {
   body: string | null;
   state: 'open' | 'closed';
   locked: boolean;
-  
+
   user: IssueUser;
   assignees: IssueUser[];
   labels: IssueLabel[];
   milestone: IssueMilestone | null;
-  
+
   repository: IssueRepository;
-  
+
   comments: number;
   createdAt: string;
   updatedAt: string;
   closedAt: string | null;
-  
+
   htmlUrl: string;
   apiUrl: string;
 }

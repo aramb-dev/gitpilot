@@ -29,7 +29,8 @@ export function IssueListPagination({
       <div className="text-xs text-[#666]">
         {totalCount !== undefined && (
           <span>
-            [PAGE_{currentPage}{totalPages && `_OF_${totalPages}`}]
+            [PAGE_{currentPage}
+            {totalPages && `_OF_${totalPages}`}]
           </span>
         )}
       </div>

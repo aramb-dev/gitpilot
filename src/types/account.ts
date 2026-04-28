@@ -60,11 +60,7 @@ export interface Account {
 /**
  * Organization access status.
  */
-export type OrgAccessStatus = 
-  | 'accessible'
-  | 'sso_required'
-  | 'oauth_restricted'
-  | 'unknown';
+export type OrgAccessStatus = 'accessible' | 'sso_required' | 'oauth_restricted' | 'unknown';
 
 /**
  * Organization with access status information.
@@ -108,11 +104,11 @@ export interface TokenVerificationResult {
 export const SCOPE_DESCRIPTIONS: Record<string, string> = {
   'read:user': 'Read your profile information',
   'user:email': 'Access your email addresses',
-  'repo': 'Full access to repositories (required for private repos)',
-  'public_repo': 'Access public repositories only',
+  repo: 'Full access to repositories (required for private repos)',
+  public_repo: 'Access public repositories only',
   'read:org': 'Read organization membership',
   'write:org': 'Write organization membership',
   'admin:org': 'Full control of organizations',
-  'delete_repo': 'Delete repositories',
-  'gist': 'Create and manage gists',
+  delete_repo: 'Delete repositories',
+  gist: 'Create and manage gists',
 };

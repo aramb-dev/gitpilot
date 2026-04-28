@@ -1,23 +1,28 @@
-'use client'
+'use client';
 
-import Link from "next/link";
-import { signIn } from "next-auth/react";
-import { Button } from "@/components/ui/button";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import {
-  Github,
   ArrowRight,
-  Monitor,
-  Shield,
-  GitBranch,
   Clock,
+  GitBranch,
+  Github,
   Layers,
-  MousePointer2
-} from "lucide-react";
+  Monitor,
+  MousePointer2,
+  Shield,
+} from 'lucide-react';
+import Link from 'next/link';
+import { signIn } from 'next-auth/react';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
+import { Button } from '@/components/ui/button';
 
 export default function Home() {
   const handleSignIn = () => {
-    void signIn("github", { callbackUrl: "/dashboard" });
+    void signIn('github', { callbackUrl: '/dashboard' });
   };
 
   return (
@@ -33,8 +38,12 @@ export default function Home() {
             <span className="text-lg font-bold tracking-tight">[GitPilot]</span>
           </Link>
           <nav className="hidden md:flex items-center space-x-8 text-sm">
-            <Link href="#features" className="text-[#888] hover:text-white transition-colors">./features</Link>
-            <Link href="#faq" className="text-[#888] hover:text-white transition-colors">./faq</Link>
+            <Link href="#features" className="text-[#888] hover:text-white transition-colors">
+              ./features
+            </Link>
+            <Link href="#faq" className="text-[#888] hover:text-white transition-colors">
+              ./faq
+            </Link>
           </nav>
           <Button
             type="button"
@@ -58,11 +67,14 @@ export default function Home() {
                 <span className="text-[#666]">_</span>
                 <span className="text-[#00ff00]">AUTOMATION</span>
                 <br />
-                <span className="text-[#666]">//</span> <span className="text-white">GUI_FOR_REPOS</span>
+                <span className="text-[#666]">//</span>{' '}
+                <span className="text-white">GUI_FOR_REPOS</span>
               </h1>
               <p className="text-lg text-[#888] mb-10 max-w-2xl leading-relaxed font-mono">
-                &gt; Visual dashboard for bulk repository management.<br />
-                &gt; Click less. Automate more.<br />
+                &gt; Visual dashboard for bulk repository management.
+                <br />
+                &gt; Click less. Automate more.
+                <br />
                 &gt; Beautiful interface for GitHub workflows.
               </p>
               <div className="flex gap-4">
@@ -101,13 +113,27 @@ export default function Home() {
                 </div>
                 {/* Repo grid */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                  {['frontend', 'backend', 'api', 'docs', 'cli-tool', 'design', 'tests', 'scripts'].map((repo, i) => (
-                    <div key={i} className="p-3 bg-[#1a1a1a] border border-[#333] rounded hover:border-[#00ff00] transition-colors cursor-pointer group">
+                  {[
+                    'frontend',
+                    'backend',
+                    'api',
+                    'docs',
+                    'cli-tool',
+                    'design',
+                    'tests',
+                    'scripts',
+                  ].map((repo, i) => (
+                    <div
+                      key={i}
+                      className="p-3 bg-[#1a1a1a] border border-[#333] rounded hover:border-[#00ff00] transition-colors cursor-pointer group"
+                    >
                       <div className="flex items-center justify-between mb-2">
                         <span className="text-xs text-white">{repo}</span>
                         <input type="checkbox" className="accent-[#00ff00]" />
                       </div>
-                      <span className="text-xs text-[#666]">public • {Math.floor(Math.random() * 50) + 1} stars</span>
+                      <span className="text-xs text-[#666]">
+                        public • {Math.floor(Math.random() * 50) + 1} stars
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -121,21 +147,52 @@ export default function Home() {
           <div className="container mx-auto px-6">
             <div className="mb-16">
               <p className="text-[#666] text-sm mb-4">/* FEATURE_SET */</p>
-              <h2 className="text-2xl md:text-4xl font-bold text-white">
-                const features = [
-              </h2>
+              <h2 className="text-2xl md:text-4xl font-bold text-white">const features = [</h2>
             </div>
 
             <div className="grid md:grid-cols-2 gap-px bg-[#333] border border-[#333]">
               {[
-                { icon: Layers, title: "BULK_REPOS", desc: "Select multiple repos. Click once. Apply changes instantly.", code: "Click to select • Apply action" },
-                { icon: Monitor, title: "VISUAL_DASHBOARD", desc: "Beautiful unified interface for all your repositories.", code: "Grid view • List view • Filters" },
-                { icon: GitBranch, title: "ISSUE_PR_CTRL", desc: "Drag to select issues. Bulk label, assign, close.", code: "Multi-select • Batch operations" },
-                { icon: Shield, title: "SECURITY", desc: "GitHub OAuth. Minimal permissions. No code storage.", code: "security.level = 'max'" },
-                { icon: Clock, title: "SCHEDULED", desc: "Set recurring jobs with visual scheduler UI.", code: "Cron UI • One-click setup" },
-                { icon: ArrowRight, title: "CLI_SOON", desc: "Command-line interface coming soon for power users.", code: "Coming soon • Join waitlist" },
+                {
+                  icon: Layers,
+                  title: 'BULK_REPOS',
+                  desc: 'Select multiple repos. Click once. Apply changes instantly.',
+                  code: 'Click to select • Apply action',
+                },
+                {
+                  icon: Monitor,
+                  title: 'VISUAL_DASHBOARD',
+                  desc: 'Beautiful unified interface for all your repositories.',
+                  code: 'Grid view • List view • Filters',
+                },
+                {
+                  icon: GitBranch,
+                  title: 'ISSUE_PR_CTRL',
+                  desc: 'Drag to select issues. Bulk label, assign, close.',
+                  code: 'Multi-select • Batch operations',
+                },
+                {
+                  icon: Shield,
+                  title: 'SECURITY',
+                  desc: 'GitHub OAuth. Minimal permissions. No code storage.',
+                  code: "security.level = 'max'",
+                },
+                {
+                  icon: Clock,
+                  title: 'SCHEDULED',
+                  desc: 'Set recurring jobs with visual scheduler UI.',
+                  code: 'Cron UI • One-click setup',
+                },
+                {
+                  icon: ArrowRight,
+                  title: 'CLI_SOON',
+                  desc: 'Command-line interface coming soon for power users.',
+                  code: 'Coming soon • Join waitlist',
+                },
               ].map((feature, i) => (
-                <div key={i} className="bg-[#0a0a0a] p-8 hover:bg-[#0f0f0f] transition-colors group">
+                <div
+                  key={i}
+                  className="bg-[#0a0a0a] p-8 hover:bg-[#0f0f0f] transition-colors group"
+                >
                   <div className="flex items-start justify-between mb-6">
                     <div className="w-12 h-12 border border-[#333] flex items-center justify-center">
                       <feature.icon className="w-5 h-5 text-[#00ff00]" />
@@ -160,12 +217,28 @@ export default function Home() {
             <p className="text-2xl md:text-3xl font-bold text-white mb-12">const faq = [</p>
             <Accordion type="single" collapsible className="space-y-px">
               {[
-                { q: "is_gitpilot_secure", a: "true. GitHub OAuth. No password storage. Minimal permissions. Code never stored." },
-                { q: "handle_failure", a: "Jobs continue on failure. Detailed error reports returned. Retry specific failed repos from UI." },
-                { q: "org_support", a: "true. Grant GitHub App org access. Bulk actions on admin repos from one dashboard." },
-                { q: "cli_available", a: "soon. CLI is in development. Join waitlist for early access when it launches." },
+                {
+                  q: 'is_gitpilot_secure',
+                  a: 'true. GitHub OAuth. No password storage. Minimal permissions. Code never stored.',
+                },
+                {
+                  q: 'handle_failure',
+                  a: 'Jobs continue on failure. Detailed error reports returned. Retry specific failed repos from UI.',
+                },
+                {
+                  q: 'org_support',
+                  a: 'true. Grant GitHub App org access. Bulk actions on admin repos from one dashboard.',
+                },
+                {
+                  q: 'cli_available',
+                  a: 'soon. CLI is in development. Join waitlist for early access when it launches.',
+                },
               ].map((item, i) => (
-                <AccordionItem key={i} value={`item-${i}`} className="border-t border-b border-[#333] bg-[#0a0a0a]">
+                <AccordionItem
+                  key={i}
+                  value={`item-${i}`}
+                  className="border-t border-b border-[#333] bg-[#0a0a0a]"
+                >
                   <AccordionTrigger className="px-6 py-5 font-mono text-sm text-left hover:no-underline hover:text-[#00ff00]">
                     <span className="text-[#666]">"{item.q}"</span>:
                   </AccordionTrigger>
@@ -189,7 +262,8 @@ export default function Home() {
               <span className="text-yellow-500">DEV_IN_PROGRESS</span>
             </h2>
             <p className="text-[#888] max-w-lg mx-auto">
-              Power user? We're building a full-featured CLI. Join the waitlist to be notified when it launches.
+              Power user? We're building a full-featured CLI. Join the waitlist to be notified when
+              it launches.
             </p>
           </div>
         </section>
@@ -198,9 +272,7 @@ export default function Home() {
         <section className="py-24 border-t border-[#1a1a1a] bg-[#0d0d0d]">
           <div className="container mx-auto px-6 text-center">
             <p className="text-[#00ff00] text-sm mb-6">$ ./start.sh</p>
-            <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">
-              &gt; READY_TO_BEGIN?
-            </h2>
+            <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">&gt; READY_TO_BEGIN?</h2>
             <p className="text-[#888] mb-10 max-w-xl mx-auto">
               Stop clicking. Start automating. Your GitHub workflow awaits.
             </p>
@@ -220,8 +292,12 @@ export default function Home() {
         <div className="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-[#666] font-mono">
           <p>// © 2025 GitPilot</p>
           <div className="flex gap-6">
-            <Link href="#" className="hover:text-[#00ff00] transition-colors">PRIVACY_PROTOCOL</Link>
-            <Link href="#" className="hover:text-[#00ff00] transition-colors">TERMS_OF_SERVICE</Link>
+            <Link href="#" className="hover:text-[#00ff00] transition-colors">
+              PRIVACY_PROTOCOL
+            </Link>
+            <Link href="#" className="hover:text-[#00ff00] transition-colors">
+              TERMS_OF_SERVICE
+            </Link>
           </div>
         </div>
       </footer>

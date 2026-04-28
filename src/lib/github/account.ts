@@ -2,7 +2,7 @@
  * GitHub account normalization utilities.
  */
 
-import type { GitHubUserProfile, Account } from '@/types/account';
+import type { Account, GitHubUserProfile } from '@/types/account';
 
 /**
  * Normalizes a raw GitHub user profile to the Account domain model.

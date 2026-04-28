@@ -49,9 +49,7 @@ export function IssueListHeader({
         <div className="relative">
           <select
             value={sortBy}
-            onChange={(e) =>
-              onSortChange(e.target.value as 'created' | 'updated' | 'comments')
-            }
+            onChange={(e) => onSortChange(e.target.value as 'created' | 'updated' | 'comments')}
             className="appearance-none bg-[#0d0d0d] border border-[#333] px-3 py-1.5 pr-8 text-xs text-[#888] focus:outline-none focus:ring-1 focus:ring-[#00ff00] font-mono"
           >
             <option value="created">NEWEST</option>
@@ -62,9 +60,7 @@ export function IssueListHeader({
         </div>
 
         <button
-          onClick={() =>
-            onDirectionChange(sortDirection === 'desc' ? 'asc' : 'desc')
-          }
+          onClick={() => onDirectionChange(sortDirection === 'desc' ? 'asc' : 'desc')}
           className="p-1.5 text-[#666] hover:text-[#00ff00] hover:bg-[#1a1a1a] border border-transparent hover:border-[#333] transition-all"
           title={sortDirection === 'desc' ? 'Descending' : 'Ascending'}
         >

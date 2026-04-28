@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
-import { ChevronDown, X, Check, User } from 'lucide-react';
+import { Check, ChevronDown, User, X } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 import type { IssueUser } from '@/types/issue';
 
 interface UserFilterProps {
@@ -40,7 +40,7 @@ export function UserFilter({
   }, []);
 
   const filteredUsers = availableUsers.filter((user) =>
-    user.login.toLowerCase().includes(search.toLowerCase())
+    user.login.toLowerCase().includes(search.toLowerCase()),
   );
 
   const selectUser = (login: string | null) => {
@@ -95,9 +95,7 @@ export function UserFilter({
             >
               <div
                 className={`w-3.5 h-3.5 border flex items-center justify-center ${
-                  selectedUser === null
-                    ? 'bg-[#00ff00] border-[#00ff00]'
-                    : 'border-[#333]'
+                  selectedUser === null ? 'bg-[#00ff00] border-[#00ff00]' : 'border-[#333]'
                 }`}
               >
                 {selectedUser === null && <Check className="w-2.5 h-2.5 text-black font-black" />}
@@ -114,12 +112,12 @@ export function UserFilter({
               >
                 <div
                   className={`w-3.5 h-3.5 border flex items-center justify-center ${
-                    selectedUser === 'none'
-                      ? 'bg-[#00ff00] border-[#00ff00]'
-                      : 'border-[#333]'
+                    selectedUser === 'none' ? 'bg-[#00ff00] border-[#00ff00]' : 'border-[#333]'
                   }`}
                 >
-                  {selectedUser === 'none' && <Check className="w-2.5 h-2.5 text-black font-black" />}
+                  {selectedUser === 'none' && (
+                    <Check className="w-2.5 h-2.5 text-black font-black" />
+                  )}
                 </div>
                 <span className={selectedUser === 'none' ? 'text-[#00ff00]' : 'text-[#888]'}>
                   {noneLabel}
@@ -134,9 +132,7 @@ export function UserFilter({
                 loading_users...
               </div>
             ) : filteredUsers.length === 0 ? (
-              <div className="px-3 py-4 text-xs text-[#666] text-center italic">
-                no_users_found
-              </div>
+              <div className="px-3 py-4 text-xs text-[#666] text-center italic">no_users_found</div>
             ) : (
               filteredUsers.map((user) => {
                 const isSelected = selectedUser === user.login;
@@ -148,9 +144,7 @@ export function UserFilter({
                   >
                     <div
                       className={`w-3.5 h-3.5 border flex items-center justify-center ${
-                        isSelected
-                          ? 'bg-[#00ff00] border-[#00ff00]'
-                          : 'border-[#333]'
+                        isSelected ? 'bg-[#00ff00] border-[#00ff00]' : 'border-[#333]'
                       }`}
                     >
                       {isSelected && <Check className="w-2.5 h-2.5 text-black font-black" />}

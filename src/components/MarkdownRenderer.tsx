@@ -13,7 +13,12 @@ interface MarkdownImageProps {
  * Markdown-style image frame for embedding images in text
  * Usage: [image src="url" alt="description" maxWidth="300px"]
  */
-export function MarkdownImage({ src, alt = '', maxWidth = '300px', className = '' }: MarkdownImageProps) {
+export function MarkdownImage({
+  src,
+  alt = '',
+  maxWidth = '300px',
+  className = '',
+}: MarkdownImageProps) {
   return (
     <figure className={`inline-block my-2 mx-auto ${className}`}>
       <img
@@ -24,9 +29,7 @@ export function MarkdownImage({ src, alt = '', maxWidth = '300px', className = '
         loading="lazy"
       />
       {alt && (
-        <figcaption className="text-xs text-[#666] text-center mt-1 font-mono">
-          {alt}
-        </figcaption>
+        <figcaption className="text-xs text-[#666] text-center mt-1 font-mono">{alt}</figcaption>
       )}
     </figure>
   );
@@ -53,7 +56,8 @@ export function MarkdownRenderer({ content, className = '' }: MarkdownRendererPr
     let lastIndex = 0;
 
     // Pattern for [image ...]
-    const imagePattern = /\[image\s+src="([^"]+)"(?:\s+alt="([^"]*)")?(?:\s+maxWidth="([^"]*)")?\]/g;
+    const imagePattern =
+      /\[image\s+src="([^"]+)"(?:\s+alt="([^"]*)")?(?:\s+maxWidth="([^"]*)")?\]/g;
     let match;
 
     while ((match = imagePattern.exec(text)) !== null) {
@@ -69,7 +73,7 @@ export function MarkdownRenderer({ content, className = '' }: MarkdownRendererPr
           src={match[1]}
           alt={match[2] || ''}
           maxWidth={match[3] || '300px'}
-        />
+        />,
       );
 
       lastIndex = match.index + match[0].length;
@@ -85,7 +89,7 @@ export function MarkdownRenderer({ content, className = '' }: MarkdownRendererPr
 
   const formatText = (text: string): React.JSX.Element => {
     const parts: (string | React.JSX.Element)[] = [];
-    let lastIndex = 0;
+    const _lastIndex = 0;
 
     // Bold
     const boldRegex = /\*\*(.+?)\*\*|__(.+?)__/g;
@@ -139,7 +143,7 @@ export function MarkdownRenderer({ content, className = '' }: MarkdownRendererPr
       const overlaps = uniqueMatches.some(
         (m) =>
           (match.index >= m.index && match.index < m.end) ||
-          (match.end > m.index && match.end <= m.end)
+          (match.end > m.index && match.end <= m.end),
       );
       if (!overlaps) {
         uniqueMatches.push(match);
@@ -157,13 +161,13 @@ export function MarkdownRenderer({ content, className = '' }: MarkdownRendererPr
         parts.push(
           <strong key={`bold-${idx}-${match.index}`} className="font-bold">
             {match.text}
-          </strong>
+          </strong>,
         );
       } else if (match.type === 'italic') {
         parts.push(
           <em key={`italic-${idx}-${match.index}`} className="italic">
             {match.text}
-          </em>
+          </em>,
         );
       } else if (match.type === 'code') {
         parts.push(
@@ -172,7 +176,7 @@ export function MarkdownRenderer({ content, className = '' }: MarkdownRendererPr
             className="bg-[#1a1a1a] border border-[#333] px-1.5 py-0.5 rounded text-xs font-mono text-[#00ff00]"
           >
             {match.text}
-          </code>
+          </code>,
         );
       }
 
@@ -198,13 +202,15 @@ export function MarkdownRenderer({ content, className = '' }: MarkdownRendererPr
   const elements = parseMarkdown(content);
 
   return (
-    <div className={`prose prose-invert max-w-none text-sm text-[#ccc] leading-relaxed ${className}`}>
-      {elements.map((element, idx) => 
+    <div
+      className={`prose prose-invert max-w-none text-sm text-[#ccc] leading-relaxed ${className}`}
+    >
+      {elements.map((element, idx) =>
         typeof element === 'string' ? (
           <React.Fragment key={`element-${idx}`}>{element}</React.Fragment>
         ) : (
           <React.Fragment key={`element-${idx}`}>{element}</React.Fragment>
-        )
+        ),
       )}
     </div>
   );

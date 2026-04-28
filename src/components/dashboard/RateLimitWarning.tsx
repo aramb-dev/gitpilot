@@ -9,12 +9,7 @@ interface RateLimitWarningProps {
   onDismiss?: () => void;
 }
 
-export function RateLimitWarning({
-  remaining,
-  limit,
-  resetAt,
-  onDismiss,
-}: RateLimitWarningProps) {
+export function RateLimitWarning({ remaining, limit, resetAt, onDismiss }: RateLimitWarningProps) {
   const percentage = (remaining / limit) * 100;
   const isLow = remaining < 100;
   const isCritical = remaining < 10;
@@ -24,12 +19,12 @@ export function RateLimitWarning({
     const resetDate = new Date(resetAt * 1000);
     const now = new Date();
     const diffMs = resetDate.getTime() - now.getTime();
-    
+
     if (diffMs <= 0) return 'now';
-    
+
     const diffMins = Math.ceil(diffMs / 60000);
     if (diffMins < 60) return `${diffMins} minute${diffMins !== 1 ? 's' : ''}`;
-    
+
     const diffHours = Math.ceil(diffMins / 60);
     return `${diffHours} hour${diffHours !== 1 ? 's' : ''}`;
   };
@@ -41,9 +36,7 @@ export function RateLimitWarning({
   return (
     <div
       className={`border p-4 font-mono ${
-        isCritical
-          ? 'bg-red-900/10 border-red-900/50'
-          : 'bg-yellow-900/10 border-yellow-900/50'
+        isCritical ? 'bg-red-900/10 border-red-900/50' : 'bg-yellow-900/10 border-yellow-900/50'
       }`}
     >
       <div className="flex items-start gap-3">
@@ -52,9 +45,7 @@ export function RateLimitWarning({
             isCritical ? 'bg-red-900/30 border-red-900/50' : 'bg-yellow-900/30 border-yellow-900/50'
           }`}
         >
-          <AlertTriangle
-            className={`w-4 h-4 ${isCritical ? 'text-red-500' : 'text-yellow-500'}`}
-          />
+          <AlertTriangle className={`w-4 h-4 ${isCritical ? 'text-red-500' : 'text-yellow-500'}`} />
         </div>
         <div className="flex-1 min-w-0">
           <h4
@@ -73,9 +64,7 @@ export function RateLimitWarning({
           {/* Progress bar */}
           <div className="mt-3 h-1 bg-[#1a1a1a] border border-[#333]">
             <div
-              className={`h-full transition-all ${
-                isCritical ? 'bg-red-500' : 'bg-yellow-500'
-              }`}
+              className={`h-full transition-all ${isCritical ? 'bg-red-500' : 'bg-yellow-500'}`}
               style={{ width: `${Math.max(percentage, 1)}%` }}
             />
           </div>

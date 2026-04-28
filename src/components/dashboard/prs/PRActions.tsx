@@ -1,9 +1,9 @@
+import { ChevronDown, GitMerge, RotateCcw, Search, Settings, X } from 'lucide-react';
 import { useState } from 'react';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { GitMerge, X, RotateCcw, Settings, Search, ChevronDown } from 'lucide-react';
-import { toast } from 'sonner';
-import { PullRequest } from '@/types/pull-request';
+import type { PullRequest } from '@/types/pull-request';
 
 interface PRActionsProps {
   hasSelectedPRs: boolean;
@@ -40,7 +40,7 @@ export function PRActions({
     onSearch(query);
   };
 
-  const mergeableCount = selectedPRs.filter(pr => !pr.merged && pr.state === 'open').length;
+  const mergeableCount = selectedPRs.filter((pr) => !pr.merged && pr.state === 'open').length;
 
   return (
     <div className="space-y-4">
@@ -64,7 +64,8 @@ export function PRActions({
           <div className="relative inline-block">
             <button
               onClick={() => {
-                const newState = stateFilter === 'all' ? 'open' : stateFilter === 'open' ? 'closed' : 'all';
+                const newState =
+                  stateFilter === 'all' ? 'open' : stateFilter === 'open' ? 'closed' : 'all';
                 onStateChange(newState);
               }}
               className="px-3 py-1.5 text-xs font-mono bg-[#1a1a1a] border border-[#333] text-white hover:border-[#00ff00] transition-colors flex items-center gap-2 rounded"
@@ -77,7 +78,8 @@ export function PRActions({
           <div className="relative inline-block">
             <button
               onClick={() => {
-                const newDraft = draftFilter === 'all' ? 'draft' : draftFilter === 'draft' ? 'ready' : 'all';
+                const newDraft =
+                  draftFilter === 'all' ? 'draft' : draftFilter === 'draft' ? 'ready' : 'all';
                 onDraftChange(newDraft);
               }}
               className="px-3 py-1.5 text-xs font-mono bg-[#1a1a1a] border border-[#333] text-white hover:border-[#00ff00] transition-colors flex items-center gap-2 rounded"

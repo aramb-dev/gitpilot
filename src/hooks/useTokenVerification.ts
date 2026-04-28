@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
 import { signOut } from 'next-auth/react';
+import { useCallback, useEffect, useState } from 'react';
 import type { TokenVerificationResult } from '@/types/account';
 
 interface UseTokenVerificationOptions {
@@ -28,7 +28,7 @@ interface UseTokenVerificationReturn {
  * Calls /api/auth/verify on mount and optionally at intervals.
  */
 export function useTokenVerification(
-  options: UseTokenVerificationOptions = {}
+  options: UseTokenVerificationOptions = {},
 ): UseTokenVerificationReturn {
   const { interval = 0, autoSignOut = true, onInvalid } = options;
 
@@ -54,7 +54,7 @@ export function useTokenVerification(
 
       if (!data.valid) {
         setError(data.error ?? null);
-        
+
         if (onInvalid) {
           onInvalid(data.error);
         }

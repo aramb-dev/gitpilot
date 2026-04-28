@@ -1,7 +1,7 @@
 'use client';
 
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useMemo } from 'react';
-import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import type { IssueFilters } from '@/types/issue';
 
 export function useIssueFilters() {
@@ -22,7 +22,7 @@ export function useIssueFilters() {
     const search = searchParams.get('search');
 
     return {
-      state: (state === 'closed' || state === 'all') ? state : 'open',
+      state: state === 'closed' || state === 'all' ? state : 'open',
       labels: labels ? labels.split(',').filter(Boolean) : undefined,
       assignee: assignee || undefined,
       creator: creator || undefined,
@@ -82,14 +82,14 @@ export function useIssueFilters() {
       const queryString = params.toString();
       router.push(queryString ? `${pathname}?${queryString}` : pathname);
     },
-    [router, pathname]
+    [router, pathname],
   );
 
   const updateFilter = useCallback(
     <K extends keyof IssueFilters>(key: K, value: IssueFilters[K]) => {
       setFilters({ ...filters, [key]: value });
     },
-    [filters, setFilters]
+    [filters, setFilters],
   );
 
   const clearFilters = useCallback(() => {

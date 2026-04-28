@@ -1,12 +1,12 @@
-import { describe, it, expect, mock, beforeEach } from 'bun:test';
+import { beforeEach, describe, expect, it, mock } from 'bun:test';
+import type { GitHubIssueResponse, IssueRepository } from '@/types/issue';
 import {
+  buildIssueQueryParams,
+  fetchMultiRepoIssues,
+  fetchRepoIssues,
   normalizeIssue,
   parseLinkHeader,
-  buildIssueQueryParams,
-  fetchRepoIssues,
-  fetchMultiRepoIssues,
 } from './issues';
-import type { GitHubIssueResponse, IssueRepository } from '@/types/issue';
 
 const mockRepoInfo: IssueRepository = {
   id: 1,
@@ -129,8 +129,7 @@ describe('parseLinkHeader', () => {
   });
 
   it('parses next page', () => {
-    const header =
-      '<https://api.github.com/repos/owner/repo/issues?page=2>; rel="next"';
+    const header = '<https://api.github.com/repos/owner/repo/issues?page=2>; rel="next"';
     const result = parseLinkHeader(header);
     expect(result.next).toBe(2);
   });
@@ -191,8 +190,7 @@ describe('buildIssueQueryParams', () => {
 });
 
 describe('fetchRepoIssues', () => {
-  beforeEach(() => {
-  });
+  beforeEach(() => {});
 
   it('fetches and normalizes issues', async () => {
     const mockFetch = mock(() =>
@@ -200,7 +198,7 @@ describe('fetchRepoIssues', () => {
         ok: true,
         json: () => Promise.resolve([mockGitHubIssue]),
         headers: new Headers(),
-      })
+      }),
     ) as any;
     global.fetch = mockFetch as any;
 
@@ -218,7 +216,7 @@ describe('fetchRepoIssues', () => {
         ok: true,
         json: () => Promise.resolve([mockGitHubIssue, prIssue]),
         headers: new Headers(),
-      })
+      }),
     ) as any;
     global.fetch = mockFetch as any;
 
@@ -229,17 +227,14 @@ describe('fetchRepoIssues', () => {
 
   it('parses pagination from Link header', async () => {
     const headers = new Headers();
-    headers.set(
-      'Link',
-      '<https://api.github.com/repos/owner/repo/issues?page=2>; rel="next"'
-    );
+    headers.set('Link', '<https://api.github.com/repos/owner/repo/issues?page=2>; rel="next"');
 
     const mockFetch = mock(() =>
       Promise.resolve({
         ok: true,
         json: () => Promise.resolve([mockGitHubIssue]),
         headers,
-      })
+      }),
     ) as any;
     global.fetch = mockFetch as any;
 
@@ -255,19 +250,16 @@ describe('fetchRepoIssues', () => {
         ok: false,
         status: 404,
         json: () => Promise.resolve({ message: 'Not Found' }),
-      })
+      }),
     ) as any;
     global.fetch = mockFetch as any;
 
-    await expect(fetchRepoIssues('token', 'owner', 'repo')).rejects.toThrow(
-      'Not Found'
-    );
+    await expect(fetchRepoIssues('token', 'owner', 'repo')).rejects.toThrow('Not Found');
   });
 });
 
 describe('fetchMultiRepoIssues', () => {
-  beforeEach(() => {
-  });
+  beforeEach(() => {});
 
   it('returns empty array for no repos', async () => {
     const result = await fetchMultiRepoIssues('token', []);
@@ -290,10 +282,7 @@ describe('fetchMultiRepoIssues', () => {
     }) as any;
     global.fetch = mockFetch as any;
 
-    const result = await fetchMultiRepoIssues('token', [
-      'owner/repo1',
-      'owner/repo2',
-    ]);
+    const result = await fetchMultiRepoIssues('token', ['owner/repo1', 'owner/repo2']);
 
     expect(result.issues).toHaveLength(2);
   });
@@ -317,10 +306,7 @@ describe('fetchMultiRepoIssues', () => {
     }) as any;
     global.fetch = mockFetch as any;
 
-    const result = await fetchMultiRepoIssues('token', [
-      'owner/repo1',
-      'owner/repo2',
-    ]);
+    const result = await fetchMultiRepoIssues('token', ['owner/repo1', 'owner/repo2']);
 
     expect(result.issues).toHaveLength(1);
   });
@@ -334,15 +320,11 @@ describe('fetchMultiRepoIssues', () => {
         ok: true,
         json: () => Promise.resolve([issue1, issue2]),
         headers: new Headers(),
-      })
+      }),
     ) as any;
     global.fetch = mockFetch as any;
 
-    const result = await fetchMultiRepoIssues(
-      'token',
-      ['owner/repo'],
-      { search: 'bug' }
-    );
+    const result = await fetchMultiRepoIssues('token', ['owner/repo'], { search: 'bug' });
 
     expect(result.issues).toHaveLength(1);
     expect(result.issues[0].title).toBe('Bug in login');

@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import type { FilterPreset, FilterConfig, PresetContext } from '@/db/filter-presets';
+import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import type { FilterConfig, FilterPreset, PresetContext } from '@/db/filter-presets';
 
 export function useFilterPresets(context?: PresetContext) {
   const [presets, setPresets] = useState<FilterPreset[]>([]);
@@ -12,9 +12,7 @@ export function useFilterPresets(context?: PresetContext) {
   const fetchPresets = useCallback(async () => {
     setIsLoading(true);
     try {
-      const url = context 
-        ? `/api/filter-presets?context=${context}` 
-        : '/api/filter-presets';
+      const url = context ? `/api/filter-presets?context=${context}` : '/api/filter-presets';
       const response = await fetch(url);
       if (!response.ok) {
         throw new Error('Failed to fetch filter presets');
@@ -24,7 +22,6 @@ export function useFilterPresets(context?: PresetContext) {
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Unknown error'));
-      console.error('Error fetching presets:', err);
     } finally {
       setIsLoading(false);
     }
@@ -34,7 +31,12 @@ export function useFilterPresets(context?: PresetContext) {
     fetchPresets();
   }, [fetchPresets]);
 
-  const savePreset = async (name: string, filters: FilterConfig, isDefault = false, presetContext?: PresetContext) => {
+  const savePreset = async (
+    name: string,
+    filters: FilterConfig,
+    isDefault = false,
+    presetContext?: PresetContext,
+  ) => {
     const finalContext = presetContext || context;
     if (!finalContext) {
       toast.error('Context is required to save a preset');
@@ -82,7 +84,10 @@ export function useFilterPresets(context?: PresetContext) {
     }
   };
 
-  const updatePreset = async (id: string, updates: Partial<Pick<FilterPreset, 'name' | 'filters' | 'isDefault' | 'context'>>) => {
+  const updatePreset = async (
+    id: string,
+    updates: Partial<Pick<FilterPreset, 'name' | 'filters' | 'isDefault' | 'context'>>,
+  ) => {
     try {
       const response = await fetch('/api/filter-presets', {
         method: 'PATCH',

@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
-import { AlertTriangle, LogOut, ExternalLink } from 'lucide-react';
+import { AlertTriangle, ExternalLink, LogOut } from 'lucide-react';
 import { signOut } from 'next-auth/react';
+import { useState } from 'react';
 
 export function AccountDangerZone() {
   const [isSigningOut, setIsSigningOut] = useState(false);

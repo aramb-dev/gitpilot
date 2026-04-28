@@ -1,4 +1,4 @@
-import { describe, it, expect, mock, beforeEach } from 'bun:test';
+import { beforeEach, describe, expect, it, mock } from 'bun:test';
 import { POST } from './route';
 
 const mockSession = {
@@ -20,13 +20,12 @@ mock.module('@/lib/github/issue-operations', () => ({
         { issue: { owner: 'owner', repo: 'repo', number: 1 }, success: true },
         { issue: { owner: 'owner', repo: 'repo', number: 2 }, success: true },
       ],
-    })
+    }),
   ),
 }));
 
 describe('Bulk Issues API Route', () => {
-  beforeEach(() => {
-  });
+  beforeEach(() => {});
 
   it('should execute bulk close action', async () => {
     mock.module('@/lib/auth', () => ({
@@ -40,7 +39,7 @@ describe('Bulk Issues API Route', () => {
           succeeded: 2,
           failed: 0,
           results: [],
-        })
+        }),
       ),
     }));
 

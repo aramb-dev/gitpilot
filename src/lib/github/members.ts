@@ -2,10 +2,10 @@
  * GitHub Organization Member utilities.
  */
 
-import { GITHUB_API_BASE, createGitHubHeaders, fetchWithBackoff } from "./client";
-import { fetchAllPages } from "./pagination";
-import type { GitHubUser } from "@/types/github";
-import type { OrganizationMember, MemberInvitation } from "@/types/member";
+import type { GitHubUser } from '@/types/github';
+import type { MemberInvitation, OrganizationMember } from '@/types/member';
+import { createGitHubHeaders, fetchWithBackoff, GITHUB_API_BASE } from './client';
+import { fetchAllPages } from './pagination';
 
 /**
  * Fetches all members of an organization.
@@ -13,7 +13,7 @@ import type { OrganizationMember, MemberInvitation } from "@/types/member";
 export async function fetchOrgMembers(
   accessToken: string,
   org: string,
-  params: { role?: 'all' | 'admin' | 'member'; userId?: string } = {}
+  params: { role?: 'all' | 'admin' | 'member'; userId?: string } = {},
 ): Promise<OrganizationMember[]> {
   const headers = createGitHubHeaders(accessToken);
   const { userId } = params;
@@ -21,7 +21,9 @@ export async function fetchOrgMembers(
   const query = role ? `?role=${role}&per_page=100` : `?per_page=100`;
   const url = `${GITHUB_API_BASE}/orgs/${org}/members${query}`;
 
-  const rawMembersResult = await fetchAllPages<GitHubUser & { role?: string }>(url, headers, { userId });
+  const rawMembersResult = await fetchAllPages<GitHubUser & { role?: string }>(url, headers, {
+    userId,
+  });
   const rawMembers = rawMembersResult.data;
 
   // Note: /orgs/{org}/members does NOT return the role in the list.
@@ -50,7 +52,7 @@ export async function fetchOrgMembers(
 export async function fetchOrgInvitations(
   accessToken: string,
   org: string,
-  userId?: string
+  userId?: string,
 ): Promise<MemberInvitation[]> {
   const headers = createGitHubHeaders(accessToken);
   const url = `${GITHUB_API_BASE}/orgs/${org}/invitations?per_page=100`;
@@ -80,20 +82,28 @@ export async function removeOrgMember(
   accessToken: string,
   org: string,
   username: string,
-  userId?: string
+  userId?: string,
 ): Promise<{ success: boolean; error?: string }> {
   const headers = createGitHubHeaders(accessToken);
   const url = `${GITHUB_API_BASE}/orgs/${org}/members/${username}`;
 
   try {
-    const res = await fetchWithBackoff(url, {
-      method: 'DELETE',
-      headers,
-    }, 3, userId);
+    const res = await fetchWithBackoff(
+      url,
+      {
+        method: 'DELETE',
+        headers,
+      },
+      3,
+      userId,
+    );
 
     if (!res.ok && res.status !== 204) {
       const data = await res.json().catch(() => ({}));
-      return { success: false, error: data.message || `Failed to remove member: ${res.statusText}` };
+      return {
+        success: false,
+        error: data.message || `Failed to remove member: ${res.statusText}`,
+      };
     }
 
     return { success: true };
@@ -110,17 +120,22 @@ export async function updateOrgMemberRole(
   org: string,
   username: string,
   role: 'admin' | 'member',
-  userId?: string
+  userId?: string,
 ): Promise<{ success: boolean; error?: string }> {
   const headers = createGitHubHeaders(accessToken);
   const url = `${GITHUB_API_BASE}/orgs/${org}/memberships/${username}`;
 
   try {
-    const res = await fetchWithBackoff(url, {
-      method: 'PUT',
-      headers,
-      body: JSON.stringify({ role }),
-    }, 3, userId);
+    const res = await fetchWithBackoff(
+      url,
+      {
+        method: 'PUT',
+        headers,
+        body: JSON.stringify({ role }),
+      },
+      3,
+      userId,
+    );
 
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));

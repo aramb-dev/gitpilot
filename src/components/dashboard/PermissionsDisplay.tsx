@@ -1,7 +1,7 @@
 'use client';
 
+import { Check, ExternalLink, Shield } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { Shield, ExternalLink, Check } from 'lucide-react';
 import { SCOPE_DESCRIPTIONS } from '@/types/account';
 
 interface PermissionsDisplayProps {
@@ -63,9 +63,7 @@ export function PermissionsDisplay({ initialScopes }: PermissionsDisplayProps) {
               <Check className="w-4 h-4 text-[#00ff00] mt-0.5 flex-shrink-0" />
               <div>
                 <code className="text-sm text-[#00ff00] font-mono">{scope}</code>
-                <p className="text-sm text-[#666]">
-                  {SCOPE_DESCRIPTIONS[scope] || 'custom_scope'}
-                </p>
+                <p className="text-sm text-[#666]">{SCOPE_DESCRIPTIONS[scope] || 'custom_scope'}</p>
               </div>
             </div>
           ))}

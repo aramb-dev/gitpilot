@@ -1,38 +1,41 @@
 # GitPilot
 
-## Bulk GitHub Repository Management Made Easy
+## Bulk GitHub Management Made Easy
 
-GitPilot is an efficient, bulk management solution for GitHub repositories. It allows developers and organizations to perform repository operations at scale, saving valuable time and streamlining GitHub workflows.
-
-![GitPilot Banner](https://placeholder-for-gitpilot-banner.com)
+GitPilot is a powerful bulk management tool for GitHub repositories, issues, pull requests, and organization members. Built for developers and teams who need to perform operations at scale.
 
 ## 🚀 Features
 
-- **Bulk Visibility Management**: Change multiple repositories from public to private (or vice versa) with just a few clicks
-- **Bulk Repository Deletion**: Clean up your GitHub account by removing multiple repositories at once
-- **Smart Filtering**: Find exactly what you need with powerful search and filtering options
-- **Intuitive Interface**: Manage everything from a single, elegant dashboard
+- **Bulk Repository Management**: Change visibility, archive, or delete multiple repos at once
+- **Bulk Issue Management**: Close/reopen issues, manage labels and assignees in bulk
+- **Bulk Pull Request Management**: Merge, close, or update PRs across repositories
+- **Organization Member Management**: Invite, remove, and update member roles
+- **Smart Filtering & Search**: Find exactly what you need with powerful filters and saved presets
+- **Audit Logging**: Track all bulk operations for accountability
+- **GitHub OAuth**: Secure, seamless authentication with your existing GitHub account
 
 ## ✨ Why GitPilot?
 
-Managing GitHub repositories one by one can be tedious and time-consuming, especially for users and organizations with numerous repositories. GitPilot solves this problem by providing bulk operations with a user-friendly interface.
+Managing GitHub resources one by one is tedious and time-consuming. GitPilot provides bulk operations through an intuitive interface—saving hours of manual work for developers with dozens of repositories or teams managing org-wide resources.
 
 ## 💻 Tech Stack
 
-- **Frontend**: React with ShadCN UI components
-- **Authentication**: Firebase Authentication with GitHub OAuth
-- **State Management**: Zustand
-- **API Integration**: GitHub API
-- **Hosting**: Netlify
+- **Framework**: Next.js 16 (App Router)
+- **Runtime**: React 19 + TypeScript
+- **Styling**: Tailwind CSS 4 + Radix UI primitives
+- **Authentication**: NextAuth.js with GitHub OAuth
+- **Database**: Neon Postgres + Drizzle ORM
+- **Package Manager**: Bun
+- **Linting**: Biome
+- **Testing**: Vitest + Playwright
 
 ## 🔑 Getting Started
 
 ### Prerequisites
 
-- Node.js (v16 or later)
-- npm or yarn
+- [Bun](https://bun.sh/) (v1.0+)
 - GitHub account
-- Firebase account (for development)
+- Neon database (free tier works)
 
 ### Installation
 
@@ -46,52 +49,72 @@ Managing GitHub repositories one by one can be tedious and time-consuming, espec
 2. Install dependencies:
 
    ```bash
-   npm install
-   # or
-   yarn install
+   bun install
    ```
 
 3. Set up environment variables:
-   Create a `.env` file in the root directory with the following variables:
+   Create a `.env.local` file in the root directory:
 
    ```
-   REACT_APP_FIREBASE_API_KEY=your_firebase_api_key
-   REACT_APP_FIREBASE_AUTH_DOMAIN=your_firebase_auth_domain
-   REACT_APP_FIREBASE_PROJECT_ID=your_firebase_project_id
-   REACT_APP_GITHUB_CLIENT_ID=your_github_oauth_client_id
+   DATABASE_URL=your_neon_connection_string
+   NEXTAUTH_SECRET=random_secret_string
+   NEXTAUTH_URL=http://localhost:3000
+   GITHUB_CLIENT_ID=your_github_oauth_app_id
+   GITHUB_CLIENT_SECRET=your_github_oauth_app_secret
    ```
 
-4. Start the development server:
+4. Set up the database:
    ```bash
-   npm start
-   # or
-   yarn start
+   bun run db:push
+   ```
+
+5. Start the development server:
+   ```bash
+   bun run dev
    ```
 
 ## 📊 Project Structure
 
 ```
-gitpilot-app/
-├── public/             # Static assets
-├── src/                # Main application source code
-│   ├── assets/         # Static assets (images, fonts, icons)
-│   ├── components/     # Reusable UI components
+gitpilot/
+├── src/
+│   ├── app/            # Next.js App Router pages and API routes
+│   ├── components/     # React components (UI, dashboard, landing)
+│   ├── db/             # Database schema, migrations, and utilities
 │   ├── hooks/          # Custom React hooks
-│   ├── pages/          # Page-level components
-│   ├── routes/         # Routing configuration
-│   ├── services/       # API interaction logic
-│   ├── store/          # Global state management
-│   ├── styles/         # Global styles, themes
-│   ├── types/          # TypeScript type definitions
-│   ├── utils/          # Utility functions and helpers
-│   ├── App.jsx         # Root application component
-│   └── index.jsx       # Application entry point
+│   ├── lib/            # Shared utilities and helpers
+│   └── types/          # TypeScript type definitions
+├── docs/               # Documentation and planning
+├── specs/              # Feature specifications
+├── public/             # Static assets
 └── ... (config files)
 ```
 
 ## 🔄 Deployment
 
-GitPilot is configured for easy deployment to Netlify. Simply connect your GitHub repository to Netlify for continuous deployment.
+GitPilot can be deployed to any platform supporting Next.js:
+
+```bash
+bun run build
+bun run start
+```
+
+### Database Commands
+
+- `bun run db:generate` - Generate migrations
+- `bun run db:migrate` - Run migrations
+- `bun run db:push` - Push schema changes
+- `bun run db:studio` - Open Drizzle Studio
+
+### Verification
+
+Before committing, run:
+
+```bash
+bun run lint
+bunx tsc --noEmit
+bun run build
+```
 
 ## 🛠️ Contributing
 
@@ -110,9 +133,11 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## 🙏 Acknowledgements
 
 - [GitHub API](https://docs.github.com/en/rest)
-- [React](https://reactjs.org/)
-- [Firebase](https://firebase.google.com/)
-- [ShadCN UI](https://ui.shadcn.com/)
+- [Next.js](https://nextjs.org/)
+- [NextAuth.js](https://next-auth.js.org/)
+- [Neon](https://neon.tech/)
+- [Drizzle ORM](https://orm.drizzle.team/)
+- [Radix UI](https://www.radix-ui.com/)
 
 ---
 

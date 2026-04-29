@@ -9,7 +9,7 @@ import type {
   IssueRepository,
   IssuesListResponse,
 } from '@/types/issue';
-import { createGitHubHeaders, fetchWithBackoff } from './client';
+import { createGitHubHeaders, fetchGitHub, fetchWithBackoff } from './client';
 
 const GITHUB_API_BASE = 'https://api.github.com';
 

@@ -4,12 +4,12 @@ import {
   ArrowRight,
   Clock,
   GitBranch,
-  Github,
   Layers,
   Monitor,
   MousePointer2,
   Shield,
 } from 'lucide-react';
+import { GithubIcon as Github } from '@/components/ui/icons';
 import Link from 'next/link';
 import { signIn } from 'next-auth/react';
 import {

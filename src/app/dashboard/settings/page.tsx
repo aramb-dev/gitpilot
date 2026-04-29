@@ -1,6 +1,7 @@
 'use client';
 
-import { AlertTriangle, Bell, CreditCard, Github, Shield, User } from 'lucide-react';
+import { AlertTriangle, Bell, CreditCard, Shield, User } from 'lucide-react';
+import { GithubIcon as Github } from '@/components/ui/icons';
 import { useState } from 'react';
 import { AccountDangerZone } from '@/components/dashboard/AccountDangerZone';
 import { AccountProfile } from '@/components/dashboard/AccountProfile';

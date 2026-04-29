@@ -4,6 +4,7 @@
  */
 
 import type { RateLimitInfo } from '@/types/api-errors';
+import { getCached, setCache } from '@/db/cache';
 import { logApiMetric } from '../metrics';
 
 const GITHUB_API_VERSION = '2022-11-28';

@@ -115,17 +115,3 @@ export function Sidebar({ sidebarItems }: SidebarProps) {
     </aside>
   );
 }
-userEmail}</p> : null}
-            <button
-              type="button"
-              onClick={() => void handleSignOut('/')}
-              className="text-xs text-[#666] hover:text-red-500 transition"
-            >
-              &gt; exit
-            </button>
-          </div>
-        </div>
-      </div>
-    </aside>
-  );
-}

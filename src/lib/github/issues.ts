@@ -9,7 +9,7 @@ import type {
   IssueRepository,
   IssuesListResponse,
 } from '@/types/issue';
-import { createGitHubHeaders, fetchWithBackoff } from './client';
+import { createGitHubHeaders, fetchGitHub, fetchWithBackoff } from './client';
 
 const GITHUB_API_BASE = 'https://api.github.com';
 
@@ -173,9 +173,9 @@ export async function fetchRepoIssues(
   };
 
   // Filter out pull requests (GitHub returns PRs in issues endpoint)
-  const issuesOnly = rawIssues.filter((issue) => !('pull_request' in issue));
+  const issuesOnly = rawIssues.filter((issue: GitHubIssueResponse) => !('pull_request' in issue));
 
-  const issues = issuesOnly.map((raw) => normalizeIssue(raw, repoInfo));
+  const issues = issuesOnly.map((raw: GitHubIssueResponse) => normalizeIssue(raw, repoInfo));
 
   return {
     issues,

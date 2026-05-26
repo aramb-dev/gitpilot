@@ -1,6 +1,17 @@
+import { motion } from 'framer-motion';
 import { Checkbox } from '@/components/ui/checkbox';
 import type { Repository } from '@/types/dashboard';
 import { RepositoryCard } from './RepositoryCard';
+
+const container = {
+  hidden: { opacity: 0 },
+  show: { opacity: 1, transition: { staggerChildren: 0.05 } },
+};
+
+const item = {
+  hidden: { opacity: 0, y: 8 },
+  show: { opacity: 1, y: 0 },
+};
 
 interface RepositoryCardGridProps {
   repositories: Repository[];
@@ -52,13 +63,6 @@ export function RepositoryCardGrid({
         </motion.div>
       ) : (
         <div className="p-12 text-center text-[#666] font-mono border border-[#333] bg-[#0d0d0d] rounded-lg">
-          no repositories found
-        </div>
-      )}
-    </div>
-  );
-}
-g">
           no repositories found
         </div>
       )}

@@ -185,14 +185,14 @@ export default function Home() {
                 {
                   icon: Clock,
                   title: 'SCHEDULED',
-                  desc: 'Set recurring jobs with visual scheduler UI.',
-                  code: 'Cron UI • One-click setup',
+                  desc: '[Roadmap] Set recurring jobs with a visual scheduler UI. Not yet available.',
+                  code: 'status: roadmap',
                 },
                 {
                   icon: ArrowRight,
-                  title: 'CLI_SOON',
-                  desc: 'Command-line interface coming soon for power users.',
-                  code: 'Coming soon • Join waitlist',
+                  title: 'CLI_INTERFACE',
+                  desc: '[Roadmap] Command-line interface for power users who live in the terminal.',
+                  code: 'status: roadmap',
                 },
               ].map((feature, i) => (
                 <div
@@ -237,7 +237,7 @@ export default function Home() {
                 },
                 {
                   q: 'cli_available',
-                  a: 'soon. CLI is in development. Join waitlist for early access when it launches.',
+                  a: 'roadmap. CLI is planned but not yet built. Star the repo on GitHub to follow progress.',
                 },
               ].map((item, i) => (
                 <AccordionItem
@@ -258,18 +258,18 @@ export default function Home() {
           </div>
         </section>
 
-        {/* CLI Coming Soon Banner */}
+        {/* Roadmap Banner */}
         <section className="py-16 border-y border-[#1a1a1a] bg-[#0d0d0d]">
           <div className="container mx-auto px-6 text-center">
             <p className="text-[#666] text-sm mb-4">/* ROADMAP */</p>
             <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
-              <span className="text-[#00ff00]">&gt;</span> CLI_INTERFACE
+              <span className="text-[#00ff00]">&gt;</span> UPCOMING_FEATURES
               <span className="text-[#666]">: </span>
-              <span className="text-yellow-500">DEV_IN_PROGRESS</span>
+              <span className="text-yellow-500">PLANNED</span>
             </h2>
             <p className="text-[#888] max-w-lg mx-auto">
-              Power user? We're building a full-featured CLI. Join the waitlist to be notified when
-              it launches.
+              CLI interface and scheduled bulk operations are on the roadmap. Star the repo on GitHub
+              to follow progress.
             </p>
           </div>
         </section>

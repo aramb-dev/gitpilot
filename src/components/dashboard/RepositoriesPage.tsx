@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import type { RepoFilters } from '@/db/filter-presets';
 import { useBulkRepoActions } from '@/hooks/useBulkRepoActions';
 import { usePreferences } from '@/hooks/usePreferences';
+import { useGlobalSearch } from '@/lib/global-search';
 import type { ApiResponse } from '@/types/api-errors';
 import type { Repository } from '@/types/dashboard';
 import { type BulkItemStatus, BulkOperationModal } from './BulkOperationModal';
@@ -20,6 +21,7 @@ interface RepositoriesPageProps {
 
 export function RepositoriesPage({ repositories: initialRepositories }: RepositoriesPageProps) {
   const { preferences } = usePreferences();
+  const { query: globalQuery } = useGlobalSearch();
   const [repositories, setRepositories] = useState<Repository[]>(initialRepositories ?? []);
   const [isLoading, setIsLoading] = useState(!initialRepositories);
   const [error, setError] = useState<string | null>(null);
@@ -30,6 +32,12 @@ export function RepositoriesPage({ repositories: initialRepositories }: Reposito
   const [languageFilter, setLanguageFilter] = useState('all');
   const [sortValue, setSortValue] = useState('updated');
   const [currentPage, setCurrentPage] = useState(1);
+
+  // Sync global search into local search state
+  useEffect(() => {
+    setSearchQuery(globalQuery);
+    setCurrentPage(1);
+  }, [globalQuery]);
 
   // Modal states
   const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false);
